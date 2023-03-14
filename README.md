@@ -1,0 +1,1 @@
+# TS3AudioBot-NetEaseCloudmusic-plugin
