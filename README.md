@@ -3,7 +3,7 @@
 >以及网易云音乐 API开发https://github.com/Binaryify/NeteaseCloudMusicApi  
 >若是想要使用此插件，请先根据这两个项目的wiki安装到ts服务器本地(测试过windows系统没有问题，不保证linux是否运行正常)  
 此插件安装方法同样见TS3AudioBot项目wiki  
-目前TS3AudioBot被集成到压缩文件中，但是任然需要自行安装网易云音乐API
+**目前TS3AudioBot被集成到压缩文件中，但是任然需要自行安装网易云音乐API**  
 **最好给音乐机器人超管权限保证能正常更新头像和描述**  
 
 ## 目前的指令：
