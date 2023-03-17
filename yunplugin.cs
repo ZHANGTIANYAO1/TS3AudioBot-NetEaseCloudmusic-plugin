@@ -1662,7 +1662,7 @@ public class SubscribersItem
     /// <summary>
     /// 
     /// </summary>
-    public int userId { get; set; }
+    public long userId { get; set; }
     /// <summary>
     /// 
     /// </summary>
@@ -1806,7 +1806,7 @@ public class Creators
     /// <summary>
     /// 
     /// </summary>
-    public int userId { get; set; }
+    public long userId { get; set; }
     /// <summary>
     /// 
     /// </summary>
@@ -2174,7 +2174,7 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public int userId { get; set; }
+    public long userId { get; set; }
     /// <summary>
     /// 
     /// </summary>
@@ -3279,7 +3279,7 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
     }
 
     [Command("yun gedan")]
-    public async Task<string> CommandGedan(string name, PlaylistManager playlistManager, ResolveContext resourceFactory, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+    public async Task<string> CommandGedan(string name, PlaylistManager playlistManager, ResolveContext resourceFactory, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
     {
         string urlSearch = "http://localhost:3000/search?keywords=" + name + "&limit=1&type=1000";
         string json = HttpGet(urlSearch);
@@ -3309,6 +3309,31 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         await MainCommands.CommandPlay(playManager, invoker, musicurl);
         return ("开始播放歌单");
     }
+
+    [Command("yun next")]
+    public async Task<string> CommandYunNext(PlaylistManager playlistManager, ResolveContext resourceFactory, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+    {
+        if (playManager.IsPlaying && SongQueue.Count >= 1)
+        {
+            await playManager.Stop();
+            if (SongQueue.Count == 0)
+            {
+                return("播放列表为空");
+            }
+            string nextsong = SongQueue.Dequeue();
+            Console.WriteLine(SongQueue.Count().ToString());
+            Console.WriteLine(nextsong);
+            string musicurl = getMusicUrl(nextsong, true);
+            await MainCommands.CommandPlay(playManager, invoker, musicurl);
+            return ("开始播放下一首音乐");
+        }
+        else
+        {
+            return("无法播放下一首音乐");
+        }
+    }
+
+
 
     public static string getMusicUrl(long id, bool usingcookie = false)
     {
