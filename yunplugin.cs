@@ -2788,10 +2788,11 @@ public class SongsItem1
     /// 
     /// </summary>
     public Sq1 sq { get; set; }
+
     /// <summary>
     /// 
     /// </summary>
-    public string hr { get; set; }
+    public string? hr;
     /// <summary>
     /// 
     /// </summary>
