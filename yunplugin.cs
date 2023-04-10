@@ -13,49 +13,49 @@ using TS3AudioBot.Plugins;
 using TS3AudioBot.ResourceFactories;
 using TS3AudioBot.Sessions;
 using TSLib.Full;
-
+//{ get; set; }
 public class ArtistsItem
 {
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public string picUrl { get; set; }
+    public string picUrl;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> @alias { get; set; }
+    public List<string> @alias;
     /// <summary>
     /// 
     /// </summary>
-    public long albumSize { get; set; }
+    public long albumSize;
     /// <summary>
     /// 
     /// </summary>
-    public long picId { get; set; }
+    public long picId;
     /// <summary>
     /// 
     /// </summary>
-    public string fansGroup { get; set; }
+    public string fansGroup;
     /// <summary>
     /// 
     /// </summary>
-    public string img1v1Url { get; set; }
+    public string img1v1Url;
     /// <summary>
     /// 
     /// </summary>
-    public long img1v1 { get; set; }
+    public long img1v1;
     /// <summary>
     /// 
     /// </summary>
-    public string trans { get; set; }
+    public string trans;
 }
 
 public class Artist
@@ -63,43 +63,43 @@ public class Artist
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public string picUrl { get; set; }
+    public string picUrl;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> @alias { get; set; }
+    public List<string> @alias;
     /// <summary>
     /// 
     /// </summary>
-    public long albumSize { get; set; }
+    public long albumSize;
     /// <summary>
     /// 
     /// </summary>
-    public long picId { get; set; }
+    public long picId;
     /// <summary>
     /// 
     /// </summary>
-    public string fansGroup { get; set; }
+    public string fansGroup;
     /// <summary>
     /// 
     /// </summary>
-    public string img1v1Url { get; set; }
+    public string img1v1Url;
     /// <summary>
     /// 
     /// </summary>
-    public long img1v1 { get; set; }
+    public long img1v1;
     /// <summary>
     /// 
     /// </summary>
-    public string trans { get; set; }
+    public string trans;
 }
 
 public class Album
@@ -107,39 +107,39 @@ public class Album
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 海阔天空
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public Artist artist { get; set; }
+    public Artist artist;
     /// <summary>
     /// 
     /// </summary>
-    public long publishTime { get; set; }
+    public long publishTime;
     /// <summary>
     /// 
     /// </summary>
-    public long size { get; set; }
+    public long size;
     /// <summary>
     /// 
     /// </summary>
-    public long copyrightId { get; set; }
+    public long copyrightId;
     /// <summary>
     /// 
     /// </summary>
-    public long status { get; set; }
+    public long status;
     /// <summary>
     /// 
     /// </summary>
-    public long picId { get; set; }
+    public long picId;
     /// <summary>
     /// 
     /// </summary>
-    public long mark { get; set; }
+    public long mark;
 }
 
 public class SongsItem
@@ -155,51 +155,51 @@ public class SongsItem
     /// <summary>
     /// 
     /// </summary>
-    public List<ArtistsItem> artists { get; set; }
+    public List<ArtistsItem> artists;
     /// <summary>
     /// 
     /// </summary>
-    public Album album { get; set; }
+    public Album album;
     /// <summary>
     /// 
     /// </summary>
-    public long duration { get; set; }
+    public long duration;
     /// <summary>
     /// 
     /// </summary>
-    public long copyrightId { get; set; }
+    public long copyrightId;
     /// <summary>
     /// 
     /// </summary>
-    public long status { get; set; }
+    public long status;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> @alias { get; set; }
+    public List<string> @alias;
     /// <summary>
     /// 
     /// </summary>
-    public long rtype { get; set; }
+    public long rtype;
     /// <summary>
     /// 
     /// </summary>
-    public long ftype { get; set; }
+    public long ftype;
     /// <summary>
     /// 
     /// </summary>
-    public long mvid { get; set; }
+    public long mvid;
     /// <summary>
     /// 
     /// </summary>
-    public long fee { get; set; }
+    public long fee;
     /// <summary>
     /// 
     /// </summary>
-    public string rUrl { get; set; }
+    public string rUrl;
     /// <summary>
     /// 
     /// </summary>
-    public long mark { get; set; }
+    public long mark;
 }
 
 public class Result
@@ -211,11 +211,11 @@ public class Result
     /// <summary>
     /// 
     /// </summary>
-    public bool hasMore { get; set; }
+    public bool hasMore;
     /// <summary>
     /// 
     /// </summary>
-    public long songCount { get; set; }
+    public long songCount;
 }
 
 public class yunSearchSong
@@ -227,7 +227,7 @@ public class yunSearchSong
     /// <summary>
     /// 
     /// </summary>
-    public long code { get; set; }
+    public long code;
 }
 
 public class FreeTrialInfo
@@ -235,11 +235,11 @@ public class FreeTrialInfo
     /// <summary>
     /// 
     /// </summary>
-    public long start { get; set; }
+    public long start;
     /// <summary>
     /// 
     /// </summary>
-    public long end { get; set; }
+    public long end;
 }
 
 public class FreeTrialPrivilege
@@ -247,15 +247,15 @@ public class FreeTrialPrivilege
     /// <summary>
     /// 
     /// </summary>
-    public bool resConsumable { get; set; }
+    public bool resConsumable;
     /// <summary>
     /// 
     /// </summary>
-    public bool userConsumable { get; set; }
+    public bool userConsumable;
     /// <summary>
     /// 
     /// </summary>
-    public string listenType { get; set; }
+    public string listenType;
     /// <summary>
     /// 
     /// </summary>
@@ -267,19 +267,19 @@ public class FreeTimeTrialPrivilege
     /// <summary>
     /// 
     /// </summary>
-    public bool resConsumable { get; set; }
+    public bool resConsumable;
     /// <summary>
     /// 
     /// </summary>
-    public bool userConsumable { get; set; }
+    public bool userConsumable;
     /// <summary>
     /// 
     /// </summary>
-    public long type { get; set; }
+    public long type;
     /// <summary>
     /// 
     /// </summary>
-    public long remalongime { get; set; }
+    public long remalongime;
 }
 
 public class DataItem
@@ -287,7 +287,7 @@ public class DataItem
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
@@ -295,31 +295,31 @@ public class DataItem
     /// <summary>
     /// 
     /// </summary>
-    public long br { get; set; }
+    public long br;
     /// <summary>
     /// 
     /// </summary>
-    public long size { get; set; }
+    public long size;
     /// <summary>
     /// 
     /// </summary>
-    public string md5 { get; set; }
+    public string md5;
     /// <summary>
     /// 
     /// </summary>
-    public long code { get; set; }
+    public long code;
     /// <summary>
     /// 
     /// </summary>
-    public long expi { get; set; }
+    public long expi;
     /// <summary>
     /// 
     /// </summary>
-    public string type { get; set; }
+    public string type;
     /// <summary>
     /// 
     /// </summary>
-    public double gain { get; set; }
+    public double gain;
     /// <summary>
     /// 
     /// </summary>
@@ -327,63 +327,63 @@ public class DataItem
     /// <summary>
     /// 
     /// </summary>
-    public long fee { get; set; }
+    public long fee;
     /// <summary>
     /// 
     /// </summary>
-    public string uf { get; set; }
+    public string uf;
     /// <summary>
     /// 
     /// </summary>
-    public long payed { get; set; }
+    public long payed;
     /// <summary>
     /// 
     /// </summary>
-    public long flag { get; set; }
+    public long flag;
     /// <summary>
     /// 
     /// </summary>
-    public bool canExtend { get; set; }
+    public bool canExtend;
     /// <summary>
     /// 
     /// </summary>
-    public FreeTrialInfo freeTrialInfo { get; set; }
+    public FreeTrialInfo freeTrialInfo;
     /// <summary>
     /// 
     /// </summary>
-    public string level { get; set; }
+    public string level;
     /// <summary>
     /// 
     /// </summary>
-    public string encodeType { get; set; }
+    public string encodeType;
     /// <summary>
     /// 
     /// </summary>
-    public FreeTrialPrivilege freeTrialPrivilege { get; set; }
+    public FreeTrialPrivilege freeTrialPrivilege;
     /// <summary>
     /// 
     /// </summary>
-    public FreeTimeTrialPrivilege freeTimeTrialPrivilege { get; set; }
+    public FreeTimeTrialPrivilege freeTimeTrialPrivilege;
     /// <summary>
     /// 
     /// </summary>
-    public long urlSource { get; set; }
+    public long urlSource;
     /// <summary>
     /// 
     /// </summary>
-    public long rightSource { get; set; }
+    public long rightSource;
     /// <summary>
     /// 
     /// </summary>
-    public string podcastCtrp { get; set; }
+    public string podcastCtrp;
     /// <summary>
     /// 
     /// </summary>
-    public string effectTypes { get; set; }
+    public string effectTypes;
     /// <summary>
     /// 
     /// </summary>
-    public long time { get; set; }
+    public long time;
 }
 
 public class musicURL
@@ -403,19 +403,19 @@ public class ArItem
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> tns { get; set; }
+    public List<string> tns;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> @alias { get; set; }
+    public List<string> @alias;
 }
 
 public class Al
@@ -423,23 +423,23 @@ public class Al
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public string picUrl { get; set; }
+    public string picUrl;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> tns { get; set; }
+    public List<string> tns;
     /// <summary>
     /// 
     /// </summary>
-    public long pic { get; set; }
+    public long pic;
 }
 
 public class H
@@ -447,15 +447,15 @@ public class H
     /// <summary>
     /// 
     /// </summary>
-    public long br { get; set; }
+    public long br;
     /// <summary>
     /// 
     /// </summary>
-    public long fid { get; set; }
+    public long fid;
     /// <summary>
     /// 
     /// </summary>
-    public long size { get; set; }
+    public long size;
     /// <summary>
     /// 
     /// </summary>
@@ -463,7 +463,7 @@ public class H
     /// <summary>
     /// 
     /// </summary>
-    public long sr { get; set; }
+    public long sr;
 }
 
 public class M
@@ -471,15 +471,15 @@ public class M
     /// <summary>
     /// 
     /// </summary>
-    public long br { get; set; }
+    public long br;
     /// <summary>
     /// 
     /// </summary>
-    public long fid { get; set; }
+    public long fid;
     /// <summary>
     /// 
     /// </summary>
-    public long size { get; set; }
+    public long size;
     /// <summary>
     /// 
     /// </summary>
@@ -487,7 +487,7 @@ public class M
     /// <summary>
     /// 
     /// </summary>
-    public long sr { get; set; }
+    public long sr;
 }
 
 public class L
@@ -495,15 +495,15 @@ public class L
     /// <summary>
     /// 
     /// </summary>
-    public long br { get; set; }
+    public long br;
     /// <summary>
     /// 
     /// </summary>
-    public long fid { get; set; }
+    public long fid;
     /// <summary>
     /// 
     /// </summary>
-    public long size { get; set; }
+    public long size;
     /// <summary>
     /// 
     /// </summary>
@@ -511,7 +511,7 @@ public class L
     /// <summary>
     /// 
     /// </summary>
-    public long sr { get; set; }
+    public long sr;
 }
 
 public class SongsItems
@@ -519,63 +519,63 @@ public class SongsItems
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public long pst { get; set; }
+    public long pst;
     /// <summary>
     /// 
     /// </summary>
-    public long t { get; set; }
+    public long t;
     /// <summary>
     /// 
     /// </summary>
-    public List<ArItem> ar { get; set; }
+    public List<ArItem> ar;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> alia { get; set; }
+    public List<string> alia;
     /// <summary>
     /// 
     /// </summary>
-    public long pop { get; set; }
+    public long pop;
     /// <summary>
     /// 
     /// </summary>
-    public long st { get; set; }
+    public long st;
     /// <summary>
     /// 
     /// </summary>
-    public string rt { get; set; }
+    public string rt;
     /// <summary>
     /// 
     /// </summary>
-    public long fee { get; set; }
+    public long fee;
     /// <summary>
     /// 
     /// </summary>
-    public long v { get; set; }
+    public long v;
     /// <summary>
     /// 
     /// </summary>
-    public string crbt { get; set; }
+    public string crbt;
     /// <summary>
     /// 
     /// </summary>
-    public string cf { get; set; }
+    public string cf;
     /// <summary>
     /// 
     /// </summary>
-    public Al al { get; set; }
+    public Al al;
     /// <summary>
     /// 
     /// </summary>
-    public long dt { get; set; }
+    public long dt;
     /// <summary>
     /// 
     /// </summary>
@@ -603,11 +603,11 @@ public class SongsItems
     /// <summary>
     /// 
     /// </summary>
-    public string cd { get; set; }
+    public string cd;
     /// <summary>
     /// 
     /// </summary>
-    public long no { get; set; }
+    public long no;
     /// <summary>
     /// 
     /// </summary>
@@ -615,31 +615,31 @@ public class SongsItems
     /// <summary>
     /// 
     /// </summary>
-    public long ftype { get; set; }
+    public long ftype;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> rtUrls { get; set; }
+    public List<string> rtUrls;
     /// <summary>
     /// 
     /// </summary>
-    public long djId { get; set; }
+    public long djId;
     /// <summary>
     /// 
     /// </summary>
-    public long copyright { get; set; }
+    public long copyright;
     /// <summary>
     /// 
     /// </summary>
-    public long s_id { get; set; }
+    public long s_id;
     /// <summary>
     /// 
     /// </summary>
-    public long mark { get; set; }
+    public long mark;
     /// <summary>
     /// 
     /// </summary>
-    public long originCoverType { get; set; }
+    public long originCoverType;
     /// <summary>
     /// 
     /// </summary>
@@ -647,7 +647,7 @@ public class SongsItems
     /// <summary>
     /// 
     /// </summary>
-    public string? tagPicList { get; set; }
+    public string? tagPicList;
     /// <summary>
     /// 
     /// </summary>
@@ -655,23 +655,23 @@ public class SongsItems
     /// <summary>
     /// 
     /// </summary>
-    public long version { get; set; }
+    public long version;
     /// <summary>
     /// 
     /// </summary>
-    public string? songJumpInfo { get; set; }
+    public string? songJumpInfo;
     /// <summary>
     /// 
     /// </summary>
-    public string? entertainmentTags { get; set; }
+    public string? entertainmentTags;
     /// <summary>
     /// 
     /// </summary>
-    public string? awardTags { get; set; }
+    public string? awardTags;
     /// <summary>
     /// 
     /// </summary>
-    public long single { get; set; }
+    public long single;
     /// <summary>
     /// 
     /// </summary>
@@ -679,27 +679,27 @@ public class SongsItems
     /// <summary>
     /// 
     /// </summary>
-    public long mst { get; set; }
+    public long mst;
     /// <summary>
     /// 
     /// </summary>
-    public long cp { get; set; }
+    public long cp;
     /// <summary>
     /// 
     /// </summary>
-    public long rtype { get; set; }
+    public long rtype;
     /// <summary>
     /// 
     /// </summary>
-    public string? rurl { get; set; }
+    public string? rurl;
     /// <summary>
     /// 
     /// </summary>
-    public long mv { get; set; }
+    public long mv;
     /// <summary>
     /// 
     /// </summary>
-    public long publishTime { get; set; }
+    public long publishTime;
 }
 
 public class FreeTrial
@@ -707,15 +707,15 @@ public class FreeTrial
     /// <summary>
     /// 
     /// </summary>
-    public bool resConsumable { get; set; }
+    public bool resConsumable;
     /// <summary>
     /// 
     /// </summary>
-    public bool userConsumable { get; set; }
+    public bool userConsumable;
     /// <summary>
     /// 
     /// </summary>
-    public string listenType { get; set; }
+    public string listenType;
 }
 
 public class ChargeInfoListItem
@@ -723,19 +723,19 @@ public class ChargeInfoListItem
     /// <summary>
     /// 
     /// </summary>
-    public long rate { get; set; }
+    public long rate;
     /// <summary>
     /// 
     /// </summary>
-    public string chargeUrl { get; set; }
+    public string chargeUrl;
     /// <summary>
     /// 
     /// </summary>
-    public string chargeMessage { get; set; }
+    public string chargeMessage;
     /// <summary>
     /// 
     /// </summary>
-    public long chargeType { get; set; }
+    public long chargeType;
 }
 
 public class PrivilegesItem
@@ -743,107 +743,107 @@ public class PrivilegesItem
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public long fee { get; set; }
+    public long fee;
     /// <summary>
     /// 
     /// </summary>
-    public long payed { get; set; }
+    public long payed;
     /// <summary>
     /// 
     /// </summary>
-    public long st { get; set; }
+    public long st;
     /// <summary>
     /// 
     /// </summary>
-    public long pl { get; set; }
+    public long pl;
     /// <summary>
     /// 
     /// </summary>
-    public long dl { get; set; }
+    public long dl;
     /// <summary>
     /// 
     /// </summary>
-    public long sp { get; set; }
+    public long sp;
     /// <summary>
     /// 
     /// </summary>
-    public long cp { get; set; }
+    public long cp;
     /// <summary>
     /// 
     /// </summary>
-    public long subp { get; set; }
+    public long subp;
     /// <summary>
     /// 
     /// </summary>
-    public bool cs { get; set; }
+    public bool cs;
     /// <summary>
     /// 
     /// </summary>
-    public long maxbr { get; set; }
+    public long maxbr;
     /// <summary>
     /// 
     /// </summary>
-    public long fl { get; set; }
+    public long fl;
     /// <summary>
     /// 
     /// </summary>
-    public bool toast { get; set; }
+    public bool toast;
     /// <summary>
     /// 
     /// </summary>
-    public long flag { get; set; }
+    public long flag;
     /// <summary>
     /// 
     /// </summary>
-    public bool preSell { get; set; }
+    public bool preSell;
     /// <summary>
     /// 
     /// </summary>
-    public long playMaxbr { get; set; }
+    public long playMaxbr;
     /// <summary>
     /// 
     /// </summary>
-    public long downloadMaxbr { get; set; }
+    public long downloadMaxbr;
     /// <summary>
     /// 
     /// </summary>
-    public string maxBrLevel { get; set; }
+    public string maxBrLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string playMaxBrLevel { get; set; }
+    public string playMaxBrLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string downloadMaxBrLevel { get; set; }
+    public string downloadMaxBrLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string plLevel { get; set; }
+    public string plLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string dlLevel { get; set; }
+    public string dlLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string flLevel { get; set; }
+    public string flLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string rscl { get; set; }
+    public string rscl;
     /// <summary>
     /// 
     /// </summary>
-    public FreeTrial freeTrialPrivilege { get; set; }
+    public FreeTrial freeTrialPrivilege;
     /// <summary>
     /// 
     /// </summary>
-    public List<ChargeInfoListItem> chargeInfoList { get; set; }
+    public List<ChargeInfoListItem> chargeInfoList;
 }
 
 public class GeDan
@@ -855,11 +855,11 @@ public class GeDan
     /// <summary>
     /// 
     /// </summary>
-    public List<PrivilegesItem> privileges { get; set; }
+    public List<PrivilegesItem> privileges;
     /// <summary>
     /// 
     /// </summary>
-    public long code { get; set; }
+    public long code;
 }
 
 
@@ -868,31 +868,31 @@ public class Creator
     /// <summary>
     /// 淋雨丶伞
     /// </summary>
-    public string nickname { get; set; }
+    public string nickname;
     /// <summary>
     /// 
     /// </summary>
-    public long userId { get; set; }
+    public long userId;
     /// <summary>
     /// 
     /// </summary>
-    public long userType { get; set; }
+    public long userType;
     /// <summary>
     /// 
     /// </summary>
-    public string avatarUrl { get; set; }
+    public string avatarUrl;
     /// <summary>
     /// 
     /// </summary>
-    public long authStatus { get; set; }
+    public long authStatus;
     /// <summary>
     /// 
     /// </summary>
-    public string expertTags { get; set; }
+    public string expertTags;
     /// <summary>
     /// 
     /// </summary>
-    public string experts { get; set; }
+    public string experts;
 }
 
 public class ArtistsItems
@@ -900,47 +900,47 @@ public class ArtistsItems
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public long picId { get; set; }
+    public long picId;
     /// <summary>
     /// 
     /// </summary>
-    public long img1v1Id { get; set; }
+    public long img1v1Id;
     /// <summary>
     /// 
     /// </summary>
-    public string briefDesc { get; set; }
+    public string briefDesc;
     /// <summary>
     /// 
     /// </summary>
-    public string picUrl { get; set; }
+    public string picUrl;
     /// <summary>
     /// 
     /// </summary>
-    public string img1v1Url { get; set; }
+    public string img1v1Url;
     /// <summary>
     /// 
     /// </summary>
-    public long albumSize { get; set; }
+    public long albumSize;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> @alias { get; set; }
+    public List<string> @alias;
     /// <summary>
     /// 
     /// </summary>
-    public string trans { get; set; }
+    public string trans;
     /// <summary>
     /// 
     /// </summary>
-    public long musicSize { get; set; }
+    public long musicSize;
 }
 
 public class Artists
@@ -948,47 +948,47 @@ public class Artists
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public long picId { get; set; }
+    public long picId;
     /// <summary>
     /// 
     /// </summary>
-    public long img1v1Id { get; set; }
+    public long img1v1Id;
     /// <summary>
     /// 
     /// </summary>
-    public string briefDesc { get; set; }
+    public string briefDesc;
     /// <summary>
     /// 
     /// </summary>
-    public string picUrl { get; set; }
+    public string picUrl;
     /// <summary>
     /// 
     /// </summary>
-    public string img1v1Url { get; set; }
+    public string img1v1Url;
     /// <summary>
     /// 
     /// </summary>
-    public long albumSize { get; set; }
+    public long albumSize;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> @alias { get; set; }
+    public List<string> @alias;
     /// <summary>
     /// 
     /// </summary>
-    public string trans { get; set; }
+    public string trans;
     /// <summary>
     /// 
     /// </summary>
-    public long musicSize { get; set; }
+    public long musicSize;
 }
 
 public class ArtistsItemss
@@ -996,47 +996,47 @@ public class ArtistsItemss
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public long picId { get; set; }
+    public long picId;
     /// <summary>
     /// 
     /// </summary>
-    public long img1v1Id { get; set; }
+    public long img1v1Id;
     /// <summary>
     /// 
     /// </summary>
-    public string briefDesc { get; set; }
+    public string briefDesc;
     /// <summary>
     /// 
     /// </summary>
-    public string picUrl { get; set; }
+    public string picUrl;
     /// <summary>
     /// 
     /// </summary>
-    public string img1v1Url { get; set; }
+    public string img1v1Url;
     /// <summary>
     /// 
     /// </summary>
-    public long albumSize { get; set; }
+    public long albumSize;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> @alias { get; set; }
+    public List<string> @alias;
     /// <summary>
     /// 
     /// </summary>
-    public string trans { get; set; }
+    public string trans;
     /// <summary>
     /// 
     /// </summary>
-    public long musicSize { get; set; }
+    public long musicSize;
 }
 
 public class Albums
@@ -1044,91 +1044,91 @@ public class Albums
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public string idStr { get; set; }
+    public string idStr;
     /// <summary>
     /// 专辑
     /// </summary>
-    public string type { get; set; }
+    public string type;
     /// <summary>
     /// 
     /// </summary>
-    public long size { get; set; }
+    public long size;
     /// <summary>
     /// 
     /// </summary>
-    public long picId { get; set; }
+    public long picId;
     /// <summary>
     /// 
     /// </summary>
-    public string blurPicUrl { get; set; }
+    public string blurPicUrl;
     /// <summary>
     /// 
     /// </summary>
-    public long companyId { get; set; }
+    public long companyId;
     /// <summary>
     /// 
     /// </summary>
-    public long pic { get; set; }
+    public long pic;
     /// <summary>
     /// 
     /// </summary>
-    public string picUrl { get; set; }
+    public string picUrl;
     /// <summary>
     /// 
     /// </summary>
-    public long publishTime { get; set; }
+    public long publishTime;
     /// <summary>
     /// 
     /// </summary>
-    public string description { get; set; }
+    public string description;
     /// <summary>
     /// 
     /// </summary>
-    public string tags { get; set; }
+    public string tags;
     /// <summary>
     /// 独立发行
     /// </summary>
-    public string company { get; set; }
+    public string company;
     /// <summary>
     /// 
     /// </summary>
-    public string briefDesc { get; set; }
+    public string briefDesc;
     /// <summary>
     /// 
     /// </summary>
-    public Artist artist { get; set; }
+    public Artist artist;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> songs { get; set; }
+    public List<string> songs;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> @alias { get; set; }
+    public List<string> @alias;
     /// <summary>
     /// 
     /// </summary>
-    public long status { get; set; }
+    public long status;
     /// <summary>
     /// 
     /// </summary>
-    public long copyrightId { get; set; }
+    public long copyrightId;
     /// <summary>
     /// 
     /// </summary>
-    public string commentThreadId { get; set; }
+    public string commentThreadId;
     /// <summary>
     /// 
     /// </summary>
-    public List<ArtistsItemss> artists { get; set; }
+    public List<ArtistsItemss> artists;
 }
 
 public class BMusic
@@ -1136,39 +1136,39 @@ public class BMusic
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public long size { get; set; }
+    public long size;
     /// <summary>
     /// 
     /// </summary>
-    public string extension { get; set; }
+    public string extension;
     /// <summary>
     /// 
     /// </summary>
-    public long sr { get; set; }
+    public long sr;
     /// <summary>
     /// 
     /// </summary>
-    public long dfsId { get; set; }
+    public long dfsId;
     /// <summary>
     /// 
     /// </summary>
-    public long bitrate { get; set; }
+    public long bitrate;
     /// <summary>
     /// 
     /// </summary>
-    public long playTime { get; set; }
+    public long playTime;
     /// <summary>
     /// 
     /// </summary>
-    public long volumeDelta { get; set; }
+    public long volumeDelta;
 }
 
 public class HMusic
@@ -1176,39 +1176,39 @@ public class HMusic
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public long size { get; set; }
+    public long size;
     /// <summary>
     /// 
     /// </summary>
-    public string extension { get; set; }
+    public string extension;
     /// <summary>
     /// 
     /// </summary>
-    public long sr { get; set; }
+    public long sr;
     /// <summary>
     /// 
     /// </summary>
-    public long dfsId { get; set; }
+    public long dfsId;
     /// <summary>
     /// 
     /// </summary>
-    public long bitrate { get; set; }
+    public long bitrate;
     /// <summary>
     /// 
     /// </summary>
-    public long playTime { get; set; }
+    public long playTime;
     /// <summary>
     /// 
     /// </summary>
-    public long volumeDelta { get; set; }
+    public long volumeDelta;
 }
 
 public class MMusic
@@ -1216,39 +1216,39 @@ public class MMusic
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public long size { get; set; }
+    public long size;
     /// <summary>
     /// 
     /// </summary>
-    public string extension { get; set; }
+    public string extension;
     /// <summary>
     /// 
     /// </summary>
-    public long sr { get; set; }
+    public long sr;
     /// <summary>
     /// 
     /// </summary>
-    public long dfsId { get; set; }
+    public long dfsId;
     /// <summary>
     /// 
     /// </summary>
-    public long bitrate { get; set; }
+    public long bitrate;
     /// <summary>
     /// 
     /// </summary>
-    public long playTime { get; set; }
+    public long playTime;
     /// <summary>
     /// 
     /// </summary>
-    public long volumeDelta { get; set; }
+    public long volumeDelta;
 }
 
 public class LMusic
@@ -1256,39 +1256,39 @@ public class LMusic
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public long size { get; set; }
+    public long size;
     /// <summary>
     /// 
     /// </summary>
-    public string extension { get; set; }
+    public string extension;
     /// <summary>
     /// 
     /// </summary>
-    public long sr { get; set; }
+    public long sr;
     /// <summary>
     /// 
     /// </summary>
-    public long dfsId { get; set; }
+    public long dfsId;
     /// <summary>
     /// 
     /// </summary>
-    public long bitrate { get; set; }
+    public long bitrate;
     /// <summary>
     /// 
     /// </summary>
-    public long playTime { get; set; }
+    public long playTime;
     /// <summary>
     /// 
     /// </summary>
-    public long volumeDelta { get; set; }
+    public long volumeDelta;
 }
 
 public class Track
@@ -1296,147 +1296,147 @@ public class Track
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public long position { get; set; }
+    public long position;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> @alias { get; set; }
+    public List<string> @alias;
     /// <summary>
     /// 
     /// </summary>
-    public long status { get; set; }
+    public long status;
     /// <summary>
     /// 
     /// </summary>
-    public long fee { get; set; }
+    public long fee;
     /// <summary>
     /// 
     /// </summary>
-    public long copyrightId { get; set; }
+    public long copyrightId;
     /// <summary>
     /// 
     /// </summary>
-    public string disc { get; set; }
+    public string disc;
     /// <summary>
     /// 
     /// </summary>
-    public long no { get; set; }
+    public long no;
     /// <summary>
     /// 
     /// </summary>
-    public List<ArtistsItemss> artists { get; set; }
+    public List<ArtistsItemss> artists;
     /// <summary>
     /// 
     /// </summary>
-    public Albums album { get; set; }
+    public Albums album;
     /// <summary>
     /// 
     /// </summary>
-    public bool starred { get; set; }
+    public bool starred;
     /// <summary>
     /// 
     /// </summary>
-    public long popularity { get; set; }
+    public long popularity;
     /// <summary>
     /// 
     /// </summary>
-    public long score { get; set; }
+    public long score;
     /// <summary>
     /// 
     /// </summary>
-    public long starredNum { get; set; }
+    public long starredNum;
     /// <summary>
     /// 
     /// </summary>
-    public long duration { get; set; }
+    public long duration;
     /// <summary>
     /// 
     /// </summary>
-    public long playedNum { get; set; }
+    public long playedNum;
     /// <summary>
     /// 
     /// </summary>
-    public long dayPlays { get; set; }
+    public long dayPlays;
     /// <summary>
     /// 
     /// </summary>
-    public long hearTime { get; set; }
+    public long hearTime;
     /// <summary>
     /// 
     /// </summary>
-    public string ringtone { get; set; }
+    public string ringtone;
     /// <summary>
     /// 
     /// </summary>
-    public string crbt { get; set; }
+    public string crbt;
     /// <summary>
     /// 
     /// </summary>
-    public string audition { get; set; }
+    public string audition;
     /// <summary>
     /// 
     /// </summary>
-    public string copyFrom { get; set; }
+    public string copyFrom;
     /// <summary>
     /// 
     /// </summary>
-    public string commentThreadId { get; set; }
+    public string commentThreadId;
     /// <summary>
     /// 
     /// </summary>
-    public string rtUrl { get; set; }
+    public string rtUrl;
     /// <summary>
     /// 
     /// </summary>
-    public long ftype { get; set; }
+    public long ftype;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> rtUrls { get; set; }
+    public List<string> rtUrls;
     /// <summary>
     /// 
     /// </summary>
-    public long copyright { get; set; }
+    public long copyright;
     /// <summary>
     /// 
     /// </summary>
-    public long rtype { get; set; }
+    public long rtype;
     /// <summary>
     /// 
     /// </summary>
-    public string rurl { get; set; }
+    public string rurl;
     /// <summary>
     /// 
     /// </summary>
-    public BMusic bMusic { get; set; }
+    public BMusic bMusic;
     /// <summary>
     /// 
     /// </summary>
-    public string mp3Url { get; set; }
+    public string mp3Url;
     /// <summary>
     /// 
     /// </summary>
-    public long mvid { get; set; }
+    public long mvid;
     /// <summary>
     /// 
     /// </summary>
-    public HMusic hMusic { get; set; }
+    public HMusic hMusic;
     /// <summary>
     /// 
     /// </summary>
-    public MMusic mMusic { get; set; }
+    public MMusic mMusic;
     /// <summary>
     /// 
     /// </summary>
-    public LMusic lMusic { get; set; }
+    public LMusic lMusic;
 }
 
 public class PlaylistsItem
@@ -1448,75 +1448,75 @@ public class PlaylistsItem
     /// <summary>
     /// 『纯音乐』有些歌只能一个人戴耳机听
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public string coverImgUrl { get; set; }
+    public string coverImgUrl;
     /// <summary>
     /// 
     /// </summary>
-    public Creator creator { get; set; }
+    public Creator creator;
     /// <summary>
     /// 
     /// </summary>
-    public bool subscribed { get; set; }
+    public bool subscribed;
     /// <summary>
     /// 
     /// </summary>
-    public long trackCount { get; set; }
+    public long trackCount;
     /// <summary>
     /// 
     /// </summary>
-    public long userId { get; set; }
+    public long userId;
     /// <summary>
     /// 
     /// </summary>
-    public long playCount { get; set; }
+    public long playCount;
     /// <summary>
     /// 
     /// </summary>
-    public long bookCount { get; set; }
+    public long bookCount;
     /// <summary>
     /// 
     /// </summary>
-    public long specialType { get; set; }
+    public long specialType;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> officialTags { get; set; }
+    public List<string> officialTags;
     /// <summary>
     /// 
     /// </summary>
-    public string action { get; set; }
+    public string action;
     /// <summary>
     /// 
     /// </summary>
-    public string actionType { get; set; }
+    public string actionType;
     /// <summary>
     /// 
     /// </summary>
-    public string recommendText { get; set; }
+    public string recommendText;
     /// <summary>
     /// 
     /// </summary>
-    public string score { get; set; }
+    public string score;
     /// <summary>
     /// 平时收集的一些纯音乐做了整理，希望大家喜欢
     /// </summary>
-    public string description { get; set; }
+    public string description;
     /// <summary>
     /// 
     /// </summary>
-    public bool highQuality { get; set; }
+    public bool highQuality;
     /// <summary>
     /// 
     /// </summary>
-    public Track track { get; set; }
+    public Track track;
     /// <summary>
     /// alg_search_rec_playlist_tab_basic_rewrite_{"hit":"Name","id":"有些歌只能一个人戴耳机听","type":"basic"}
     /// </summary>
-    public string alg { get; set; }
+    public string alg;
 }
 
 public class Results
@@ -1528,19 +1528,19 @@ public class Results
     /// <summary>
     /// 
     /// </summary>
-    public bool hasMore { get; set; }
+    public bool hasMore;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> hlWords { get; set; }
+    public List<string> hlWords;
     /// <summary>
     /// 
     /// </summary>
-    public long playlistCount { get; set; }
+    public long playlistCount;
     /// <summary>
     /// 
     /// </summary>
-    public string searchQcReminder { get; set; }
+    public string searchQcReminder;
 }
 
 public class SearchGedan
@@ -1552,7 +1552,7 @@ public class SearchGedan
     /// <summary>
     /// 
     /// </summary>
-    public long code { get; set; }
+    public long code;
 }
 
 public class Data
@@ -1584,7 +1584,7 @@ public class Datas
     /// <summary>
     /// 
     /// </summary>
-    public string qrurl { get; set; }
+    public string qrurl;
     /// <summary>
     /// 
     /// </summary>
@@ -1612,7 +1612,7 @@ public class Status1
     /// <summary>
     /// 等待扫码
     /// </summary>
-    public string? message;
+    public string? message { get; set; }
     /// <summary>
     /// 
     /// </summary>
@@ -1630,123 +1630,123 @@ public class SubscribersItem
     /// <summary>
     /// 
     /// </summary>
-    public int province { get; set; }
+    public int province;
     /// <summary>
     /// 
     /// </summary>
-    public int authStatus { get; set; }
+    public int authStatus;
     /// <summary>
     /// 
     /// </summary>
-    public string followed { get; set; }
+    public string followed;
     /// <summary>
     /// 
     /// </summary>
-    public string avatarUrl { get; set; }
+    public string avatarUrl;
     /// <summary>
     /// 
     /// </summary>
-    public int accountStatus { get; set; }
+    public int accountStatus;
     /// <summary>
     /// 
     /// </summary>
-    public int gender { get; set; }
+    public int gender;
     /// <summary>
     /// 
     /// </summary>
-    public int city { get; set; }
+    public int city;
     /// <summary>
     /// 
     /// </summary>
-    public int birthday { get; set; }
+    public int birthday;
     /// <summary>
     /// 
     /// </summary>
-    public long userId { get; set; }
+    public long userId;
     /// <summary>
     /// 
     /// </summary>
-    public int userType { get; set; }
+    public int userType;
     /// <summary>
     /// 神明懿2104
     /// </summary>
-    public string nickname { get; set; }
+    public string nickname;
     /// <summary>
     /// 
     /// </summary>
-    public string signature { get; set; }
+    public string signature;
     /// <summary>
     /// 
     /// </summary>
-    public string description { get; set; }
+    public string description;
     /// <summary>
     /// 
     /// </summary>
-    public string detailDescription { get; set; }
+    public string detailDescription;
     /// <summary>
     /// 
     /// </summary>
-    public int avatarImgId { get; set; }
+    public int avatarImgId;
     /// <summary>
     /// 
     /// </summary>
-    public int backgroundImgId { get; set; }
+    public int backgroundImgId;
     /// <summary>
     /// 
     /// </summary>
-    public string backgroundUrl { get; set; }
+    public string backgroundUrl;
     /// <summary>
     /// 
     /// </summary>
-    public int authority { get; set; }
+    public int authority;
     /// <summary>
     /// 
     /// </summary>
-    public string mutual { get; set; }
+    public string mutual;
     /// <summary>
     /// 
     /// </summary>
-    public string expertTags { get; set; }
+    public string expertTags;
     /// <summary>
     /// 
     /// </summary>
-    public string experts { get; set; }
+    public string experts;
     /// <summary>
     /// 
     /// </summary>
-    public int djStatus { get; set; }
+    public int djStatus;
     /// <summary>
     /// 
     /// </summary>
-    public int vipType { get; set; }
+    public int vipType;
     /// <summary>
     /// 
     /// </summary>
-    public string remarkName { get; set; }
+    public string remarkName;
     /// <summary>
     /// 
     /// </summary>
-    public int authenticationTypes { get; set; }
+    public int authenticationTypes;
     /// <summary>
     /// 
     /// </summary>
-    public string avatarDetail { get; set; }
+    public string avatarDetail;
     /// <summary>
     /// 
     /// </summary>
-    public string avatarImgIdStr { get; set; }
+    public string avatarImgIdStr;
     /// <summary>
     /// 
     /// </summary>
-    public string backgroundImgIdStr { get; set; }
+    public string backgroundImgIdStr;
     /// <summary>
     /// 
     /// </summary>
-    public string anchor { get; set; }
+    public string anchor;
     /// <summary>
     /// 
     /// </summary>
-    public string avatarImgId_str { get; set; }
+    public string avatarImgId_str;
 }
 
 public class AvatarDetail
@@ -1754,15 +1754,15 @@ public class AvatarDetail
     /// <summary>
     /// 
     /// </summary>
-    public int userType { get; set; }
+    public int userType;
     /// <summary>
     /// 
     /// </summary>
-    public int identityLevel { get; set; }
+    public int identityLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string identityIconUrl { get; set; }
+    public string identityIconUrl;
 }
 
 public class Creators
@@ -1774,123 +1774,123 @@ public class Creators
     /// <summary>
     /// 
     /// </summary>
-    public int province { get; set; }
+    public int province;
     /// <summary>
     /// 
     /// </summary>
-    public int authStatus { get; set; }
+    public int authStatus;
     /// <summary>
     /// 
     /// </summary>
-    public string followed { get; set; }
+    public string followed;
     /// <summary>
     /// 
     /// </summary>
-    public string avatarUrl { get; set; }
+    public string avatarUrl;
     /// <summary>
     /// 
     /// </summary>
-    public int accountStatus { get; set; }
+    public int accountStatus;
     /// <summary>
     /// 
     /// </summary>
-    public int gender { get; set; }
+    public int gender;
     /// <summary>
     /// 
     /// </summary>
-    public int city { get; set; }
+    public int city;
     /// <summary>
     /// 
     /// </summary>
-    public int birthday { get; set; }
+    public int birthday;
     /// <summary>
     /// 
     /// </summary>
-    public long userId { get; set; }
+    public long userId;
     /// <summary>
     /// 
     /// </summary>
-    public int userType { get; set; }
+    public int userType;
     /// <summary>
     /// 岩酱岩酱岩酱
     /// </summary>
-    public string nickname { get; set; }
+    public string nickname;
     /// <summary>
     /// 这里是岩酱
     /// </summary>
-    public string signature { get; set; }
+    public string signature;
     /// <summary>
     /// 
     /// </summary>
-    public string description { get; set; }
+    public string description;
     /// <summary>
     /// 
     /// </summary>
-    public string detailDescription { get; set; }
+    public string detailDescription;
     /// <summary>
     /// 
     /// </summary>
-    public int avatarImgId { get; set; }
+    public int avatarImgId;
     /// <summary>
     /// 
     /// </summary>
-    public int backgroundImgId { get; set; }
+    public int backgroundImgId;
     /// <summary>
     /// 
     /// </summary>
-    public string backgroundUrl { get; set; }
+    public string backgroundUrl;
     /// <summary>
     /// 
     /// </summary>
-    public int authority { get; set; }
+    public int authority;
     /// <summary>
     /// 
     /// </summary>
-    public string mutual { get; set; }
+    public string mutual;
     /// <summary>
     /// 
     /// </summary>
-    public string expertTags { get; set; }
+    public string expertTags;
     /// <summary>
     /// 
     /// </summary>
-    public string experts { get; set; }
+    public string experts;
     /// <summary>
     /// 
     /// </summary>
-    public int djStatus { get; set; }
+    public int djStatus;
     /// <summary>
     /// 
     /// </summary>
-    public int vipType { get; set; }
+    public int vipType;
     /// <summary>
     /// 
     /// </summary>
-    public string remarkName { get; set; }
+    public string remarkName;
     /// <summary>
     /// 
     /// </summary>
-    public int authenticationTypes { get; set; }
+    public int authenticationTypes;
     /// <summary>
     /// 
     /// </summary>
-    public AvatarDetail avatarDetail { get; set; }
+    public AvatarDetail avatarDetail;
     /// <summary>
     /// 
     /// </summary>
-    public string avatarImgIdStr { get; set; }
+    public string avatarImgIdStr;
     /// <summary>
     /// 
     /// </summary>
-    public string backgroundImgIdStr { get; set; }
+    public string backgroundImgIdStr;
     /// <summary>
     /// 
     /// </summary>
-    public string anchor { get; set; }
+    public string anchor;
     /// <summary>
     /// 
     /// </summary>
-    public string avatarImgId_str { get; set; }
+    public string avatarImgId_str;
 }
 
 public class Sq
@@ -1898,23 +1898,23 @@ public class Sq
     /// <summary>
     /// 
     /// </summary>
-    public int br { get; set; }
+    public int br;
     /// <summary>
     /// 
     /// </summary>
-    public int fid { get; set; }
+    public int fid;
     /// <summary>
     /// 
     /// </summary>
-    public int size { get; set; }
+    public int size;
     /// <summary>
     /// 
     /// </summary>
-    public int vd { get; set; }
+    public int vd;
     /// <summary>
     /// 
     /// </summary>
-    public int sr { get; set; }
+    public int sr;
 }
 
 public class TracksItem
@@ -1922,63 +1922,63 @@ public class TracksItem
     /// <summary>
     /// Reunion In The Wind(重逢风中）
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public int id { get; set; }
+    public int id;
     /// <summary>
     /// 
     /// </summary>
-    public int pst { get; set; }
+    public int pst;
     /// <summary>
     /// 
     /// </summary>
-    public int t { get; set; }
+    public int t;
     /// <summary>
     /// 
     /// </summary>
-    public List<ArItem> ar { get; set; }
+    public List<ArItem> ar;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> alia { get; set; }
+    public List<string> alia;
     /// <summary>
     /// 
     /// </summary>
-    public int pop { get; set; }
+    public int pop;
     /// <summary>
     /// 
     /// </summary>
-    public int st { get; set; }
+    public int st;
     /// <summary>
     /// 
     /// </summary>
-    public string rt { get; set; }
+    public string rt;
     /// <summary>
     /// 
     /// </summary>
-    public int fee { get; set; }
+    public int fee;
     /// <summary>
     /// 
     /// </summary>
-    public int v { get; set; }
+    public int v;
     /// <summary>
     /// 
     /// </summary>
-    public string crbt { get; set; }
+    public string crbt;
     /// <summary>
     /// 
     /// </summary>
-    public string cf { get; set; }
+    public string cf;
     /// <summary>
     /// 
     /// </summary>
-    public Al al { get; set; }
+    public Al al;
     /// <summary>
     /// 
     /// </summary>
-    public int dt { get; set; }
+    public int dt;
     /// <summary>
     /// 
     /// </summary>
@@ -2002,55 +2002,56 @@ public class TracksItem
     /// <summary>
     /// 
     /// </summary>
-    public string a { get; set; }
+    public string a;
     /// <summary>
     /// 
     /// </summary>
-    public string cd { get; set; }
+    public string cd;
     /// <summary>
     /// 
     /// </summary>
-    public int no { get; set; }
+    public int no;
     /// <summary>
     /// 
     /// </summary>
-    public string rtUrl { get; set; }
+    public string rtUrl;
     /// <summary>
     /// 
     /// </summary>
-    public int ftype { get; set; }
+    public int ftype;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> rtUrls { get; set; }
+    public List<string> rtUrls;
     /// <summary>
     /// 
     /// </summary>
-    public int djId { get; set; }
+    public int djId;
     /// <summary>
     /// 
     /// </summary>
-    public int copyright { get; set; }
+    public int copyright;
     /// <summary>
     /// 
     /// </summary>
-    public int s_id { get; set; }
+    public int s_id;
     /// <summary>
     /// 
     /// </summary>
-    public int mark { get; set; }
+    public int mark;
     /// <summary>
     /// 
     /// </summary>
-    public int originCoverType { get; set; }
+    public int originCoverType;
+
     /// <summary>
     /// 
     /// </summary>
-    public string originSongSimpleData { get; set; }
+    public string originSongSimpleData;
     /// <summary>
     /// 
     /// </summary>
-    public string tagPicList { get; set; }
+    public string tagPicList;
     /// <summary>
     /// 
     /// </summary>
@@ -2058,43 +2059,43 @@ public class TracksItem
     /// <summary>
     /// 
     /// </summary>
-    public int version { get; set; }
+    public int version;
     /// <summary>
     /// 
     /// </summary>
-    public string songJumpInfo { get; set; }
+    public string songJumpInfo;
     /// <summary>
     /// 
     /// </summary>
-    public string entertainmentTags { get; set; }
+    public string entertainmentTags;
     /// <summary>
     /// 
     /// </summary>
-    public int single { get; set; }
+    public int single;
     /// <summary>
     /// 
     /// </summary>
-    public string noCopyrightRcmd { get; set; }
+    public string noCopyrightRcmd;
     /// <summary>
     /// 
     /// </summary>
-    public string rurl { get; set; }
+    public string rurl;
     /// <summary>
     /// 
     /// </summary>
-    public int mst { get; set; }
+    public int mst;
     /// <summary>
     /// 
     /// </summary>
-    public int cp { get; set; }
+    public int cp;
     /// <summary>
     /// 
     /// </summary>
-    public int mv { get; set; }
+    public int mv;
     /// <summary>
     /// 
     /// </summary>
-    public int rtype { get; set; }
+    public int rtype;
     /// <summary>
     /// 
     /// </summary>
@@ -2106,43 +2107,43 @@ public class TrackIdsItem
     /// <summary>
     /// 
     /// </summary>
-    public int id { get; set; }
+    public int id;
     /// <summary>
     /// 
     /// </summary>
-    public int v { get; set; }
+    public int v;
     /// <summary>
     /// 
     /// </summary>
-    public int t { get; set; }
+    public int t;
     /// <summary>
     /// 
     /// </summary>
-    public int at { get; set; }
+    public int at;
     /// <summary>
     /// 
     /// </summary>
-    public string alg { get; set; }
+    public string alg;
     /// <summary>
     /// 
     /// </summary>
-    public int uid { get; set; }
+    public int uid;
     /// <summary>
     /// 
     /// </summary>
-    public string rcmdReason { get; set; }
+    public string rcmdReason;
     /// <summary>
     /// 
     /// </summary>
-    public string sc { get; set; }
+    public string sc;
     /// <summary>
     /// 
     /// </summary>
-    public string f { get; set; }
+    public string f;
     /// <summary>
     /// 
     /// </summary>
-    public string sr { get; set; }
+    public string sr;
 }
 
 public class Playlist
@@ -2150,7 +2151,7 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 睡觉听的纯音乐（与君梦中相会）
     /// </summary>
@@ -2158,23 +2159,23 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public long coverImgId { get; set; }
+    public long coverImgId;
     /// <summary>
     /// 
     /// </summary>
-    public string coverImgUrl { get; set; }
+    public string coverImgUrl;
     /// <summary>
     /// 
     /// </summary>
-    public string coverImgId_str { get; set; }
+    public string coverImgId_str;
     /// <summary>
     /// 
     /// </summary>
-    public int adType { get; set; }
+    public int adType;
     /// <summary>
     /// 
     /// </summary>
-    public long userId { get; set; }
+    public long userId;
     /// <summary>
     /// 
     /// </summary>
@@ -2222,7 +2223,7 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public int playCount { get; set; }
+    public int playCount;
     /// <summary>
     /// 
     /// </summary>
@@ -2238,27 +2239,27 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public bool ordered { get; set; }
+    public bool ordered;
     /// <summary>
     /// 
     /// </summary>
-    public string description { get; set; }
+    public string description;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> tags { get; set; }
+    public List<string> tags;
     /// <summary>
     /// 
     /// </summary>
-    public string updateFrequency { get; set; }
+    public string updateFrequency;
     /// <summary>
     /// 
     /// </summary>
-    public int backgroundCoverId { get; set; }
+    public int backgroundCoverId;
     /// <summary>
     /// 
     /// </summary>
-    public string backgroundCoverUrl { get; set; }
+    public string backgroundCoverUrl;
     /// <summary>
     /// 
     /// </summary>
@@ -2266,23 +2267,23 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public string titleImageUrl { get; set; }
+    public string titleImageUrl;
     /// <summary>
     /// 
     /// </summary>
-    public string englishTitle { get; set; }
+    public string englishTitle;
     /// <summary>
     /// 
     /// </summary>
-    public string officialPlaylistType { get; set; }
+    public string officialPlaylistType;
     /// <summary>
     /// 
     /// </summary>
-    public bool copied { get; set; }
+    public bool copied;
     /// <summary>
     /// 
     /// </summary>
-    public string relateResType { get; set; }
+    public string relateResType;
     /// <summary>
     /// 
     /// </summary>
@@ -2290,7 +2291,7 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public bool subscribed { get; set; }
+    public bool subscribed;
     /// <summary>
     /// 
     /// </summary>
@@ -2302,11 +2303,11 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public string videoIds { get; set; }
+    public string videoIds;
     /// <summary>
     /// 
     /// </summary>
-    public string videos { get; set; }
+    public string videos;
     /// <summary>
     /// 
     /// </summary>
@@ -2314,11 +2315,11 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public string bannedTrackIds { get; set; }
+    public string bannedTrackIds;
     /// <summary>
     /// 
     /// </summary>
-    public string mvResourceInfos { get; set; }
+    public string mvResourceInfos;
     /// <summary>
     /// 
     /// </summary>
@@ -2330,23 +2331,23 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public string remixVideo { get; set; }
+    public string remixVideo;
     /// <summary>
     /// 
     /// </summary>
-    public string sharedUsers { get; set; }
+    public string sharedUsers;
     /// <summary>
     /// 
     /// </summary>
-    public string historySharedUsers { get; set; }
+    public string historySharedUsers;
     /// <summary>
     /// 
     /// </summary>
-    public string gradeStatus { get; set; }
+    public string gradeStatus;
     /// <summary>
     /// 
     /// </summary>
-    public string score { get; set; }
+    public string score;
     /// <summary>
     /// 
     /// </summary>
@@ -2358,15 +2359,15 @@ public class FreeTrialPrivileges
     /// <summary>
     /// 
     /// </summary>
-    public string resConsumable { get; set; }
+    public string resConsumable;
     /// <summary>
     /// 
     /// </summary>
-    public string userConsumable { get; set; }
+    public string userConsumable;
     /// <summary>
     /// 
     /// </summary>
-    public string listenType { get; set; }
+    public string listenType;
 }
 
 public class ChargeInfoListItems
@@ -2374,19 +2375,19 @@ public class ChargeInfoListItems
     /// <summary>
     /// 
     /// </summary>
-    public int rate { get; set; }
+    public int rate;
     /// <summary>
     /// 
     /// </summary>
-    public string chargeUrl { get; set; }
+    public string chargeUrl;
     /// <summary>
     /// 
     /// </summary>
-    public string chargeMessage { get; set; }
+    public string chargeMessage;
     /// <summary>
     /// 
     /// </summary>
-    public int chargeType { get; set; }
+    public int chargeType;
 }
 
 public class PrivilegesItems
@@ -2394,119 +2395,119 @@ public class PrivilegesItems
     /// <summary>
     /// 
     /// </summary>
-    public int id { get; set; }
+    public int id;
     /// <summary>
     /// 
     /// </summary>
-    public int fee { get; set; }
+    public int fee;
     /// <summary>
     /// 
     /// </summary>
-    public int payed { get; set; }
+    public int payed;
     /// <summary>
     /// 
     /// </summary>
-    public int realPayed { get; set; }
+    public int realPayed;
     /// <summary>
     /// 
     /// </summary>
-    public int st { get; set; }
+    public int st;
     /// <summary>
     /// 
     /// </summary>
-    public int pl { get; set; }
+    public int pl;
     /// <summary>
     /// 
     /// </summary>
-    public int dl { get; set; }
+    public int dl;
     /// <summary>
     /// 
     /// </summary>
-    public int sp { get; set; }
+    public int sp;
     /// <summary>
     /// 
     /// </summary>
-    public int cp { get; set; }
+    public int cp;
     /// <summary>
     /// 
     /// </summary>
-    public int subp { get; set; }
+    public int subp;
     /// <summary>
     /// 
     /// </summary>
-    public string cs { get; set; }
+    public string cs;
     /// <summary>
     /// 
     /// </summary>
-    public int maxbr { get; set; }
+    public int maxbr;
     /// <summary>
     /// 
     /// </summary>
-    public int fl { get; set; }
+    public int fl;
     /// <summary>
     /// 
     /// </summary>
-    public string pc { get; set; }
+    public string pc;
     /// <summary>
     /// 
     /// </summary>
-    public string toast { get; set; }
+    public string toast;
     /// <summary>
     /// 
     /// </summary>
-    public int flag { get; set; }
+    public int flag;
     /// <summary>
     /// 
     /// </summary>
-    public string paidBigBang { get; set; }
+    public string paidBigBang;
     /// <summary>
     /// 
     /// </summary>
-    public string preSell { get; set; }
+    public string preSell;
     /// <summary>
     /// 
     /// </summary>
-    public int playMaxbr { get; set; }
+    public int playMaxbr;
     /// <summary>
     /// 
     /// </summary>
-    public int downloadMaxbr { get; set; }
+    public int downloadMaxbr;
     /// <summary>
     /// 
     /// </summary>
-    public string maxBrLevel { get; set; }
+    public string maxBrLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string playMaxBrLevel { get; set; }
+    public string playMaxBrLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string downloadMaxBrLevel { get; set; }
+    public string downloadMaxBrLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string plLevel { get; set; }
+    public string plLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string dlLevel { get; set; }
+    public string dlLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string flLevel { get; set; }
+    public string flLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string rscl { get; set; }
+    public string rscl;
     /// <summary>
     /// 
     /// </summary>
-    public FreeTrialPrivileges freeTrialPrivilege { get; set; }
+    public FreeTrialPrivileges freeTrialPrivilege;
     /// <summary>
     /// 
     /// </summary>
-    public List<ChargeInfoListItems> chargeInfoList { get; set; }
+    public List<ChargeInfoListItems> chargeInfoList;
 }
 
 public class GedanDetail
@@ -2514,11 +2515,11 @@ public class GedanDetail
     /// <summary>
     /// 
     /// </summary>
-    public long code { get; set; }
+    public long code;
     /// <summary>
     /// 
     /// </summary>
-    public string relatedVideos { get; set; }
+    public string relatedVideos;
     /// <summary>
     /// 
     /// </summary>
@@ -2526,7 +2527,7 @@ public class GedanDetail
     /// <summary>
     /// 
     /// </summary>
-    public string urls { get; set; }
+    public string urls;
     /// <summary>
     /// 
     /// </summary>
@@ -2534,23 +2535,23 @@ public class GedanDetail
     /// <summary>
     /// 
     /// </summary>
-    public string sharedPrivilege { get; set; }
+    public string sharedPrivilege;
     /// <summary>
     /// 
     /// </summary>
-    public string resEntrance { get; set; }
+    public string resEntrance;
     /// <summary>
     /// 
     /// </summary>
-    public string fromUsers { get; set; }
+    public string fromUsers;
     /// <summary>
     /// 
     /// </summary>
-    public int fromUserCount { get; set; }
+    public int fromUserCount;
     /// <summary>
     /// 
     /// </summary>
-    public string songFromUsers { get; set; }
+    public string songFromUsers;
 }
 
 
@@ -2559,7 +2560,7 @@ public class musicCheck
     /// <summary>
     /// 
     /// </summary>
-    public bool success { get; set; }
+    public bool success;
     /// <summary>
     /// 
     /// </summary>
@@ -2571,19 +2572,19 @@ public class ArItem1
     /// <summary>
     /// 
     /// </summary>
-    public int id { get; set; }
+    public int id;
     /// <summary>
     /// 
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> tns { get; set; }
+    public List<string> tns;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> @alias { get; set; }
+    public List<string> @alias;
 }
 
 public class Al1
@@ -2591,11 +2592,11 @@ public class Al1
     /// <summary>
     /// 
     /// </summary>
-    public int id { get; set; }
+    public int id;
     /// <summary>
     /// 海阔天空
     /// </summary>
-    public string name { get; set; }
+    public string name;
     /// <summary>
     /// 
     /// </summary>
@@ -2603,11 +2604,11 @@ public class Al1
     /// <summary>
     /// 
     /// </summary>
-    public List<string> tns { get; set; }
+    public List<string> tns;
     /// <summary>
     /// 
     /// </summary>
-    public string pic_str { get; set; }
+    public string pic_str;
     /// <summary>
     /// 
     /// </summary>
@@ -2619,23 +2620,23 @@ public class H1
     /// <summary>
     /// 
     /// </summary>
-    public int br { get; set; }
+    public int br;
     /// <summary>
     /// 
     /// </summary>
-    public int fid { get; set; }
+    public int fid;
     /// <summary>
     /// 
     /// </summary>
-    public int size { get; set; }
+    public int size;
     /// <summary>
     /// 
     /// </summary>
-    public int vd { get; set; }
+    public int vd;
     /// <summary>
     /// 
     /// </summary>
-    public int sr { get; set; }
+    public int sr;
 }
 
 public class M1
@@ -2643,23 +2644,23 @@ public class M1
     /// <summary>
     /// 
     /// </summary>
-    public int br { get; set; }
+    public int br;
     /// <summary>
     /// 
     /// </summary>
-    public int fid { get; set; }
+    public int fid;
     /// <summary>
     /// 
     /// </summary>
-    public int size { get; set; }
+    public int size;
     /// <summary>
     /// 
     /// </summary>
-    public int vd { get; set; }
+    public int vd;
     /// <summary>
     /// 
     /// </summary>
-    public int sr { get; set; }
+    public int sr;
 }
 
 public class L1
@@ -2667,23 +2668,23 @@ public class L1
     /// <summary>
     /// 
     /// </summary>
-    public int br { get; set; }
+    public int br;
     /// <summary>
     /// 
     /// </summary>
-    public int fid { get; set; }
+    public int fid;
     /// <summary>
     /// 
     /// </summary>
-    public int size { get; set; }
+    public int size;
     /// <summary>
     /// 
     /// </summary>
-    public int vd { get; set; }
+    public int vd;
     /// <summary>
     /// 
     /// </summary>
-    public int sr { get; set; }
+    public int sr;
 }
 
 public class Sq1
@@ -2691,23 +2692,23 @@ public class Sq1
     /// <summary>
     /// 
     /// </summary>
-    public int br { get; set; }
+    public int br;
     /// <summary>
     /// 
     /// </summary>
-    public int fid { get; set; }
+    public int fid;
     /// <summary>
     /// 
     /// </summary>
-    public int size { get; set; }
+    public int size;
     /// <summary>
     /// 
     /// </summary>
-    public int vd { get; set; }
+    public int vd;
     /// <summary>
     /// 
     /// </summary>
-    public int sr { get; set; }
+    public int sr;
 }
 
 public class SongsItem1
@@ -2719,51 +2720,51 @@ public class SongsItem1
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public int pst { get; set; }
+    public int pst;
     /// <summary>
     /// 
     /// </summary>
-    public int t { get; set; }
+    public int t;
     /// <summary>
     /// 
     /// </summary>
-    public List<ArItem1> ar { get; set; }
+    public List<ArItem1> ar;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> alia { get; set; }
+    public List<string> alia;
     /// <summary>
     /// 
     /// </summary>
-    public int pop { get; set; }
+    public int pop;
     /// <summary>
     /// 
     /// </summary>
-    public int st { get; set; }
+    public int st;
     /// <summary>
     /// 
     /// </summary>
-    public string rt { get; set; }
+    public string rt;
     /// <summary>
     /// 
     /// </summary>
-    public int fee { get; set; }
+    public int fee;
     /// <summary>
     /// 
     /// </summary>
-    public int v { get; set; }
+    public int v;
     /// <summary>
     /// 
     /// </summary>
-    public string crbt { get; set; }
+    public string crbt;
     /// <summary>
     /// 
     /// </summary>
-    public string cf { get; set; }
+    public string cf;
     /// <summary>
     /// 
     /// </summary>
@@ -2771,23 +2772,23 @@ public class SongsItem1
     /// <summary>
     /// 
     /// </summary>
-    public int dt { get; set; }
+    public int dt;
     /// <summary>
     /// 
     /// </summary>
-    public H1 h { get; set; }
+    public H1 h;
     /// <summary>
     /// 
     /// </summary>
-    public M1 m { get; set; }
+    public M1 m;
     /// <summary>
     /// 
     /// </summary>
-    public L1 l { get; set; }
+    public L1 l;
     /// <summary>
     /// 
     /// </summary>
-    public Sq1 sq { get; set; }
+    public Sq1 sq;
 
     /// <summary>
     /// 
@@ -2796,55 +2797,55 @@ public class SongsItem1
     /// <summary>
     /// 
     /// </summary>
-    public string a { get; set; }
+    public string a;
     /// <summary>
     /// 
     /// </summary>
-    public string cd { get; set; }
+    public string cd;
     /// <summary>
     /// 
     /// </summary>
-    public int no { get; set; }
+    public int no;
     /// <summary>
     /// 
     /// </summary>
-    public string rtUrl { get; set; }
+    public string rtUrl;
     /// <summary>
     /// 
     /// </summary>
-    public int ftype { get; set; }
+    public int ftype;
     /// <summary>
     /// 
     /// </summary>
-    public List<string> rtUrls { get; set; }
+    public List<string> rtUrls;
     /// <summary>
     /// 
     /// </summary>
-    public long djId { get; set; }
+    public long djId;
     /// <summary>
     /// 
     /// </summary>
-    public long copyright { get; set; }
+    public long copyright;
     /// <summary>
     /// 
     /// </summary>
-    public long s_id { get; set; }
+    public long s_id;
     /// <summary>
     /// 
     /// </summary>
-    public long mark { get; set; }
+    public long mark;
     /// <summary>
     /// 
     /// </summary>
-    public int originCoverType { get; set; }
+    public int originCoverType;
     /// <summary>
     /// 
     /// </summary>
-    public string originSongSimpleData { get; set; }
+    public string originSongSimpleData;
     /// <summary>
     /// 
     /// </summary>
-    public string tagPicList { get; set; }
+    public string tagPicList;
     /// <summary>
     /// 
     /// </summary>
@@ -2852,47 +2853,47 @@ public class SongsItem1
     /// <summary>
     /// 
     /// </summary>
-    public int version { get; set; }
+    public int version;
     /// <summary>
     /// 
     /// </summary>
-    public string songJumpInfo { get; set; }
+    public string songJumpInfo;
     /// <summary>
     /// 
     /// </summary>
-    public string entertainmentTags { get; set; }
+    public string entertainmentTags;
     /// <summary>
     /// 
     /// </summary>
-    public string awardTags { get; set; }
+    public string awardTags;
     /// <summary>
     /// 
     /// </summary>
-    public int single { get; set; }
+    public int single;
     /// <summary>
     /// 
     /// </summary>
-    public string noCopyrightRcmd { get; set; }
+    public string noCopyrightRcmd;
     /// <summary>
     /// 
     /// </summary>
-    public int mv { get; set; }
+    public int mv;
     /// <summary>
     /// 
     /// </summary>
-    public int mst { get; set; }
+    public int mst;
     /// <summary>
     /// 
     /// </summary>
-    public int cp { get; set; }
+    public int cp;
     /// <summary>
     /// 
     /// </summary>
-    public int rtype { get; set; }
+    public int rtype;
     /// <summary>
     /// 
     /// </summary>
-    public string rurl { get; set; }
+    public string rurl;
     /// <summary>
     /// 
     /// </summary>
@@ -2904,15 +2905,15 @@ public class FreeTrialPrivilege1
     /// <summary>
     /// 
     /// </summary>
-    public string resConsumable { get; set; }
+    public string resConsumable;
     /// <summary>
     /// 
     /// </summary>
-    public string userConsumable { get; set; }
+    public string userConsumable;
     /// <summary>
     /// 
     /// </summary>
-    public string listenType { get; set; }
+    public string listenType;
 }
 
 public class ChargeInfoListItem1
@@ -2920,19 +2921,19 @@ public class ChargeInfoListItem1
     /// <summary>
     /// 
     /// </summary>
-    public long rate { get; set; }
+    public long rate;
     /// <summary>
     /// 
     /// </summary>
-    public string chargeUrl { get; set; }
+    public string chargeUrl;
     /// <summary>
     /// 
     /// </summary>
-    public string chargeMessage { get; set; }
+    public string chargeMessage;
     /// <summary>
     /// 
     /// </summary>
-    public int chargeType { get; set; }
+    public int chargeType;
 }
 
 public class PrivilegesItem1
@@ -2940,107 +2941,107 @@ public class PrivilegesItem1
     /// <summary>
     /// 
     /// </summary>
-    public long id { get; set; }
+    public long id;
     /// <summary>
     /// 
     /// </summary>
-    public int fee { get; set; }
+    public int fee;
     /// <summary>
     /// 
     /// </summary>
-    public int payed { get; set; }
+    public int payed;
     /// <summary>
     /// 
     /// </summary>
-    public int st { get; set; }
+    public int st;
     /// <summary>
     /// 
     /// </summary>
-    public int pl { get; set; }
+    public int pl;
     /// <summary>
     /// 
     /// </summary>
-    public int dl { get; set; }
+    public int dl;
     /// <summary>
     /// 
     /// </summary>
-    public int sp { get; set; }
+    public int sp;
     /// <summary>
     /// 
     /// </summary>
-    public int cp { get; set; }
+    public int cp;
     /// <summary>
     /// 
     /// </summary>
-    public int subp { get; set; }
+    public int subp;
     /// <summary>
     /// 
     /// </summary>
-    public string cs { get; set; }
+    public string cs;
     /// <summary>
     /// 
     /// </summary>
-    public int maxbr { get; set; }
+    public int maxbr;
     /// <summary>
     /// 
     /// </summary>
-    public int fl { get; set; }
+    public int fl;
     /// <summary>
     /// 
     /// </summary>
-    public string toast { get; set; }
+    public string toast;
     /// <summary>
     /// 
     /// </summary>
-    public int flag { get; set; }
+    public int flag;
     /// <summary>
     /// 
     /// </summary>
-    public string preSell { get; set; }
+    public string preSell;
     /// <summary>
     /// 
     /// </summary>
-    public int playMaxbr { get; set; }
+    public int playMaxbr;
     /// <summary>
     /// 
     /// </summary>
-    public int downloadMaxbr { get; set; }
+    public int downloadMaxbr;
     /// <summary>
     /// 
     /// </summary>
-    public string maxBrLevel { get; set; }
+    public string maxBrLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string playMaxBrLevel { get; set; }
+    public string playMaxBrLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string downloadMaxBrLevel { get; set; }
+    public string downloadMaxBrLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string plLevel { get; set; }
+    public string plLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string dlLevel { get; set; }
+    public string dlLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string flLevel { get; set; }
+    public string flLevel;
     /// <summary>
     /// 
     /// </summary>
-    public string rscl { get; set; }
+    public string rscl;
     /// <summary>
     /// 
     /// </summary>
-    public FreeTrialPrivilege1 freeTrialPrivilege { get; set; }
+    public FreeTrialPrivilege1 freeTrialPrivilege;
     /// <summary>
     /// 
     /// </summary>
-    public List<ChargeInfoListItem1> chargeInfoList { get; set; }
+    public List<ChargeInfoListItem1> chargeInfoList;
 }
 
 public class MusicDetail
@@ -3056,7 +3057,7 @@ public class MusicDetail
     /// <summary>
     /// 
     /// </summary>
-    public int code { get; set; }
+    public int code;
 }
 
 
