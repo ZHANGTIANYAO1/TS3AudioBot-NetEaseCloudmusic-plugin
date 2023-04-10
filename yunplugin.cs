@@ -519,11 +519,11 @@ public class SongsItems
     /// <summary>
     /// 
     /// </summary>
-    public string name;
+    public string name { get; set; }
     /// <summary>
     /// 
     /// </summary>
-    public long id;
+    public long id { get; set; }
     /// <summary>
     /// 
     /// </summary>
@@ -2163,7 +2163,7 @@ public class Playlist
     /// <summary>
     /// 
     /// </summary>
-    public string coverImgUrl;
+    public string coverImgUrl { get; set; }
     /// <summary>
     /// 
     /// </summary>
