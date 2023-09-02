@@ -8,7 +8,7 @@
 
 ## 关于设置文件YunMusicSettings.ini
 `playMode=`是播放模式   
-`WangYiYunAPI_Address`是网易云API地址，目前默认的是我部署在vercel服务器上的远程API，如果加载速度过慢或者无法访问，请自行部署API并修改API地址。（为了保护你的隐私强烈建议你自行部署API）   
+`WangYiYunAPI_Address`是网易云API地址，目前默认的是一个大佬的远程API，如果加载速度过慢或者无法访问，请自行部署API并修改API地址。（为了保护你的隐私强烈建议你自行部署API）   
 `cookies1=`是保存在你本地的身份验证，通过二维码登录获取。（不需要修改）   
 
 ## 目前的指令：
