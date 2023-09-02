@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="G:\TS3DEV\TS3AudioBot-master\TS3AudioBot\TS3AudioBot.csproj" />
+    <ProjectReference Include="G:\TS3DEV\TS3AudioBot-master\TSLib\TSLib.csproj" />
+  </ItemGroup>
+
+</Project>

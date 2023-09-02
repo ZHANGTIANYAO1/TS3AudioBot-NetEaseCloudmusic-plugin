@@ -1,0 +1,105 @@
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ include file="Util.ttinclude" once="true" #>
+<#+
+public static IEnumerable<Messages.Msg> OnlyS2C(IEnumerable<Messages.Msg> enu) => enu.Where(x => x.s2c.Value);
+public class Messages
+{
+	public static Messages Parse(string file)
+	{
+		var toml = Nett.Toml.ReadFile<Messages>(file);
+
+		// transfer all optional get/set confs
+		/*foreach (var struc in toml.@struct)
+		{
+			foreach (var prop in struc.properties)
+			{
+				prop.get ??= struc.accessor.get;
+				prop.set ??= struc.accessor.set;
+			}
+		}*/
+
+		return toml;
+	}
+
+	public IEnumerable<Msg> GetOrderedMsg()
+	{
+		foreach(var (grp, msg) in msg_group.SelectMany(group => group.msg.Select(msg => (group:group, msg:msg))).OrderBy(x => x.msg.name))
+		{
+			// transfer all default confs
+			msg.s2c      ??= grp.@default.s2c;
+			msg.c2s      ??= grp.@default.c2s;
+			msg.response ??= grp.@default.response;
+			msg.low      ??= grp.@default.low;
+			msg.np       ??= grp.@default.np;
+
+			yield return msg;
+		}
+	}
+
+	public IEnumerable<Msg> NotifiesSorted => GetOrderedMsg().Where(x => x.notify != null);
+
+	public (Field fld, bool optional) GetField(string name)
+	{
+		var ret = (fld:fields.FirstOrDefault(x => x.map == name.Trim('?')), optional:name.EndsWith("?"));
+		if(ret.fld == null)
+			throw new Exception($"Field declaration for \"{name}\" not found");
+		return ret;
+	}
+
+	public Field[] fields { get; set; }
+	public MsgGroup[] msg_group { get; set; }
+
+	public class Field
+	{
+		public string map { get; set; }
+		public string ts { get; set; }
+		public string pretty { get; set; }
+		public string type { get; set; }
+
+		public string mod { get; set; }
+		public string doc { get; set; }
+
+		public bool isArray => mod == "array";
+		public string TypeFin(bool optional)
+		{
+			string ltype;
+			switch(type)
+			{
+				case "PermissionId": ltype = "Ts3Permission"; break;
+				default: ltype = type; break;
+			}
+			return ltype + (isArray ? "[]" : "") + (optional ? "?" : "");
+		}
+	}
+
+	public class MsgGroup
+	{
+		public Default @default { get; set; }
+		public Msg[] msg { get; set; }
+	}
+
+	public class Default
+	{
+		public bool s2c { get; set; }
+		public bool c2s { get; set; }
+		public bool response { get; set; }
+		public bool low { get; set; }
+		public bool np { get; set; }
+	}
+
+	public class Msg
+	{
+		public string name { get; set; }
+		public string notify { get; set; }
+		public string[] attributes { get; set; }
+
+		public bool? s2c { get; set; }
+		public bool? c2s { get; set; }
+		public bool? response { get; set; }
+		public bool? low { get; set; }
+		public bool? np { get; set; }
+	}
+}
+#>
