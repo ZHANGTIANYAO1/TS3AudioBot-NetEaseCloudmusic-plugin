@@ -3114,7 +3114,7 @@ class IniFile   // ini设置文件读取
 
 public class YunPlgun : IBotPlugin /* or ICorePlugin */
 {
-    static IniFile MyIni = new IniFile("plugins/YunMusicSettings.ini");
+    static IniFile MyIni = new IniFile("plugins/YunSettings.ini");
     PlayManager playManager;
     Ts3Client ts3Client;
     InvokerData invoker;
@@ -3123,6 +3123,7 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
     private TsFullClient tsClient;
     PlayManager tempplayManager;
     InvokerData tempinvoker;
+    Ts3Client tempts3Client;
     public static string cookies1;
     public static bool isEventnotadded = true;
     public static int playMode;
@@ -3140,9 +3141,30 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         this.resourceFactory = resourceFactory;
         this.tsClient = tsClient;
         this.player = player;
-        playMode = int.Parse(MyIni.Read("playMode"));
-        cookies1 = MyIni.Read("cookies1");
-        WangYiYunAPI_Address = MyIni.Read("WangYiYunAPI_Address");
+        var playMode_temp = MyIni.Read("playMode");
+        var cookies1_temp = MyIni.Read("cookies1");
+        var WangYiYunAPI_Address_temp = MyIni.Read("WangYiYunAPI_Address");
+        if (playMode_temp == "")
+        {
+            playMode = 0;
+        } else
+        {
+            playMode = int.Parse(MyIni.Read("playMode"));
+        }
+       if (cookies1_temp == "")
+        {
+            cookies1 = "";
+        } else
+        {
+            cookies1 = MyIni.Read("cookies1");
+        }
+        if (WangYiYunAPI_Address_temp == "")
+        {
+            WangYiYunAPI_Address = "https://127.0.0.1:3000";
+        } else
+        {
+            WangYiYunAPI_Address = MyIni.Read("WangYiYunAPI_Address");
+        }
         Console.WriteLine("Yun Plugin loaded");
         Console.WriteLine(playMode);
         Console.WriteLine(cookies1);
@@ -3168,15 +3190,27 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         this.tempinvoker = invoker;
     }
 
+    public void setTs3Client(Ts3Client ts3Client)
+    {
+        this.tempts3Client = ts3Client;
+    }
+
+    public Ts3Client GetTs3Client()
+    {
+        return this.tempts3Client;
+    }
+
     public async Task AudioService_Playstoped(object? sender, EventArgs e) //当上一首音乐播放完触发
     {
         await slimlock.WaitAsync();
         try
         {
+            Console.WriteLine("上一首歌结束");
             if (playMode == 0)
             {
                 var invoker = getinvoker();
                 var playManager = GetplayManager();
+                var ts3Client = GetTs3Client();
                 if (SongQueue.Count == 0)
                 {
                     return;
@@ -3187,15 +3221,17 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
                 Console.WriteLine(SongQueue.Count.ToString());
                 Console.WriteLine(nextsong);
                 string musicurl = getMusicUrl(nextsong, true);
-                string musicname = getMusicName(nextsong);
-                await ts3Client.SendChannelMessage(musicname);
+                Console.WriteLine("url:" + musicurl);
                 await MainCommands.CommandPlay(playManager, invoker, musicurl);
+                string musicname = getMusicName(nextsong);
+                ts3Client.SendChannelMessage("正在播放音乐：" + musicname);
             }
 
             if (playMode == 1)
             {
                 var invoker = getinvoker();
                 var playManager = GetplayManager();
+                var ts3Client = GetTs3Client();
                 if (SongQueue.Count == 0)
                 {
                     return;
@@ -3207,9 +3243,10 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
                 Console.WriteLine(SongQueue.Count.ToString());
                 Console.WriteLine(nextsong);
                 string musicurl = getMusicUrl(nextsong, true);
-                string musicname = getMusicName(nextsong);
-                await ts3Client.SendChannelMessage(musicname);
+                Console.WriteLine("url:" + musicurl);
                 await MainCommands.CommandPlay(playManager, invoker, musicurl);
+                string musicname = getMusicName(nextsong);
+                ts3Client.SendChannelMessage("正在播放音乐：" + musicname);
             }
 
             if (playMode == 2)
@@ -3217,6 +3254,7 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
                 Random ran = new Random();
                 var invoker = getinvoker();
                 var playManager = GetplayManager();
+                var ts3Client = GetTs3Client();
                 if (SongQueue.Count == 0)
                 {
                     return;
@@ -3228,9 +3266,10 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
                 Console.WriteLine(SongQueue.Count.ToString());
                 Console.WriteLine(nextsong);
                 string musicurl = getMusicUrl(nextsong, true);
-                string musicname = getMusicName(nextsong);
-                await ts3Client.SendChannelMessage(musicname);
+                Console.WriteLine("url:" + musicurl);
                 await MainCommands.CommandPlay(playManager, invoker, musicurl);
+                string musicname = getMusicName(nextsong);
+                ts3Client.SendChannelMessage("正在播放音乐：" + musicname);
             }
 
             if (playMode == 3)
@@ -3238,6 +3277,7 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
                 Random ran = new Random();
                 var invoker = getinvoker();
                 var playManager = GetplayManager();
+                var ts3Client = GetTs3Client();
                 if (SongQueue.Count == 0)
                 {
                     return;
@@ -3250,9 +3290,10 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
                 Console.WriteLine(SongQueue.Count.ToString());
                 Console.WriteLine(nextsong);
                 string musicurl = getMusicUrl(nextsong, true);
-                string musicname = getMusicName(nextsong);
-                await ts3Client.SendChannelMessage(musicname);
+                Console.WriteLine("url:" + musicurl);
                 await MainCommands.CommandPlay(playManager, invoker, musicurl);
+                string musicname = getMusicName(nextsong);
+                ts3Client.SendChannelMessage("正在播放音乐：" + musicname);
             }
         }
         finally
@@ -3304,14 +3345,15 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         SongQueue.Clear();
         setInvoker(invoker);
         setPlplayManager(playManager);
+        setTs3Client(ts3Client);
         string strid = id.ToString();
-        string url = WangYiYunAPI_Address +"/playlist/detail?id=" + strid;
+        string url = WangYiYunAPI_Address + "/playlist/detail?id=" + strid;
         string json = HttpGet(url);
         GedanDetail gedanDetail = JsonSerializer.Deserialize<GedanDetail>(json);
         string gedanname = gedanDetail.playlist.name;
         string imgurl = gedanDetail.playlist.coverImgUrl;
-        await MainCommands.CommandBotDescriptionSet(ts3Client, gedanname);
-        await MainCommands.CommandBotAvatarSet(ts3Client, imgurl);
+        MainCommands.CommandBotDescriptionSet(ts3Client, gedanname);
+        MainCommands.CommandBotAvatarSet(ts3Client, imgurl);
         await genList(id, SongQueue, ts3Client);
         string firstmusicid;
         if (playMode == 2 || playMode == 3)
@@ -3332,7 +3374,7 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         ts3Client.SendChannelMessage("正在播放音乐：" + getMusicName(firstmusicid));
         return ("开始播放歌单");
     }
-   
+
     [Command("yun gedan")]
     public async Task<string> CommandGedan(string name, PlaylistManager playlistManager, ResolveContext resourceFactory, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
     {
@@ -3349,14 +3391,15 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         SongQueue.Clear();
         setInvoker(invoker);
         setPlplayManager(playManager);
+        setTs3Client(ts3Client);
         string strid = gedanid.ToString();
         string url = WangYiYunAPI_Address + "/playlist/detail?id=" + strid;
         string jsons = HttpGet(url);
         GedanDetail gedanDetail = JsonSerializer.Deserialize<GedanDetail>(jsons);
         string gedanname = gedanDetail.playlist.name;
         string imgurl = gedanDetail.playlist.coverImgUrl;
-        await MainCommands.CommandBotDescriptionSet(ts3Client, gedanname);
-        await MainCommands.CommandBotAvatarSet(ts3Client, imgurl);
+        MainCommands.CommandBotDescriptionSet(ts3Client, gedanname);
+        MainCommands.CommandBotAvatarSet(ts3Client, imgurl);
         await genList(gedanid, SongQueue, ts3Client);
         string firstmusicid;
         if (playMode == 2 || playMode == 3)
@@ -3379,8 +3422,11 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
     }
 
     [Command("yun play")]
-    public static async Task<string> CommandYunPlay(string arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+    public async Task<string> CommandYunPlay(string arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
+        setInvoker(invoker);
+        setPlplayManager(playManager);
+        setTs3Client(ts3Client);
         string urlSearch = WangYiYunAPI_Address + "/search?keywords=" + arguments + "&limit=1";
         string Searchjson = HttpGet(urlSearch);
         yunSearchSong? yunSearchSong = JsonSerializer.Deserialize<yunSearchSong>(Searchjson);
@@ -3393,8 +3439,8 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         MusicDetail musicDetail = JsonSerializer.Deserialize<MusicDetail>(musicdetailjson);
         string musicimgurl = musicDetail.songs[0].al.picUrl;
         string musicname = musicDetail.songs[0].name;
-        await MainCommands.CommandBotAvatarSet(ts3Client, musicimgurl);
-        await MainCommands.CommandBotDescriptionSet(ts3Client, musicname);
+        MainCommands.CommandBotAvatarSet(ts3Client, musicimgurl);
+        MainCommands.CommandBotDescriptionSet(ts3Client, musicname);
         Console.WriteLine(musicurl);
         if (musicurl != "error")
         {
@@ -3408,16 +3454,19 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
     }
 
     [Command("yun playid")]
-    public static async Task<string> CommandYunPlayId(long arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+    public async Task<string> CommandYunPlayId(long arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
+        setInvoker(invoker);
+        setPlplayManager(playManager);
+        setTs3Client(ts3Client);
         string musicurl = getMusicUrl(arguments, true);
         string musicdetailurl = WangYiYunAPI_Address + "/song/detail?ids=" + arguments;
         string musicdetailjson = HttpGet(musicdetailurl);
         MusicDetail musicDetail = JsonSerializer.Deserialize<MusicDetail>(musicdetailjson);
         string musicimgurl = musicDetail.songs[0].al.picUrl;
         string musicname = musicDetail.songs[0].name;
-        await MainCommands.CommandBotAvatarSet(ts3Client, musicimgurl);
-        await MainCommands.CommandBotDescriptionSet(ts3Client, musicname);
+        MainCommands.CommandBotAvatarSet(ts3Client, musicimgurl);
+        MainCommands.CommandBotDescriptionSet(ts3Client, musicname);
         Console.WriteLine(musicurl);
         if (musicurl != "error")
         {
@@ -3430,8 +3479,11 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
     }
 
     [Command("yun add")]
-    public static async Task<string> CommandYunAdd(string arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+    public async Task<string> CommandYunAdd(string arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
+        setInvoker(invoker);
+        setPlplayManager(playManager);
+        setTs3Client(ts3Client);
         string urlSearch = WangYiYunAPI_Address + "/search?keywords=" + arguments + "&limit=1";
         string Searchjson = HttpGet(urlSearch);
         yunSearchSong? yunSearchSong = JsonSerializer.Deserialize<yunSearchSong>(Searchjson);
@@ -3444,8 +3496,8 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         MusicDetail musicDetail = JsonSerializer.Deserialize<MusicDetail>(musicdetailjson);
         string musicimgurl = musicDetail.songs[0].al.picUrl;
         string musicname = musicDetail.songs[0].name;
-        await MainCommands.CommandBotAvatarSet(ts3Client, musicimgurl);
-        await MainCommands.CommandBotDescriptionSet(ts3Client, musicname);
+        MainCommands.CommandBotAvatarSet(ts3Client, musicimgurl);
+        MainCommands.CommandBotDescriptionSet(ts3Client, musicname);
         Console.WriteLine(musicurl);
         if (musicurl != "error")
         {
@@ -3458,10 +3510,12 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         return ("发生未知错误");
     }
 
-
     [Command("yun addid")]
-    public static async Task<string> CommandYunAddId(long arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+    public async Task<string> CommandYunAddId(long arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
+        setInvoker(invoker);
+        setPlplayManager(playManager);
+        setTs3Client(ts3Client);
         string musicurl = getMusicUrl(arguments, true);
         Console.WriteLine(musicurl);
         string musicdetailurl = WangYiYunAPI_Address + "/song/detail?ids=" + arguments;
@@ -3480,10 +3534,13 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         }
         return ("发生未知错误");
     }
-    
+
     [Command("yun next")]
     public async Task<string> CommandYunNext(PlaylistManager playlistManager, ResolveContext resourceFactory, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
+        setInvoker(invoker);
+        setPlplayManager(playManager);
+        setTs3Client(ts3Client);
         if (playManager.IsPlaying && SongQueue.Count >= 1)
         {
             await playManager.Stop();
@@ -3506,7 +3563,7 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
                 Console.WriteLine(nextsong);
                 string musicurl = getMusicUrl(nextsong, true);
                 string musicname = getMusicName(nextsong);
-                await ts3Client.SendChannelMessage(musicname);
+                await ts3Client.SendChannelMessage("正在播放音乐："+musicname);
                 await MainCommands.CommandPlay(playManager, invoker, musicurl);
                 return ("开始播放下一首音乐");
             }
@@ -3522,7 +3579,7 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
                 Console.WriteLine(nextsong);
                 string musicurl = getMusicUrl(nextsong, true);
                 string musicname = getMusicName(nextsong);
-                await ts3Client.SendChannelMessage(musicname);
+                await ts3Client.SendChannelMessage("正在播放音乐：" + musicname);
                 await MainCommands.CommandPlay(playManager, invoker, musicurl);
                 return ("开始播放下一首音乐");
             }
@@ -3587,7 +3644,7 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
         return result;
     }
 
-//以下全是功能性函数
+    //以下全是功能性函数
     public static string getMusicUrl(long id, bool usingcookie = false) //获得歌曲URL
     {
         string cookie = getCookies();
@@ -3701,8 +3758,8 @@ public class YunPlgun : IBotPlugin /* or ICorePlugin */
     }
 
 
-    public void Dispose() 
+    public void Dispose()
     {
-
+        SongQueue.Clear();
     }
 }

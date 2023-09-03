@@ -1,0 +1,382 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\Saopig\\source\\repos\\ClassLibrary4\\ClassLibrary4.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\Saopig\\source\\repos\\ClassLibrary4\\ClassLibrary4.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Saopig\\source\\repos\\ClassLibrary4\\ClassLibrary4.csproj",
+        "projectName": "YunBot",
+        "projectPath": "C:\\Users\\Saopig\\source\\repos\\ClassLibrary4\\ClassLibrary4.csproj",
+        "packagesPath": "C:\\Users\\Saopig\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Saopig\\source\\repos\\ClassLibrary4\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Saopig\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "targetAlias": "netcoreapp3.1",
+            "projectReferences": {
+              "G:\\TS3DEV\\TS3AudioBot-master\\TS3AudioBot\\TS3AudioBot.csproj": {
+                "projectPath": "G:\\TS3DEV\\TS3AudioBot-master\\TS3AudioBot\\TS3AudioBot.csproj"
+              },
+              "G:\\TS3DEV\\TS3AudioBot-master\\TSLib\\TSLib.csproj": {
+                "projectPath": "G:\\TS3DEV\\TS3AudioBot-master\\TSLib\\TSLib.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.416\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "G:\\TS3DEV\\TS3AudioBot-master\\TS3AudioBot\\TS3AudioBot.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "G:\\TS3DEV\\TS3AudioBot-master\\TS3AudioBot\\TS3AudioBot.csproj",
+        "projectName": "TS3AudioBot",
+        "projectPath": "G:\\TS3DEV\\TS3AudioBot-master\\TS3AudioBot\\TS3AudioBot.csproj",
+        "packagesPath": "C:\\Users\\Saopig\\.nuget\\packages\\",
+        "outputPath": "G:\\TS3DEV\\TS3AudioBot-master\\TS3AudioBot\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Saopig\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "targetAlias": "netcoreapp3.1",
+            "projectReferences": {
+              "G:\\TS3DEV\\TS3AudioBot-master\\TSLib\\TSLib.csproj": {
+                "projectPath": "G:\\TS3DEV\\TS3AudioBot-master\\TSLib\\TSLib.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
+          "dependencies": {
+            "CliWrap": {
+              "target": "Package",
+              "version": "[3.1.0, )"
+            },
+            "CommandLineParser": {
+              "target": "Package",
+              "version": "[2.8.0, )"
+            },
+            "LiteDB": {
+              "target": "Package",
+              "version": "[4.1.4, )"
+            },
+            "Microsoft.AspNetCore.Cors": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.AspNetCore.Server.Kestrel": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.AspNetCore.StaticFiles": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.CodeAnalysis.CSharp": {
+              "include": "Runtime, Compile, Build, Native, ContentFiles, BuildTransitive",
+              "target": "Package",
+              "version": "[3.7.0, )"
+            },
+            "NLog": {
+              "target": "Package",
+              "version": "[4.7.3, )"
+            },
+            "Nett": {
+              "target": "Package",
+              "version": "[0.15.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.3, )"
+            },
+            "PlaylistsNET": {
+              "target": "Package",
+              "version": "[1.1.2, )"
+            },
+            "SixLabors.ImageSharp": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.416\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "G:\\TS3DEV\\TS3AudioBot-master\\TSLib\\TSLib.csproj": {
+      "version": "1.1.0",
+      "restore": {
+        "projectUniqueName": "G:\\TS3DEV\\TS3AudioBot-master\\TSLib\\TSLib.csproj",
+        "projectName": "Splamy.TSLib",
+        "projectPath": "G:\\TS3DEV\\TS3AudioBot-master\\TSLib\\TSLib.csproj",
+        "packagesPath": "C:\\Users\\Saopig\\.nuget\\packages\\",
+        "outputPath": "G:\\TS3DEV\\TS3AudioBot-master\\TSLib\\obj\\",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "configFilePaths": [
+          "C:\\Users\\Saopig\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1",
+          "netstandard2.0",
+          "netstandard2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "targetAlias": "netcoreapp3.1",
+            "projectReferences": {}
+          },
+          "netstandard2.0": {
+            "targetAlias": "netstandard2.0",
+            "projectReferences": {}
+          },
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
+          "dependencies": {
+            "Heijden.Dns.Portable": {
+              "target": "Package",
+              "version": "[2.0.19, )"
+            },
+            "NLog": {
+              "target": "Package",
+              "version": "[4.7.3, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.3, )"
+            },
+            "Nullable": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.1, )"
+            },
+            "Portable.BouncyCastle": {
+              "target": "Package",
+              "version": "[1.8.6.7, )"
+            },
+            "Splamy.Ed25519.Toolkit": {
+              "target": "Package",
+              "version": "[1.0.3, )"
+            },
+            "System.IO.Pipelines": {
+              "target": "Package",
+              "version": "[4.7.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.416\\RuntimeIdentifierGraph.json"
+        },
+        "netstandard2.0": {
+          "targetAlias": "netstandard2.0",
+          "dependencies": {
+            "Heijden.Dns.Portable": {
+              "target": "Package",
+              "version": "[2.0.19, )"
+            },
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
+            },
+            "NLog": {
+              "target": "Package",
+              "version": "[4.7.3, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.3, )"
+            },
+            "Nullable": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.1, )"
+            },
+            "Portable.BouncyCastle": {
+              "target": "Package",
+              "version": "[1.8.6.7, )"
+            },
+            "Splamy.Ed25519.Toolkit": {
+              "target": "Package",
+              "version": "[1.0.3, )"
+            },
+            "System.IO.Pipelines": {
+              "target": "Package",
+              "version": "[4.7.2, )"
+            },
+            "System.Memory": {
+              "target": "Package",
+              "version": "[4.5.4, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.416\\RuntimeIdentifierGraph.json"
+        },
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "dependencies": {
+            "Heijden.Dns.Portable": {
+              "target": "Package",
+              "version": "[2.0.19, )"
+            },
+            "NLog": {
+              "target": "Package",
+              "version": "[4.7.3, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.3, )"
+            },
+            "Nullable": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.2.1, )"
+            },
+            "Portable.BouncyCastle": {
+              "target": "Package",
+              "version": "[1.8.6.7, )"
+            },
+            "Splamy.Ed25519.Toolkit": {
+              "target": "Package",
+              "version": "[1.0.3, )"
+            },
+            "System.IO.Pipelines": {
+              "target": "Package",
+              "version": "[4.7.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.416\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
