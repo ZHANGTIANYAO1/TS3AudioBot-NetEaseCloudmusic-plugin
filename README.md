@@ -9,7 +9,7 @@
 ## 关于2.0版本
 似乎在播放列表的bug应该已经修复了，如果还有问题请github创建issue。
 
-## 关于设置文件YunMusicSettings.ini
+## 关于设置文件YunSettings.ini
 `playMode=`是播放模式   
 `WangYiYunAPI_Address`是网易云API地址，目前默认的是一个大佬的远程API，如果加载速度过慢或者无法访问，请自行部署API并修改API地址。（为了保护你的隐私强烈建议你自行部署API）   
 `cookies1=`是保存在你本地的身份验证，通过二维码登录获取。（不需要修改）   
