@@ -1,7 +1,8 @@
 # TS3AudioBot-NetEaseCloudmusic-plugin  
 >此插件基于Splamy/TS3AudioBot项目 https://github.com/Splamy/TS3AudioBot   
 >以及网易云音乐 API开发https://github.com/Binaryify/NeteaseCloudMusicApi  
->若是想要使用此插件，请先根据这两个项目的wiki安装到ts服务器本地(测试过windows系统没有问题，不保证linux是否运行正常)  
+>若是想要使用此插件，请先根据这两个项目的wiki安装到ts服务器本地(测试过windows系统没有问题，不保证linux是否运行正常)
+>2.0版本之后可以不需要本地部署网易云API了，但是强烈建议自行部署防止隐私泄露   
 此插件安装方法同样见TS3AudioBot项目wiki  
 **目前TS3AudioBot被集成到压缩文件中，但是任然需要自行安装网易云音乐API**  
 **最好给音乐机器人超管权限保证能正常更新头像和描述**  
