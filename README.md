@@ -49,6 +49,38 @@ vip音乐想要先登陆才能播放完整版本:（输入指令后扫描机器�
 
 需要注意的是如果歌单歌曲过多需要时间加载，期间一定一定不要输入其他指令  
 
+### TS频道描述（复制代码到频道描述）
+```
+[COLOR=#ff5500][B]正在播放的歌单的图片和名称可以点机器人看它的头像和描述[/B][/COLOR]
+[COLOR=#aa00ff]机器人现在可以通过歌单播放vip音乐，如果遇到其他问题可以联系Github[/COLOR]
+
+[COLOR=#0055ff]双击机器人，目前有以下指令（[I]把[xxx]替换成对应信息，包括中括号[/I]）[/COLOR]
+1.立即播放网易云音乐
+[COLOR=#00aa00]!yun play [音乐名称][/COLOR]
+2.添加音乐到下一首
+[COLOR=#00aa00]!yun add [音乐名称][/COLOR]
+3.播放网易云音乐歌单
+[COLOR=#00aa00]!yun gedan [歌单名称][/COLOR]
+4.播放网易云音乐歌单id
+[COLOR=#00aa00]!yun gedanid [歌单名称][/COLOR]
+5.立即播放网易云音乐id
+[COLOR=#00aa00]!yun playid [歌单id][/COLOR]
+6.添加指定音乐id到下一首
+[COLOR=#00aa00]!yun add [音乐id][/COLOR]
+7.播放列表中的下一首
+[COLOR=#00aa00]!yun next[/COLOR]
+8.播放模式选择【0=顺序播放 1=顺序循环 2=随机 3=随即循环】
+[COLOR=#00aa00]!yun mode[/COLOR]
+9.登陆账户
+[COLOR=#00aa00]!yun login[/COLOR]
+[COLOR=#aaaaff]如果想要播放会员音乐需要先登陆会员账户，输入上述命令后扫描机器人头像的二维码登陆（只需要一账户登陆一次即可）[/COLOR]
+需要注意的是如果歌单歌曲过多需要时间加载（重写后应该只需要几秒），期间[B]一定一定不要[/B]输入其他指令
+
+以下例子加粗的就是音乐或者歌单id
+[URL]https://music.163.com/#/my/m/music/playlist?id=[B]2139305008[I][/I][/B][/URL]
+
+```
+
 ### 已知问题  
 使用官方构建的ts3aduiobot会报错，因为官方的编译环境有问题。  
 解决方法：1.自行构建 2.使用我打包的版本  
