@@ -21,17 +21,22 @@ namespace YunPlugin
 {
     public class YunPlgun : IBotPlugin /* or ICorePlugin */
     {
-        static YunPlgun Instance;
-        static IniFile MyIni;
+        private static YunPlgun Instance;
+        private static IniFile MyIni;
         private static NLog.Logger Log = NLog.LogManager.GetLogger($"TS3AudioBot.Plugins.{typeof(YunPlgun).Namespace}");
-        public static bool isEventnotadded = true;
-        SemaphoreSlim slimlock = new SemaphoreSlim(1, 1);
-        public static string neteaseApi;
+        private static string neteaseApi;
+        private static string neteaseApiUNM;
+
+        public static NLog.Logger GetLogger()
+        {
+            return Log;
+        }
 
         private PlayManager playManager;
         private Ts3Client ts3Client;
         private Connection serverView;
         private PlayControl playControl;
+        private SemaphoreSlim slimlock = new SemaphoreSlim(1, 1);
 
         public YunPlgun(PlayManager playManager, Ts3Client ts3Client, Connection serverView) {
             Instance = this;
@@ -42,10 +47,27 @@ namespace YunPlugin
 
         public void Initialize()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                string dockerEnvFilePath = "/.dockerenv";
+
+                if (System.IO.File.Exists(dockerEnvFilePath))
+                {
+                    Log.Info("运行在Docker环境.");
+                }
+                else
+                {
+                    Log.Info("运行在Linux环境.");
+                }
+
+                string location = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                MyIni = new IniFile(System.IO.File.Exists(dockerEnvFilePath) ? location + "/data/plugins/YunSettings.ini" : location + "/plugins/YunSettings.ini");
+            }
+            else
+            {
                 MyIni = new IniFile("plugins/YunSettings.ini");
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                MyIni = new IniFile(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/data/plugins/YunSettings.ini");
+            }
+            
 
             var cookies = MyIni.Read("cookies1");
             Mode playMode;
@@ -59,19 +81,23 @@ namespace YunPlugin
             }
 
             neteaseApi = MyIni.Read("WangYiYunAPI_Address", "https://127.0.0.1:3000");
+            neteaseApiUNM = MyIni.Read("UNM_Address", "https://127.0.0.1:3001");
+
             Log.Info("Yun Plugin loaded");
             Log.Info($"Play mode: {playMode}");
             Log.Info($"Cookie: {cookies}");
             Log.Info($"Api address: {neteaseApi}");
 
-            playControl = new PlayControl(playManager, ts3Client, Log, neteaseApi);
+            playControl = new PlayControl(playManager, ts3Client, Log, neteaseApi, neteaseApiUNM);
             playControl.SetMode(playMode);
             playControl.SetCookies(cookies);
+
+            playManager.PlaybackStopped += AudioService_PlaybackStopped;
 
             ts3Client.SendChannelMessage("Yun bot loaded success!");
         }
 
-        public async Task AudioService_Playstoped(object sender, EventArgs e) //当上一首音乐播放完触发
+        public async Task AudioService_PlaybackStopped(object sender, EventArgs e) //当上一首音乐播放完触发
         {
             await slimlock.WaitAsync();
             try
@@ -94,23 +120,14 @@ namespace YunPlugin
                 playControl.SetMode(playMode);
                 MyIni.Write("playMode", mode.ToString());
 
-                switch (playMode)
+                return Task.FromResult(playMode switch
                 {
-                    case Mode.SeqPlay:
-                        return Task.FromResult("当前播放模式为顺序播放");
-
-                    case Mode.SeqLoopPlay:
-                        return Task.FromResult("当前播放模式为顺序循环");
-
-                    case Mode.RandomPlay:
-                        return Task.FromResult("当前播放模式为随机播放");
-
-                    case Mode.RandomLoopPlay:
-                        return Task.FromResult("当前播放模式为随机循环");
-
-                    default:
-                        return Task.FromResult("请输入正确的播放模式");
-                }
+                    Mode.SeqPlay => "当前播放模式为顺序播放",
+                    Mode.SeqLoopPlay => "当前播放模式为顺序循环",
+                    Mode.RandomPlay => "当前播放模式为随机播放",
+                    Mode.RandomLoopPlay => "当前播放模式为随机循环",
+                    _ => "请输入正确的播放模式",
+                });
             }
             else
             {
@@ -119,19 +136,12 @@ namespace YunPlugin
         }
 
         [Command("yun gedanid")]
-        public async Task<string> playgedan(long id, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
+        public async Task<string> playgedan(long id, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
         {
-            if (isEventnotadded)
-            {
-                player.OnSongEnd += AudioService_Playstoped;
-                Log.Debug("event added");
-                isEventnotadded = false;
-            }
             playControl.SetInvoker(invoker);
             string strid = id.ToString();
-            string url = neteaseApi + "/playlist/detail?id=" + strid;
-            string json = Utils.HttpGet(url);
-            GedanDetail gedanDetail = JsonSerializer.Deserialize<GedanDetail>(json);
+
+            var gedanDetail = await GetPlayListDetail(strid);
             string gedanname = gedanDetail.playlist.name;
             string imgurl = gedanDetail.playlist.coverImgUrl;
             await MainCommands.CommandBotDescriptionSet(ts3Client, gedanname);
@@ -148,23 +158,16 @@ namespace YunPlugin
         }
 
         [Command("yun gedan")]
-        public async Task<string> CommandGedan(string name, PlaylistManager playlistManager, ResolveContext resourceFactory, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
+        public async Task<string> CommandGedan(string name, InvokerData invoker, Ts3Client ts3Client)
         {
-            string urlSearch = neteaseApi + "/search?keywords=" + name + "&limit=1&type=1000";
-            string json = Utils.HttpGet(urlSearch);
+            playControl.SetInvoker(invoker);
+
+            string urlSearch = $"{neteaseApi}/search?keywords={name}&limit=1&type=1000";
+            string json = await Utils.HttpGetAsync(urlSearch);
             SearchGedan searchgedan = JsonSerializer.Deserialize<SearchGedan>(json);
             long gedanid = searchgedan.result.playlists[0].id;
-            if (isEventnotadded)
-            {
-                player.OnSongEnd += AudioService_Playstoped;
-                Console.WriteLine("event added");
-                isEventnotadded = false;
-            }
-            playControl.SetInvoker(invoker);
             string strid = gedanid.ToString();
-            string url = neteaseApi + "/playlist/detail?id=" + strid;
-            string jsons = Utils.HttpGet(url);
-            GedanDetail gedanDetail = JsonSerializer.Deserialize<GedanDetail>(jsons);
+            GedanDetail gedanDetail = await GetPlayListDetail(strid);
             string gedanname = gedanDetail.playlist.name;
             string imgurl = gedanDetail.playlist.coverImgUrl;
             await MainCommands.CommandBotDescriptionSet(ts3Client, gedanname);
@@ -180,11 +183,11 @@ namespace YunPlugin
         }
 
         [Command("yun play")]
-        public async Task<string> CommandYunPlay(string arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+        public async Task<string> CommandYunPlay(string arguments, InvokerData invoker)
         {
             playControl.SetInvoker(invoker);
-            string urlSearch = neteaseApi + "/search?keywords=" + arguments + "&limit=1";
-            string Searchjson = Utils.HttpGet(urlSearch);
+            string urlSearch = $"{neteaseApi}/search?keywords={arguments}&limit=1";
+            string Searchjson = await Utils.HttpGetAsync(urlSearch);
             yunSearchSong yunSearchSong = JsonSerializer.Deserialize<yunSearchSong>(Searchjson);
             long firstmusicid = yunSearchSong.result.songs[0].id;
             playControl.AddMusic(new MusicInfo(firstmusicid.ToString()));
@@ -193,7 +196,7 @@ namespace YunPlugin
         }
 
         [Command("yun playid")]
-        public async Task<string> CommandYunPlayId(long arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+        public async Task<string> CommandYunPlayId(long arguments, InvokerData invoker)
         {
             playControl.SetInvoker(invoker);
             playControl.AddMusic(new MusicInfo(arguments.ToString()));
@@ -202,19 +205,19 @@ namespace YunPlugin
         }
 
         [Command("yun add")]
-        public Task<string> CommandYunAdd(string arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+        public async Task<string> CommandYunAdd(string arguments, InvokerData invoker)
         {
             playControl.SetInvoker(invoker);
-            string urlSearch = neteaseApi + "/search?keywords=" + arguments + "&limit=1";
-            string Searchjson = Utils.HttpGet(urlSearch);
+            string urlSearch = $"{neteaseApi}/search?keywords={arguments}&limit=1";
+            string Searchjson = await Utils.HttpGetAsync(urlSearch);
             yunSearchSong yunSearchSong = JsonSerializer.Deserialize<yunSearchSong>(Searchjson);
             long firstmusicid = yunSearchSong.result.songs[0].id;
             playControl.AddMusic(new MusicInfo(firstmusicid.ToString()));
-            return Task.FromResult("已添加到下一首播放");
+            return "已添加到下一首播放";
         }
 
         [Command("yun addid")]
-        public Task<string> CommandYunAddId(long arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+        public Task<string> CommandYunAddId(long arguments, InvokerData invoker)
         {
             playControl.SetInvoker(invoker);
             playControl.AddMusic(new MusicInfo(arguments.ToString()));
@@ -222,7 +225,7 @@ namespace YunPlugin
         }
 
         [Command("yun next")]
-        public async Task<string> CommandYunNext(PlaylistManager playlistManager, ResolveContext resourceFactory, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+        public async Task<string> CommandYunNext(PlayManager playManager, InvokerData invoker)
         {
             playControl.SetInvoker(invoker);
             var playList = playControl.GetPlayList();
@@ -241,35 +244,27 @@ namespace YunPlugin
         [Command("yun login")]
         public static async Task<string> CommanloginAsync(Ts3Client ts3Client, TsFullClient tsClient)
         {
-            string url1 = neteaseApi + "/login/qr/key" + "?timestamp=" + GetTimeStamp();
-            string json1 = Utils.HttpGet(url1);
-            Log.Debug(json1);
-            LoginKey loginKey = JsonSerializer.Deserialize<LoginKey>(json1);
-            string key = loginKey.data.unikey;
-            string url2 = neteaseApi + "/login/qr/create?key=" + key + "&qrimg=true&timestamp=" + GetTimeStamp();
-            string json2 = Utils.HttpGet(url2);
-            LoginImg loginImg = JsonSerializer.Deserialize<LoginImg>(json2);
-            string base64String = loginImg.data.qrimg;
+            string key = await GetLoginKey();
+            string qrimg = await GetLoginQRImage(key);
+            
             await ts3Client.SendChannelMessage("正在生成二维码");
-            await ts3Client.SendChannelMessage(loginImg.data.qrimg);
-            Log.Debug(base64String);
-            string[] img = base64String.Split(",");
+            await ts3Client.SendChannelMessage(qrimg);
+            Log.Debug(qrimg);
+            string[] img = qrimg.Split(",");
             byte[] bytes = Convert.FromBase64String(img[1]);
             Stream stream = new MemoryStream(bytes);
             await tsClient.UploadAvatar(stream);
             await ts3Client.ChangeDescription("请用网易云APP扫描二维码登陆");
+
             int i = 0;
             long code;
             string result;
             string cookies;
             while (true)
             {
-                string url3 = neteaseApi + "/login/qr/check?key=" + key + "&timestamp=" + GetTimeStamp();
-                string json3 = Utils.HttpGet(url3);
-                Log.Debug(json3);
-                Status1 status1 = JsonSerializer.Deserialize<Status1>(json3);
-                code = status1.code;
-                cookies = status1.cookie;
+                Status1 status = await CheckLoginStatus(key);
+                code = status.code;
+                cookies = status.cookie;
                 i = i + 1;
                 Thread.Sleep(1000);
                 if (i == 120)
@@ -286,40 +281,78 @@ namespace YunPlugin
                 }
             }
             await tsClient.DeleteAvatar();
-            changeCookies(cookies);
+            ChangeCookies(cookies);
             
             return result;
         }
 
         [Command("yun list")]
-        public Task<string> PlayList()
+        public async Task<string> PlayList()
         {
-            return Task.FromResult(playControl.GetPlayListString());
+            var playList = playControl.GetPlayList();
+            if (playList.Count == 0)
+            {
+                return "播放列表为空";
+            }
+            return await playControl.GetPlayListString();
         }
 
-        //以下全是功能性函数
-        public static void changeCookies(string cookies) //更改cookie
+        // 以下全是功能性函数
+        public static async Task<string> GetLoginKey()
+        {
+            string url1 = $"{neteaseApi}/login/qr/key?timestamp={Utils.GetTimeStamp()}";
+            string json1 = await Utils.HttpGetAsync(url1);
+            Log.Debug(json1);
+            LoginKey loginKey = JsonSerializer.Deserialize<LoginKey>(json1);
+            return loginKey.data.unikey;
+        }
+
+        public static async Task<string> GetLoginQRImage(string key)
+        {
+            string url2 = $"{neteaseApi}/login/qr/create?key={key}&qrimg=true&timestamp={Utils.GetTimeStamp()}";
+            string json2 = await Utils.HttpGetAsync(url2);
+            LoginImg loginImg = JsonSerializer.Deserialize<LoginImg>(json2);
+            return loginImg.data.qrimg;
+        }
+
+        public static async Task<Status1> CheckLoginStatus(string key)
+        {
+            string url3 = $"{neteaseApi}/login/qr/check?key={key}&timestamp={Utils.GetTimeStamp()}";
+            string json3 = await Utils.HttpGetAsync(url3);
+            Log.Debug(json3);
+            return JsonSerializer.Deserialize<Status1>(json3);
+        }
+
+        public async Task<GedanDetail> GetPlayListDetail(string id)
+        {
+            string url = $"{neteaseApi}/playlist/detail?id={id}";
+            string json = await Utils.HttpGetAsync(url);
+            return JsonSerializer.Deserialize<GedanDetail>(json);
+        }
+
+        public static void ChangeCookies(string cookies) //更改cookie
         {
             Instance.playControl.SetCookies(cookies);
             MyIni.Write("cookies1", cookies);
         }
 
-        public static string GetTimeStamp() //获得时间戳
-        {
-            TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            return Convert.ToInt64(ts.TotalSeconds).ToString();
-        }
-
-        public static async Task genList(long id, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
+        public async Task genList(long id, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
         {
             string gedanid = id.ToString();
+            GedanDetail gedanDetail = await GetPlayListDetail(gedanid);
+            int trackCount = gedanDetail.playlist.trackCount;
+            if (trackCount != 0)
+            {
+                await genListTrack(id, gedanDetail, SongList, ts3Client);
+                return;
+            }
             string url = neteaseApi + "/playlist/track/all?id=" + gedanid;
-            string gedanjson = Utils.HttpGet(url);
+            string gedanjson = await Utils.HttpGetAsync(url);
             GeDan Gedans = JsonSerializer.Deserialize<GeDan>(gedanjson);
             long numOfSongs = Gedans.songs.Count();
             if (numOfSongs > 100)
             {
-                await ts3Client.SendChannelMessage("警告歌单过大，可能需要一定的时间生成");
+                await ts3Client.SendChannelMessage($"警告：歌单过大，可能需要一定的时间生成 [{numOfSongs}]");
             }
             for (int i = 0; i < numOfSongs; i++)
             {
@@ -331,6 +364,25 @@ namespace YunPlugin
             }
         }
 
+        public async Task genListTrack(long id, GedanDetail gedanDetail, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
+        {
+            string gedanid = id.ToString();
+            int trackCount = gedanDetail.playlist.trackCount;
+            if (trackCount > 100)
+            {
+                await ts3Client.SendChannelMessage($"警告：歌单过大，可能需要一定的时间生成 [{trackCount}]");
+            }
+            for (int i = 0; i < trackCount; i += 50)
+            {
+                string searchJson = await Utils.HttpGetAsync($"{neteaseApi}/playlist/track/all?id={gedanid}&limit=50&offset={i}");
+                GeDan geDan = JsonSerializer.Deserialize<GeDan>(searchJson);
+
+                for (int j = 0; j < geDan.songs.Count; j++)
+                {
+                    SongList.Add(new MusicInfo(geDan.songs[j].id.ToString()));
+                }
+            }
+        }
 
         public void Dispose()
         {

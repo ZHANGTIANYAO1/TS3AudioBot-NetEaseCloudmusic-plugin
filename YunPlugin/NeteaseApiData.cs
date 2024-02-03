@@ -3044,4 +3044,11 @@ namespace NeteaseApiData
         /// </summary>
         public int code;
     }
+
+    public class MusicCheck
+    {
+        public bool success { get; set; }
+
+        public string message { get; set; }
+    }
 }

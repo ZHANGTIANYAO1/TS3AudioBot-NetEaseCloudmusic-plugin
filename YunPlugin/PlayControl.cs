@@ -4,6 +4,8 @@ using System.Text;
 using System.Threading.Tasks;
 using TS3AudioBot;
 using TS3AudioBot.Audio;
+using TS3AudioBot.Helper;
+using TS3AudioBot.ResourceFactories;
 
 public class PlayControl
 {
@@ -14,17 +16,19 @@ public class PlayControl
     private int randomOffset = 0;
     private NLog.Logger Log;
     private string neteaseApi;
+    private string neteaseApiUNM;
     private Mode mode;
-    private int currentPlay = 1;
+    private int currentPlay = 0;
     private string cookies = "";
     private MusicInfo currentPlayMusicInfo;
 
-    public PlayControl(PlayManager playManager, Ts3Client ts3Client, NLog.Logger log, string neteaseApi)
+    public PlayControl(PlayManager playManager, Ts3Client ts3Client, NLog.Logger log, string neteaseApi, string neteaseApiUNM)
     {
         Log = log;
         this.neteaseApi = neteaseApi;
         this.playManager = playManager;
         this.ts3Client = ts3Client;
+        this.neteaseApiUNM = neteaseApiUNM;
     }
 
     public MusicInfo GetCurrentPlayMusicInfo()
@@ -63,7 +67,7 @@ public class PlayControl
     public void SetPlayList(List<MusicInfo> list)
     {
         songList = new List<MusicInfo>(list);
-        currentPlay = 1;
+        currentPlay = 0;
         if (mode == Mode.RandomPlay || mode == Mode.RandomLoopPlay) {
             Utils.ShuffleArrayList(songList);
         }
@@ -95,13 +99,21 @@ public class PlayControl
 
         currentPlayMusicInfo = musicInfo;
 
-        musicInfo.initMusicInfo(neteaseApi);
-        string musicUrl = musicInfo.getMusicUrl(neteaseApi, cookies);
+        await musicInfo.InitMusicInfo(neteaseApi);
+        string musicUrl = await musicInfo.getMusicUrl(neteaseApi, neteaseApiUNM, cookies);
         Log.Info($"Music name: {musicInfo.name}, picUrl: {musicInfo.img}, url: {musicUrl}");
 
-        await playManager.Play(invoker, musicUrl);
-        await ts3Client.SendChannelMessage("正在播放音乐：" + musicInfo.name);
-        await MainCommands.CommandBotAvatarSet(ts3Client, musicInfo.img);
+        if (musicUrl == "error")
+        {
+            await ts3Client.SendChannelMessage($"音乐链接获取失败 [{musicInfo.name}]");
+            await PlayNextMusic();
+            return;
+        }
+
+        await playManager.Play(invoker, new MediaPlayResource(musicUrl, musicInfo.GetMusicInfo(), await musicInfo.GetImage(), false));
+
+        string author = musicInfo.author != "" ? $" - {musicInfo.author}" : "";
+        await ts3Client.SendChannelMessage($"► 正在播放：[URL={musicInfo.detailUrl}]{musicInfo.name}[/URL]{author}");
 
         // 获取后面三首歌
         //var musicList = GetNextPlayList();
@@ -114,6 +126,7 @@ public class PlayControl
         //}
         var desc = $"[{currentPlay}/{songList.Count}] {musicInfo.name}";
         await ts3Client.ChangeDescription(desc);
+        await MainCommands.CommandBotAvatarSet(ts3Client, musicInfo.img);
     }
 
     public List<MusicInfo> GetNextPlayList(int limit = 3) {
@@ -149,7 +162,7 @@ public class PlayControl
                 {
                     randomOffset = songList.Count - 1;
                     Utils.ShuffleArrayList(songList);
-                    currentPlay = 1;
+                    currentPlay = 0;
                 }
                 randomOffset -= 1;
 
@@ -170,7 +183,7 @@ public class PlayControl
         return result;
     }
 
-    public string GetPlayListString()
+    public async Task<string> GetPlayListString()
     {
         var musicList = GetNextPlayList();
         var musicInfo = GetCurrentPlayMusicInfo();
@@ -178,7 +191,7 @@ public class PlayControl
         for (var i = 0; i < musicList.Count; i++)
         {
             var music = musicList[i];
-            music.initMusicInfo(neteaseApi);
+            await music.InitMusicInfo(neteaseApi);
             desc += $"{i + 1}: {music.name}\n";
         }
         return desc;

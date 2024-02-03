@@ -17,11 +17,13 @@
 		<Reference Include="Nini">
 			<HintPath>lib\Nini.dll</HintPath>
 		</Reference>
-		<ProjectReference Include="..\TS3AudioBot\TS3AudioBot\TS3AudioBot.csproj">
+		<Reference Include="TS3AudioBot">
+			<HintPath>lib\TS3AudioBot.dll</HintPath>
 			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\TS3AudioBot\TSLib\TSLib.csproj">
+		</Reference>
+		<Reference Include="TSLib">
+			<HintPath>lib\TSLib.dll</HintPath>
 			<Private>false</Private>
-		</ProjectReference>
+		</Reference>
 	</ItemGroup>
 </Project>
