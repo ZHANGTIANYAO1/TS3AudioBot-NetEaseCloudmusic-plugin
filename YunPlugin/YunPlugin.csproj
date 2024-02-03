@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -7,24 +7,21 @@
 
 	<ItemGroup>
 		<PackageReference Include="Costura.Fody" Version="5.7.0">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-		<PackageReference Include="NLog" Version="4.7.0" />
-		
+		<PackageReference Include="NLog" Version="4.7.3" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="TS3AudioBot">
-			<HintPath>.\lib\TS3AudioBot.dll</HintPath>
-		</Reference>
-		<Reference Include="TSLib">
-			<HintPath>.\lib\TSLib.dll</HintPath>
-		</Reference>
 		<Reference Include="Nini">
-			<HintPath>.\lib\Nini.dll</HintPath>
+			<HintPath>lib\Nini.dll</HintPath>
 		</Reference>
+		<ProjectReference Include="..\TS3AudioBot\TS3AudioBot\TS3AudioBot.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\TS3AudioBot\TSLib\TSLib.csproj">
+			<Private>false</Private>
+		</ProjectReference>
 	</ItemGroup>
-
 </Project>
