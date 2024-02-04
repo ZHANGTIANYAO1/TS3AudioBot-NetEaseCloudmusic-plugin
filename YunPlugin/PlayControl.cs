@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TS3AudioBot;
 using TS3AudioBot.Audio;
-using TS3AudioBot.Helper;
 using TS3AudioBot.ResourceFactories;
 
 public class PlayControl
@@ -21,6 +20,7 @@ public class PlayControl
     private int currentPlay = 0;
     private string cookies = "";
     private MusicInfo currentPlayMusicInfo;
+    private PlayListMeta playListMeta;
 
     public PlayControl(PlayManager playManager, Ts3Client ts3Client, NLog.Logger log, string neteaseApi, string neteaseApiUNM)
     {
@@ -56,19 +56,23 @@ public class PlayControl
         this.invoker = invoker;
     }
 
-    public Mode GetMode() { 
+    public Mode GetMode()
+    {
         return this.mode;
     }
 
-    public void SetMode(Mode mode) {
+    public void SetMode(Mode mode)
+    {
         this.mode = mode;
     }
 
-    public void SetPlayList(List<MusicInfo> list)
+    public void SetPlayList(PlayListMeta meta, List<MusicInfo> list)
     {
+        playListMeta = meta;
         songList = new List<MusicInfo>(list);
         currentPlay = 0;
-        if (mode == Mode.RandomPlay || mode == Mode.RandomLoopPlay) {
+        if (mode == Mode.RandomPlay || mode == Mode.RandomLoopPlay)
+        {
             Utils.ShuffleArrayList(songList);
         }
     }
@@ -80,6 +84,7 @@ public class PlayControl
 
     public void AddMusic(MusicInfo musicInfo)
     {
+        songList.RemoveAll(m => m.Id == musicInfo.Id);
         songList.Insert(0, musicInfo);
     }
 
@@ -93,46 +98,46 @@ public class PlayControl
         await PlayMusic(musicInfo);
     }
 
-    private async Task PlayMusic(MusicInfo musicInfo)
+    public async Task PlayMusic(MusicInfo musicInfo)
     {
         var invoker = Getinvoker();
 
         currentPlayMusicInfo = musicInfo;
 
-        await musicInfo.InitMusicInfo(neteaseApi);
+        await musicInfo.InitMusicInfo(neteaseApi, cookies);
         string musicUrl = await musicInfo.getMusicUrl(neteaseApi, neteaseApiUNM, cookies);
-        Log.Info($"Music name: {musicInfo.name}, picUrl: {musicInfo.img}, url: {musicUrl}");
+        Log.Info($"Music name: {musicInfo.Name}, picUrl: {musicInfo.Image}, url: {musicUrl}");
 
         if (musicUrl == "error")
         {
-            await ts3Client.SendChannelMessage($"音乐链接获取失败 [{musicInfo.name}]");
+            await ts3Client.SendChannelMessage($"音乐链接获取失败 [{musicInfo.Name}]");
             await PlayNextMusic();
             return;
         }
 
         await playManager.Play(invoker, new MediaPlayResource(musicUrl, musicInfo.GetMusicInfo(), await musicInfo.GetImage(), false));
 
-        string author = musicInfo.author != "" ? $" - {musicInfo.author}" : "";
-        await ts3Client.SendChannelMessage($"► 正在播放：[URL={musicInfo.detailUrl}]{musicInfo.name}[/URL]{author}");
+        await ts3Client.SendChannelMessage($"► 正在播放：{musicInfo.GetFullNameBBCode()}");
 
-        // 获取后面三首歌
-        //var musicList = GetNextPlayList();
-        //var desc = $"当前正在播放：{musicInfo.name}\n播放列表[{currentPlay}/{songList.Count}]\n";
-        //for (var i = 0; i < musicList.Count; i++)
-        //{
-        //    var music = musicList[i];
-        //    music.initMusicInfo(neteaseApi);
-        //    desc += $"{i}: {music.name}\n";
-        //}
-        var desc = $"[{currentPlay}/{songList.Count}] {musicInfo.name}";
+        string desc;
+        if (musicInfo.InPlayList)
+        {
+            desc = $"[{currentPlay}/{songList.Count}] {musicInfo.GetFullName()}";
+        }
+        else
+        {
+            desc = musicInfo.GetFullName();
+        }
         await ts3Client.ChangeDescription(desc);
-        await MainCommands.CommandBotAvatarSet(ts3Client, musicInfo.img);
+        await MainCommands.CommandBotAvatarSet(ts3Client, musicInfo.Image);
     }
 
-    public List<MusicInfo> GetNextPlayList(int limit = 3) {
+    public List<MusicInfo> GetNextPlayList(int limit = 3)
+    {
         var list = new List<MusicInfo>();
-        if (songList.Count <= limit) {
-            limit = songList.Count - 1;
+        if (songList.Count <= limit)
+        {
+            limit = songList.Count;
         }
         for (int i = 0; i < limit; i++)
         {
@@ -168,7 +173,8 @@ public class PlayControl
 
                 result = songList[0];
                 songList.RemoveAt(0);
-                if (mode == Mode.RandomLoopPlay) {
+                if (mode == Mode.RandomLoopPlay)
+                {
                     songList.Add(result);
                 }
                 break;
@@ -187,13 +193,23 @@ public class PlayControl
     {
         var musicList = GetNextPlayList();
         var musicInfo = GetCurrentPlayMusicInfo();
-        var desc = $"\n当前正在播放：{musicInfo.name}\n播放列表 [{currentPlay}/{songList.Count}]\n";
+        var descBuilder = new StringBuilder();
+        descBuilder.AppendLine($"\n当前正在播放：{musicInfo.GetFullNameBBCode()}");
+        descBuilder.Append("播放列表 ");
+        if (playListMeta != null)
+        {
+            descBuilder.Append($"[URL=https://music.163.com/#/playlist?id={playListMeta.Id}]{playListMeta.Name}[/URL] ");
+        }
+        descBuilder.AppendLine($"[{currentPlay}/{songList.Count}]");
+        
+
         for (var i = 0; i < musicList.Count; i++)
         {
             var music = musicList[i];
-            await music.InitMusicInfo(neteaseApi);
-            desc += $"{i + 1}: {music.name}\n";
+            await music.InitMusicInfo(neteaseApi, cookies);
+            descBuilder.AppendLine($"{i + 1}: {music.GetFullNameBBCode()}");
         }
-        return desc;
+
+        return descBuilder.ToString();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+#pragma warning disable CS8632
 namespace NeteaseApiData
 {
     //{ get; set; }
@@ -2542,507 +2543,40 @@ namespace NeteaseApiData
 
     public class musicCheck
     {
-        /// <summary>
-        /// 
-        /// </summary>
         public bool success;
-        /// <summary>
-        /// 
-        /// </summary>
         public string message;
     }
 
-    public class ArItem1
+    public class SongDetail
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public int id;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string name;
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<string> tns;
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<string> @alias;
-    }
-
-    public class Al1
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public int id;
-        /// <summary>
-        /// 海阔天空
-        /// </summary>
-        public string name;
-        /// <summary>
-        /// 
-        /// </summary>
+        public string id { get; set; }
+        public string program_id { get; set; }
+        public string title { get; set; }
+        public string author { get; set; }
         public string picUrl { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<string> tns;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string pic_str;
-        /// <summary>
-        /// 
-        /// </summary>
-        public long pic;
     }
-
-    public class H1
+    public class JsonSongDetailSongAlbum
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public int br;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int fid;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int size;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int vd;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int sr;
+        public string? name { get; set; }
+        public string? picUrl { get; set; }
     }
-
-    public class M1
+    public class JsonSongDetailSongAuthor
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public int br;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int fid;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int size;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int vd;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int sr;
+        public int? id { get; set; }
+        public string? name { get; set; }
     }
-
-    public class L1
+    public class JsonSongDetailSong
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public int br;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int fid;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int size;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int vd;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int sr;
+        public long id { get; set; }
+        public string? name { get; set; }
+        public object? noCopyrightRcmd { get; set; }
+        public JsonSongDetailSongAlbum? al { get; set; }
+        public JsonSongDetailSongAuthor[]? ar { get; set; }
     }
-
-    public class Sq1
+    public class JsonSongDetail
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public int br;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int fid;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int size;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int vd;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int sr;
-    }
-
-    public class SongsItem1
-    {
-        /// <summary>
-        /// 海阔天空
-        /// </summary>
-        public string name { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public long id;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int pst;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int t;
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<ArItem1> ar;
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<string> alia;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int pop;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int st;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string rt;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int fee;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int v;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string crbt;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string cf;
-        /// <summary>
-        /// 
-        /// </summary>
-        public Al1 al { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public int dt;
-        /// <summary>
-        /// 
-        /// </summary>
-        public H1 h;
-        /// <summary>
-        /// 
-        /// </summary>
-        public M1 m;
-        /// <summary>
-        /// 
-        /// </summary>
-        public L1 l;
-        /// <summary>
-        /// 
-        /// </summary>
-        public Sq1 sq;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public string hr;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string a;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string cd;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int no;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string rtUrl;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int ftype;
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<string> rtUrls;
-        /// <summary>
-        /// 
-        /// </summary>
-        public long djId;
-        /// <summary>
-        /// 
-        /// </summary>
-        public long copyright;
-        /// <summary>
-        /// 
-        /// </summary>
-        public long s_id;
-        /// <summary>
-        /// 
-        /// </summary>
-        public long mark;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int originCoverType;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string originSongSimpleData;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string tagPicList;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string resourceState;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int version;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string songJumpInfo;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string entertainmentTags;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string awardTags;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int single;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string noCopyrightRcmd;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int mv;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int mst;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int cp;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int rtype;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string rurl;
-        /// <summary>
-        /// 
-        /// </summary>
-        public long publishTime;
-    }
-
-    public class FreeTrialPrivilege1
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string resConsumable;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string userConsumable;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string listenType;
-    }
-
-    public class ChargeInfoListItem1
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public long rate;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string chargeUrl;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string chargeMessage;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int chargeType;
-    }
-
-    public class PrivilegesItem1
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public long id;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int fee;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int payed;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int st;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int pl;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int dl;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int sp;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int cp;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int subp;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string cs;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int maxbr;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int fl;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string toast;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int flag;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string preSell;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int playMaxbr;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int downloadMaxbr;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string maxBrLevel;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string playMaxBrLevel;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string downloadMaxBrLevel;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string plLevel;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string dlLevel;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string flLevel;
-        /// <summary>
-        /// 
-        /// </summary>
-        public string rscl;
-        /// <summary>
-        /// 
-        /// </summary>
-        public FreeTrialPrivilege1 freeTrialPrivilege;
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<ChargeInfoListItem1> chargeInfoList;
-    }
-
-    public class MusicDetail
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<SongsItem1> songs { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<PrivilegesItem1> privileges;
-        /// <summary>
-        /// 
-        /// </summary>
-        public int code;
+        public int code { get; set; }
+        public JsonSongDetailSong[]? songs { get; set; }
     }
 
     public class MusicCheck
@@ -3050,5 +2584,45 @@ namespace NeteaseApiData
         public bool success { get; set; }
 
         public string message { get; set; }
+    }
+
+    public class RespStatus
+    {
+        public class Account
+        {
+            public bool anonimousUser { get; set; }
+            public int ban { get; set; }
+            public int baoyueVersion { get; set; }
+            public long createTime { get; set; }
+            public int donateVersion { get; set; }
+            public long id { get; set; }
+            public bool paidFee { get; set; }
+            public int status { get; set; }
+            public int tokenVersion { get; set; }
+            public int type { get; set; }
+            public string userName { get; set; }
+            public int vipType { get; set; }
+            public int whitelistAuthority { get; set; }
+        }
+
+        public class Profile
+        {
+            public int accountStatus { get; set; }
+            public int accountType { get; set; }
+            public string avatarUrl { get; set; }
+            public string nickname { get; set; }
+            public int userId { get; set; }
+            public int userType { get; set; }
+
+            public int vipType { get; set; }
+            public long viptypeVersion { get; set; }
+        }
+        public class Data
+        {
+            public int code { get; set; }
+            public Account? account { get; set; }
+            public Profile? profile { get; set; }
+        }
+        public Data data { get; set; }
     }
 }

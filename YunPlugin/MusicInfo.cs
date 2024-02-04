@@ -1,12 +1,11 @@
-﻿using System;
-using System.Text.Json;
-using NeteaseApiData;
+﻿using NeteaseApiData;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TS3AudioBot.ResourceFactories;
-using System.Text;
-using System.Net;
-using System.IO;
 
 public enum Mode
 {
@@ -16,29 +15,75 @@ public enum Mode
     RandomLoopPlay = 3,
 }
 
+public class PlayListMeta
+{
+    public string Id;
+    public string Name;
+    public string Image;
+
+    public PlayListMeta(string id, string name, string image)
+    {
+        Id = id;
+        Name = name;
+        Image = image;
+    }
+}
+
 public class MusicInfo
 {
-    public string id = "";
-    public string name = "";
-    public string img = "";
-    public string author = "";
-    public string detailUrl = "";
+    public string Id = "";
+    public string Name = "";
+    public string Image = "";
+    public string DetailUrl = "";
+    public bool InPlayList;
+    private Dictionary<string, int?> Author = new Dictionary<string, int?>();
 
-    public MusicInfo(string id)
+    public MusicInfo(string id, bool inPlayList = true)
     {
-        this.id = id;
+        this.Id = id;
+        InPlayList = inPlayList;
+    }
+
+    public string GetAuthor()
+    {
+        return string.Join(" / ", Author.Keys);
+    }
+
+    public string GetFullName()
+    {
+        var author = GetAuthor();
+        author = !string.IsNullOrEmpty(author) ? $" - {author}" : "";
+        return Name + author;
+    }
+
+    public string GetFullNameBBCode()
+    {
+        var author = GetAuthorBBCode();
+        author = !string.IsNullOrEmpty(author) ? $" - {author}" : "";
+        return $"[URL={DetailUrl}]{Name}[/URL]{author}";
+    }
+
+    public string GetAuthorBBCode()
+    {
+        return string.Join(" / ", Author.Select(entry =>
+        {
+            string key = entry.Key;
+            int? id = entry.Value;
+            string authorName = id == null ? key : $"[URL=https://music.163.com/#/artist?id={id}]{key}[/URL]";
+            return authorName;
+        }));
     }
 
     public AudioResource GetMusicInfo()
     {
-        var ar = new AudioResource(detailUrl, name, "media")
-                    .Add("PlayUri", img);
+        var ar = new AudioResource(DetailUrl, GetFullName(), "media")
+                    .Add("PlayUri", Image);
         return ar;
     }
 
     public async Task<byte[]> GetImage()
     {
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(img);
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Image);
         request.Method = "GET";
 
         using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
@@ -50,64 +95,57 @@ public class MusicInfo
         }
     }
 
-    public async Task InitMusicInfo(string api)
+    public async Task InitMusicInfo(string api, string cookie)
     {
-        if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(img))
+        if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Image))
         {
             return;
         }
         try
         {
-            string musicdetailurl = api + "/song/detail?ids=" + id;
-            string musicdetailjson = await Utils.HttpGetAsync(musicdetailurl);
-            MusicDetail musicDetail = JsonSerializer.Deserialize<MusicDetail>(musicdetailjson);
-            img = musicDetail.songs[0].al.picUrl;
-            name = musicDetail.songs[0].name;
-            detailUrl = $"https://music.163.com/#/song?id={id}";
+            string musicdetailurl = $"{api}/song/detail?ids={Id}";
+            JsonSongDetail musicDetail = await Utils.HttpGetAsync<JsonSongDetail>(musicdetailurl, cookie);
+            Image = musicDetail.songs[0].al.picUrl;
+            Name = musicDetail.songs[0].name;
+            DetailUrl = $"https://music.163.com/#/song?id={Id}";
 
-            if (musicDetail.songs[0].ar != null) {
-                List<string> artists = new List<string>();
-                for (int i = 0; i < musicDetail.songs[0].ar.Count; i++) {
-                    if (!string.IsNullOrEmpty(musicDetail.songs[0].ar[i].name))
-                    {
-                        artists.Add(musicDetail.songs[0].ar[i].name);
-                    }
-                }
-                if (artists.Count > 0)
+            Author.Clear();
+
+            var artists = musicDetail.songs[0].ar;
+            if (artists != null)
+            {
+                foreach (var artist in artists)
                 {
-                    author = string.Join("/", artists);
+                    if (!string.IsNullOrEmpty(artist.name))
+                    {
+                        Author.Add(artist.name, artist.id);
+                    }
                 }
             }
         }
         catch (Exception e)
         {
-            name = "歌名获取失败!\n" + e.Message;
+            Name = "歌名获取失败!\n" + e.Message;
         }
     }
 
-    private async Task<MusicCheck> CheckMusic(string api, string id)
+    private async Task<MusicCheck> CheckMusic(string api, string id, string cookie)
     {
         string musicCheckUrl = $"{api}/check/music?id={id}";
-        string searchMusicCheckJson = await Utils.HttpGetAsync(musicCheckUrl);
-        return JsonSerializer.Deserialize<MusicCheck>(searchMusicCheckJson);
+        return await Utils.HttpGetAsync<MusicCheck>(musicCheckUrl, cookie);
     }
 
     // 获得歌曲URL
     public async Task<string> getMusicUrl(string api, string apiUNM, string cookie = "")
     {
-        string api_url = $"{api}/song/url?id={id}";
-        MusicCheck check = await CheckMusic(api, id);
+        string api_url = $"{api}/song/url?id={Id}";
+        MusicCheck check = await CheckMusic(api, Id, cookie);
         if (!check.success)
         {
-            YunPlugin.YunPlgun.GetLogger().Warn($"Get music error: {check.message}");
+            YunPlugin.YunPlgun.GetLogger().Warn($"Check music error: {check.message}");
             api_url += $"&proxy={apiUNM}";
         }
-        else if (cookie != "")
-        {
-            api_url += $"&cookie={cookie}";
-        }
-        string musicurljson = await  Utils.HttpGetAsync(api_url);
-        musicURL musicurl = JsonSerializer.Deserialize<musicURL>(musicurljson);
+        musicURL musicurl = await Utils.HttpGetAsync<musicURL>(api_url, cookie);
         string mp3 = musicurl.data[0].url;
         if (!check.success)
         {
