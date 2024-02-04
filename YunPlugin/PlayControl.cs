@@ -13,7 +13,6 @@ public class PlayControl
     private InvokerData invoker;
     private Ts3Client ts3Client;
     private List<MusicInfo> songList = new List<MusicInfo>();
-    private int randomOffset = 0;
     private NLog.Logger Log;
     private string neteaseApi;
     private string neteaseApiUNM;
@@ -146,47 +145,27 @@ public class PlayControl
 
     private MusicInfo GetNextMusic()
     {
-        MusicInfo result;
-        switch (mode)
+        MusicInfo result = songList[0];
+        songList.RemoveAt(0);
+        if (mode == Mode.SeqLoopPlay || mode == Mode.RandomLoopPlay) // 循环的重新加入列表
         {
-            case Mode.SeqPlay:
-                result = songList[0];
-                songList.RemoveAt(0);
-                break;
-            case Mode.SeqLoopPlay:
-                result = songList[0];
-                songList.RemoveAt(0);
-                songList.Add(result);
-                break;
-
-            case Mode.RandomPlay: // 随机播放
-            case Mode.RandomLoopPlay:
-                if (randomOffset < 0)
-                {
-                    randomOffset = songList.Count - 1;
-                    Utils.ShuffleArrayList(songList);
-                    currentPlay = 0;
-                }
-                else
-                {
-                    randomOffset -= 1;
-                }
-
-                result = songList[0];
-                songList.RemoveAt(0);
-                if (mode == Mode.RandomLoopPlay)
-                {
-                    songList.Add(result);
-                }
-                break;
-
-            default:
-                Log.Error($"Mode is not found! {mode}");
-                result = songList[0];
-                songList.RemoveAt(0);
-                break;
+            songList.Add(result);
+            currentPlay += 1;
         }
-        currentPlay += 1;
+        else
+        {
+            currentPlay = 1; // 不是循环播放就固定当前播放第一首
+        }
+
+        if (mode == Mode.RandomLoopPlay) // 如果播放计次达到播放列表最大就重新排序
+        {
+            if (currentPlay >= songList.Count)
+            {
+                Utils.ShuffleArrayList(songList);
+                currentPlay = 1; // 重排了就从头开始
+            }
+        }
+
         return result;
     }
 
@@ -196,6 +175,15 @@ public class PlayControl
         var musicInfo = GetCurrentPlayMusicInfo();
         var descBuilder = new StringBuilder();
         descBuilder.AppendLine($"\n当前正在播放：{musicInfo.GetFullNameBBCode()}");
+        var modeStr = mode switch
+        {
+            Mode.SeqPlay => "顺序播放",
+            Mode.SeqLoopPlay => "当顺序循环",
+            Mode.RandomPlay => "随机播放",
+            Mode.RandomLoopPlay => "随机循环",
+            _ => $"未知模式{mode}",
+        };
+        descBuilder.AppendLine($"当前播放模式：{modeStr}");
         descBuilder.Append("播放列表 ");
         if (playListMeta != null)
         {
