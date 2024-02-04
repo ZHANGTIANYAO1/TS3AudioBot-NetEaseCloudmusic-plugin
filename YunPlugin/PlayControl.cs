@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -135,10 +136,7 @@ public class PlayControl
     public List<MusicInfo> GetNextPlayList(int limit = 3)
     {
         var list = new List<MusicInfo>();
-        if (songList.Count <= limit)
-        {
-            limit = songList.Count;
-        }
+        limit = Math.Min(limit, songList.Count);
         for (int i = 0; i < limit; i++)
         {
             list.Add(songList[i]);
@@ -169,7 +167,10 @@ public class PlayControl
                     Utils.ShuffleArrayList(songList);
                     currentPlay = 0;
                 }
-                randomOffset -= 1;
+                else
+                {
+                    randomOffset -= 1;
+                }
 
                 result = songList[0];
                 songList.RemoveAt(0);
