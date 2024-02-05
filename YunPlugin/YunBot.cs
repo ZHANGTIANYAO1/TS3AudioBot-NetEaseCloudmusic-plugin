@@ -191,7 +191,7 @@ namespace YunPlugin
             yunSearchSong yunSearchSong = await Utils.HttpGetAsync<yunSearchSong>(urlSearch);
             long firstmusicid = yunSearchSong.result.songs[0].id;
             var music = new MusicInfo(firstmusicid.ToString(), false);
-            playControl.AddMusic(music);
+            playControl.AddMusic(music, false);
             await playControl.PlayMusic(music);
             return null;
         }
@@ -200,7 +200,7 @@ namespace YunPlugin
         public async Task<string> CommandYunPlayId(long arguments)
         {
             var music = new MusicInfo(arguments.ToString(), false);
-            playControl.AddMusic(music);
+            playControl.AddMusic(music, false);
             await playControl.PlayMusic(music);
             return null;
         }

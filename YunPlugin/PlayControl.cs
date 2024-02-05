@@ -82,10 +82,13 @@ public class PlayControl
         return songList;
     }
 
-    public void AddMusic(MusicInfo musicInfo)
+    public void AddMusic(MusicInfo musicInfo, bool insert = true)
     {
         songList.RemoveAll(m => m.Id == musicInfo.Id);
-        songList.Insert(0, musicInfo);
+        if (insert)
+            songList.Insert(0, musicInfo);
+        else
+            songList.Add(musicInfo);
     }
 
     public async Task PlayNextMusic()
