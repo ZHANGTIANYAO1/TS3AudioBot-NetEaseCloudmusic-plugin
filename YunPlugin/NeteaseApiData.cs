@@ -376,7 +376,7 @@ namespace NeteaseApiData
         public long time;
     }
 
-    public class musicURL
+    public class MusicURL
     {
         /// <summary>
         /// 

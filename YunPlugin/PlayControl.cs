@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TS3AudioBot;
@@ -103,36 +102,45 @@ public class PlayControl
 
     public async Task PlayMusic(MusicInfo musicInfo)
     {
-        var invoker = Getinvoker();
-
-        currentPlayMusicInfo = musicInfo;
-
-        await musicInfo.InitMusicInfo(neteaseApi, cookies);
-        string musicUrl = await musicInfo.getMusicUrl(neteaseApi, neteaseApiUNM, cookies);
-        Log.Info($"Music name: {musicInfo.Name}, picUrl: {musicInfo.Image}, url: {musicUrl}");
-
-        if (musicUrl == "error")
+        try
         {
-            await ts3Client.SendChannelMessage($"音乐链接获取失败 [{musicInfo.Name}]");
+            var invoker = Getinvoker();
+
+            currentPlayMusicInfo = musicInfo;
+
+            await musicInfo.InitMusicInfo(neteaseApi, cookies);
+            string musicUrl = await musicInfo.getMusicUrl(neteaseApi, neteaseApiUNM, cookies);
+            Log.Info($"Music name: {musicInfo.Name}, picUrl: {musicInfo.Image}, url: {musicUrl}");
+
+            if (musicUrl == "error")
+            {
+                await ts3Client.SendChannelMessage($"音乐链接获取失败 [{musicInfo.Name}]");
+                await PlayNextMusic();
+                return;
+            }
+
+            await playManager.Play(invoker, new MediaPlayResource(musicUrl, musicInfo.GetMusicInfo(), await musicInfo.GetImage(), false));
+
+            await ts3Client.SendChannelMessage($"► 正在播放：{musicInfo.GetFullNameBBCode()}");
+
+            string desc;
+            if (musicInfo.InPlayList)
+            {
+                desc = $"[{currentPlay}/{songList.Count}] {musicInfo.GetFullName()}";
+            }
+            else
+            {
+                desc = musicInfo.GetFullName();
+            }
+            await ts3Client.ChangeDescription(desc);
+            await MainCommands.CommandBotAvatarSet(ts3Client, musicInfo.Image);
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "PlayMusic error");
+            await ts3Client.SendChannelMessage($"播放音乐失败 [{musicInfo.Name}]");
             await PlayNextMusic();
-            return;
         }
-
-        await playManager.Play(invoker, new MediaPlayResource(musicUrl, musicInfo.GetMusicInfo(), await musicInfo.GetImage(), false));
-
-        await ts3Client.SendChannelMessage($"► 正在播放：{musicInfo.GetFullNameBBCode()}");
-
-        string desc;
-        if (musicInfo.InPlayList)
-        {
-            desc = $"[{currentPlay}/{songList.Count}] {musicInfo.GetFullName()}";
-        }
-        else
-        {
-            desc = musicInfo.GetFullName();
-        }
-        await ts3Client.ChangeDescription(desc);
-        await MainCommands.CommandBotAvatarSet(ts3Client, musicInfo.Image);
     }
 
     public List<MusicInfo> GetNextPlayList(int limit = 3)
@@ -193,7 +201,7 @@ public class PlayControl
             descBuilder.Append($"[URL=https://music.163.com/#/playlist?id={playListMeta.Id}]{playListMeta.Name}[/URL] ");
         }
         descBuilder.AppendLine($"[{currentPlay}/{songList.Count}]");
-        
+
 
         for (var i = 0; i < musicList.Count; i++)
         {

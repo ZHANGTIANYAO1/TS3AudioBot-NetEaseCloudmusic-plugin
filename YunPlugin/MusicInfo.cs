@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TS3AudioBot.ResourceFactories;
 
@@ -139,19 +140,26 @@ public class MusicInfo
     public async Task<string> getMusicUrl(string api, string apiUNM, string cookie = "")
     {
         string api_url = $"{api}/song/url?id={Id}";
-        MusicCheck check = await CheckMusic(api, Id, cookie);
-        if (!check.success)
+        bool needProxy = false;
+        try
         {
-            YunPlugin.YunPlgun.GetLogger().Warn($"Check music error: {check.message}");
-            api_url += $"&proxy={apiUNM}";
+            MusicCheck check = await CheckMusic(api, Id, cookie);
+            needProxy = !check.success;
+            if (needProxy)
+            {
+                YunPlugin.YunPlgun.GetLogger().Warn($"Music cannot be played: {check.message}");
+                api_url += $"&proxy={apiUNM}";
+            }
         }
-        musicURL musicurl = await Utils.HttpGetAsync<musicURL>(api_url, cookie);
-        string mp3 = musicurl.data[0].url;
-        if (!check.success)
+        catch (Exception e)
         {
-            mp3 = mp3
-                .Replace("http://music.163.com", apiUNM)
-                .Replace("https://music.163.com", apiUNM);
+            YunPlugin.YunPlgun.GetLogger().Error(e, $"Check music error");
+        }
+        MusicURL musicurl = await Utils.HttpGetAsync<MusicURL>(api_url, cookie);
+        string mp3 = musicurl.data[0].url;
+        if (needProxy)
+        {
+            mp3 = Regex.Replace(mp3, @"https?://music\.163\.com", apiUNM);
         }
         return mp3;
     }
