@@ -144,20 +144,27 @@ namespace YunPlugin
         [Command("yun gedanid")]
         public async Task<string> playgedan(long id, Ts3Client ts3Client)
         {
-            string strid = id.ToString();
+            try
+            {
+                string strid = id.ToString();
 
-            var gedanDetail = await GetPlayListDetail(strid);
-            string gedanname = gedanDetail.playlist.name;
-            string imgurl = gedanDetail.playlist.coverImgUrl;
-            await MainCommands.CommandBotDescriptionSet(ts3Client, gedanname);
-            await MainCommands.CommandBotAvatarSet(ts3Client, imgurl);
-            await ts3Client.SendChannelMessage("开始添加歌单");
+                var gedanDetail = await GetPlayListDetail(strid);
+                string gedanname = gedanDetail.playlist.name;
+                string imgurl = gedanDetail.playlist.coverImgUrl;
+                await MainCommands.CommandBotDescriptionSet(ts3Client, gedanname);
+                await MainCommands.CommandBotAvatarSet(ts3Client, imgurl);
+                await ts3Client.SendChannelMessage("开始添加歌单");
 
-            List<MusicInfo> songList = new List<MusicInfo>();
-            await genList(id, playControl.GetCookies(), songList, ts3Client);
-            await ts3Client.SendChannelMessage("歌单添加完毕：" + gedanname + " [" + songList.Count.ToString() + "]");
-            playControl.SetPlayList(new PlayListMeta(strid, gedanname, imgurl), songList);
-            await playControl.PlayNextMusic();
+                List<MusicInfo> songList = new List<MusicInfo>();
+                await genList(id, playControl.GetCookies(), songList, ts3Client);
+                await ts3Client.SendChannelMessage("歌单添加完毕：" + gedanname + " [" + songList.Count.ToString() + "]");
+                playControl.SetPlayList(new PlayListMeta(strid, gedanname, imgurl), songList);
+                await playControl.PlayNextMusic();
+            } catch (Exception e)
+            {
+                Log.Error(e, "playgedan error");
+                return "播放歌单失败";
+            }
 
             return "开始播放歌单";
         }
@@ -389,7 +396,7 @@ namespace YunPlugin
             {
                 GeDan geDan = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={gedanid}&limit=50&offset={i}", cookie);
 
-                for (int j = 0; j < geDan.songs.Count; j++)
+                for (int j = 0; j < geDan.songs.Length; j++)
                 {
                     SongList.Add(new MusicInfo(geDan.songs[j].id.ToString()));
                 }

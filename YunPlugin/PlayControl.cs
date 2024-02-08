@@ -112,9 +112,9 @@ public class PlayControl
             string musicUrl = await musicInfo.getMusicUrl(neteaseApi, neteaseApiUNM, cookies);
             Log.Info($"Music name: {musicInfo.Name}, picUrl: {musicInfo.Image}, url: {musicUrl}");
 
-            if (musicUrl == "error")
+            if (musicUrl.StartsWith("error"))
             {
-                await ts3Client.SendChannelMessage($"音乐链接获取失败 [{musicInfo.Name}]");
+                await ts3Client.SendChannelMessage($"音乐链接获取失败 [{musicInfo.Name}] {musicUrl}");
                 await PlayNextMusic();
                 return;
             }

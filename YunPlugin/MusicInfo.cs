@@ -145,7 +145,7 @@ public class MusicInfo
         {
             MusicCheck check = await CheckMusic(api, Id, cookie);
             needProxy = !check.success;
-            if (needProxy)
+            if (needProxy && !string.IsNullOrEmpty(apiUNM))
             {
                 YunPlugin.YunPlgun.GetLogger().Warn($"Music cannot be played: {check.message}");
                 api_url += $"&proxy={apiUNM}";
@@ -153,14 +153,23 @@ public class MusicInfo
         }
         catch (Exception e)
         {
-            YunPlugin.YunPlgun.GetLogger().Error(e, $"Check music error");
+            YunPlugin.YunPlgun.GetLogger().Error(e, $"Check music error: {api_url}");
         }
-        MusicURL musicurl = await Utils.HttpGetAsync<MusicURL>(api_url, cookie);
-        string mp3 = musicurl.data[0].url;
-        if (needProxy)
+
+        try
         {
-            mp3 = Regex.Replace(mp3, @"https?://music\.163\.com", apiUNM);
+            MusicURL musicurl = await Utils.HttpGetAsync<MusicURL>(api_url, cookie);
+            string mp3 = musicurl.data[0].url;
+            if (needProxy)
+            {
+                mp3 = Regex.Replace(mp3, @"https?://music\.163\.com", apiUNM);
+            }
+            return mp3;
         }
-        return mp3;
+        catch (Exception e)
+        {
+            YunPlugin.YunPlgun.GetLogger().Error(e, $"Get music url error: {api_url}");
+            return $"error: {e.Message}";
+        }
     }
 }
