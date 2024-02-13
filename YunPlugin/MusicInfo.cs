@@ -104,7 +104,7 @@ public class MusicInfo
         }
         try
         {
-            string musicdetailurl = $"{api}/song/detail?ids={Id}";
+            string musicdetailurl = $"{api}/song/detail?ids={Id}&t={Utils.GetTimeStamp()}";
             JsonSongDetail musicDetail = await Utils.HttpGetAsync<JsonSongDetail>(musicdetailurl, cookie);
             Image = musicDetail.songs[0].al.picUrl;
             Name = musicDetail.songs[0].name;
@@ -132,21 +132,21 @@ public class MusicInfo
 
     private async Task<MusicCheck> CheckMusic(string api, string id, string cookie)
     {
-        string musicCheckUrl = $"{api}/check/music?id={id}";
+        string musicCheckUrl = $"{api}/check/music?id={id}&t={Utils.GetTimeStamp()}";
         return await Utils.HttpGetAsync<MusicCheck>(musicCheckUrl, cookie);
     }
 
     // 获得歌曲URL
     public async Task<string> getMusicUrl(string api, string apiUNM, string cookie = "")
     {
-        string api_url = $"{api}/song/url?id={Id}";
+        string api_url = $"{api}/song/url?id={Id}&t={Utils.GetTimeStamp()}";
         bool needProxy = false;
         try
         {
             MusicCheck check = await CheckMusic(api, Id, cookie);
-            needProxy = !check.success;
-            if (needProxy && !string.IsNullOrEmpty(apiUNM))
+            if (!check.success && !string.IsNullOrEmpty(apiUNM))
             {
+                needProxy = true;
                 YunPlugin.YunPlgun.GetLogger().Warn($"Music cannot be played: {check.message}");
                 api_url += $"&proxy={apiUNM}";
             }

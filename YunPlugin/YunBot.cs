@@ -80,7 +80,7 @@ namespace YunPlugin
             }
 
             neteaseApi = MyIni.Read("WangYiYunAPI_Address", "https://127.0.0.1:3000");
-            neteaseApiUNM = MyIni.Read("UNM_Address", "https://127.0.0.1:3001");
+            neteaseApiUNM = MyIni.Read("UNM_Address", "");
 
             Log.Info("Yun Plugin loaded");
             Log.Info($"Play mode: {playMode}");
@@ -142,21 +142,21 @@ namespace YunPlugin
         }
 
         [Command("yun gedanid")]
-        public async Task<string> playgedan(long id, Ts3Client ts3Client)
+        public async Task<string> playgedan(string id, Ts3Client ts3Client)
         {
             try
             {
-                string strid = id.ToString();
+                string strid = Utils.ExtractIdFromAddress(id.ToString());
 
                 var gedanDetail = await GetPlayListDetail(strid);
                 string gedanname = gedanDetail.playlist.name;
                 string imgurl = gedanDetail.playlist.coverImgUrl;
-                await MainCommands.CommandBotDescriptionSet(ts3Client, gedanname);
+                await ts3Client.ChangeDescription(gedanname);
                 await MainCommands.CommandBotAvatarSet(ts3Client, imgurl);
                 await ts3Client.SendChannelMessage("开始添加歌单");
 
                 List<MusicInfo> songList = new List<MusicInfo>();
-                await genList(id, playControl.GetCookies(), songList, ts3Client);
+                await genList(strid, playControl.GetCookies(), songList, ts3Client);
                 await ts3Client.SendChannelMessage("歌单添加完毕：" + gedanname + " [" + songList.Count.ToString() + "]");
                 playControl.SetPlayList(new PlayListMeta(strid, gedanname, imgurl), songList);
                 await playControl.PlayNextMusic();
@@ -174,21 +174,13 @@ namespace YunPlugin
         {
             string urlSearch = $"{neteaseApi}/search?keywords={name}&limit=1&type=1000";
             SearchGedan searchgedan = await Utils.HttpGetAsync<SearchGedan>(urlSearch);
+            if (searchgedan.result.playlists.Length == 0)
+            {
+                return "未找到歌单";
+            }
             long gedanid = searchgedan.result.playlists[0].id;
             string strid = gedanid.ToString();
-            GedanDetail gedanDetail = await GetPlayListDetail(strid);
-            string gedanname = gedanDetail.playlist.name;
-            string imgurl = gedanDetail.playlist.coverImgUrl;
-            await MainCommands.CommandBotDescriptionSet(ts3Client, gedanname);
-            await MainCommands.CommandBotAvatarSet(ts3Client, imgurl);
-            await ts3Client.SendChannelMessage("开始添加歌单");
-            List<MusicInfo> songList = new List<MusicInfo>();
-            await genList(gedanid, playControl.GetCookies(), songList, ts3Client);
-            await ts3Client.SendChannelMessage("歌单添加完毕：" + gedanname + " [" + songList.Count.ToString() + "]");
-            playControl.SetPlayList(new PlayListMeta(strid, gedanname, imgurl), songList);
-            await playControl.PlayNextMusic();
-
-            return "开始播放歌单";
+            return await playgedan(strid, ts3Client);
         }
 
         [Command("yun play")]
@@ -196,17 +188,18 @@ namespace YunPlugin
         {
             string urlSearch = $"{neteaseApi}/search?keywords={arguments}&limit=1";
             yunSearchSong yunSearchSong = await Utils.HttpGetAsync<yunSearchSong>(urlSearch);
+            if (yunSearchSong.result.songs.Length == 0)
+            {
+                return "未找到歌曲";
+            }
             long firstmusicid = yunSearchSong.result.songs[0].id;
-            var music = new MusicInfo(firstmusicid.ToString(), false);
-            playControl.AddMusic(music, false);
-            await playControl.PlayMusic(music);
-            return null;
+            return await CommandYunPlayId(firstmusicid.ToString());
         }
 
         [Command("yun playid")]
-        public async Task<string> CommandYunPlayId(long arguments)
+        public async Task<string> CommandYunPlayId(string arguments)
         {
-            var music = new MusicInfo(arguments.ToString(), false);
+            var music = new MusicInfo(Utils.ExtractIdFromAddress(arguments), false);
             playControl.AddMusic(music, false);
             await playControl.PlayMusic(music);
             return null;
@@ -217,15 +210,18 @@ namespace YunPlugin
         {
             string urlSearch = $"{neteaseApi}/search?keywords={arguments}&limit=1";
             yunSearchSong yunSearchSong = await Utils.HttpGetAsync<yunSearchSong>(urlSearch);
+            if (yunSearchSong.result.songs.Length == 0)
+            {
+                return "未找到歌曲";
+            }
             long firstmusicid = yunSearchSong.result.songs[0].id;
-            playControl.AddMusic(new MusicInfo(firstmusicid.ToString()));
-            return "已添加到下一首播放";
+            return await CommandYunAddId(firstmusicid.ToString());
         }
 
         [Command("yun addid")]
-        public Task<string> CommandYunAddId(long arguments)
+        public Task<string> CommandYunAddId(string arguments)
         {
-            playControl.AddMusic(new MusicInfo(arguments.ToString()));
+            playControl.AddMusic(new MusicInfo(arguments));
             return Task.FromResult("已添加到下一首播放");
         }
 
@@ -344,7 +340,7 @@ namespace YunPlugin
 
         public async Task<GedanDetail> GetPlayListDetail(string id)
         {
-            return await Utils.HttpGetAsync<GedanDetail>($"{neteaseApi}/playlist/detail?id={id}");
+            return await Utils.HttpGetAsync<GedanDetail>($"{neteaseApi}/playlist/detail?id={id}&timestamp={Utils.GetTimeStamp()}");
         }
 
         public static void ChangeCookies(string cookies) //更改cookie
@@ -358,17 +354,16 @@ namespace YunPlugin
             return await Utils.HttpGetAsync<RespStatus>($"{server}/login/status?timestamp={Utils.GetTimeStamp()}", cookie);
         }
 
-        public async Task genList(long id, string cookie, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
+        public async Task genList(string id, string cookie, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
         {
-            string gedanid = id.ToString();
-            GedanDetail gedanDetail = await GetPlayListDetail(gedanid);
+            GedanDetail gedanDetail = await GetPlayListDetail(id);
             int trackCount = gedanDetail.playlist.trackCount;
             if (trackCount != 0)
             {
                 await genListTrack(id, cookie, gedanDetail, SongList, ts3Client);
                 return;
             }
-            GeDan Gedans = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={gedanid}", cookie);
+            GeDan Gedans = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={id}", cookie);
             long numOfSongs = Gedans.songs.Count();
             if (numOfSongs > 100)
             {
@@ -384,9 +379,8 @@ namespace YunPlugin
             }
         }
 
-        public async Task genListTrack(long id, string cookie, GedanDetail gedanDetail, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
+        public async Task genListTrack(string id, string cookie, GedanDetail gedanDetail, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
         {
-            string gedanid = id.ToString();
             int trackCount = gedanDetail.playlist.trackCount;
             if (trackCount > 100)
             {
@@ -394,7 +388,7 @@ namespace YunPlugin
             }
             for (int i = 0; i < trackCount; i += 50)
             {
-                GeDan geDan = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={gedanid}&limit=50&offset={i}", cookie);
+                GeDan geDan = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={id}&limit=50&offset={i}", cookie);
 
                 for (int j = 0; j < geDan.songs.Length; j++)
                 {
@@ -408,6 +402,8 @@ namespace YunPlugin
             Instance = null;
             MyIni = null;
             playControl = null;
+            playManager.AfterResourceStarted -= PlayManager_AfterResourceStarted;
+            playManager.PlaybackStopped -= PlayManager_PlaybackStopped;
         }
     }
 }

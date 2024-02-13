@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TS3AudioBot.Helper;
 
@@ -37,5 +38,19 @@ public static class Utils
     {
         TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
         return Convert.ToInt64(ts.TotalSeconds).ToString();
+    }
+
+    public static string ExtractIdFromAddress(string address)
+    {
+        string pattern = @"\?id=(\d+)";
+        Match match = Regex.Match(address, pattern);
+        if (match.Success)
+        {
+            return match.Groups[1].Value;
+        }
+        else
+        {
+            return address;
+        }
     }
 }
