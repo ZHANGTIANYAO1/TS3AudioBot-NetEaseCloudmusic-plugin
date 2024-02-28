@@ -130,41 +130,15 @@ public class MusicInfo
         }
     }
 
-    private async Task<MusicCheck> CheckMusic(string api, string id, string cookie)
-    {
-        string musicCheckUrl = $"{api}/check/music?id={id}&t={Utils.GetTimeStamp()}";
-        return await Utils.HttpGetAsync<MusicCheck>(musicCheckUrl, cookie);
-    }
-
     // 获得歌曲URL
-    public async Task<string> getMusicUrl(string api, string apiUNM, string cookie = "")
+    public async Task<string> getMusicUrl(string api, string cookie = "")
     {
         string api_url = $"{api}/song/url?id={Id}&t={Utils.GetTimeStamp()}";
-        bool needProxy = false;
-        try
-        {
-            MusicCheck check = await CheckMusic(api, Id, cookie);
-            if (!check.success && !string.IsNullOrEmpty(apiUNM))
-            {
-                needProxy = true;
-                YunPlugin.YunPlgun.GetLogger().Warn($"Music cannot be played: {check.message}");
-                api_url += $"&proxy={apiUNM}";
-            }
-        }
-        catch (Exception e)
-        {
-            YunPlugin.YunPlgun.GetLogger().Error(e, $"Check music error: {api_url}");
-        }
 
         try
         {
             MusicURL musicurl = await Utils.HttpGetAsync<MusicURL>(api_url, cookie);
-            string mp3 = musicurl.data[0].url;
-            if (needProxy)
-            {
-                mp3 = Regex.Replace(mp3, @"https?://music\.163\.com", apiUNM);
-            }
-            return mp3;
+            return musicurl.data[0].url;
         }
         catch (Exception e)
         {

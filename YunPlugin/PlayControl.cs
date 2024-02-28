@@ -14,20 +14,18 @@ public class PlayControl
     private List<MusicInfo> songList = new List<MusicInfo>();
     private NLog.Logger Log;
     private string neteaseApi;
-    private string neteaseApiUNM;
     private Mode mode;
     private int currentPlay = 0;
     private string cookies = "";
     private MusicInfo currentPlayMusicInfo;
     private PlayListMeta playListMeta;
 
-    public PlayControl(PlayManager playManager, Ts3Client ts3Client, NLog.Logger log, string neteaseApi, string neteaseApiUNM)
+    public PlayControl(PlayManager playManager, Ts3Client ts3Client, NLog.Logger log, string neteaseApi)
     {
         Log = log;
         this.neteaseApi = neteaseApi;
         this.playManager = playManager;
         this.ts3Client = ts3Client;
-        this.neteaseApiUNM = neteaseApiUNM;
     }
 
     public MusicInfo GetCurrentPlayMusicInfo()
@@ -109,7 +107,7 @@ public class PlayControl
             currentPlayMusicInfo = musicInfo;
 
             await musicInfo.InitMusicInfo(neteaseApi, cookies);
-            string musicUrl = await musicInfo.getMusicUrl(neteaseApi, neteaseApiUNM, cookies);
+            string musicUrl = await musicInfo.getMusicUrl(neteaseApi, cookies);
             Log.Info($"Music name: {musicInfo.Name}, picUrl: {musicInfo.Image}, url: {musicUrl}");
 
             if (musicUrl.StartsWith("error"))

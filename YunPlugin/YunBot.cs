@@ -22,7 +22,6 @@ namespace YunPlugin
         private static IniFile MyIni;
         private static NLog.Logger Log = NLog.LogManager.GetLogger($"TS3AudioBot.Plugins.{typeof(YunPlgun).Namespace}");
         private static string neteaseApi;
-        private static string neteaseApiUNM;
 
         public static NLog.Logger GetLogger()
         {
@@ -80,14 +79,13 @@ namespace YunPlugin
             }
 
             neteaseApi = MyIni.Read("WangYiYunAPI_Address", "https://127.0.0.1:3000");
-            neteaseApiUNM = MyIni.Read("UNM_Address", "");
 
             Log.Info("Yun Plugin loaded");
             Log.Info($"Play mode: {playMode}");
             Log.Info($"Cookie: {cookies}");
             Log.Info($"Api address: {neteaseApi}");
 
-            playControl = new PlayControl(playManager, ts3Client, Log, neteaseApi, neteaseApiUNM);
+            playControl = new PlayControl(playManager, ts3Client, Log, neteaseApi);
             playControl.SetMode(playMode);
             playControl.SetCookies(cookies);
 
@@ -299,7 +297,7 @@ namespace YunPlugin
         [Command("yun status")]
         public async Task<string> CommandNcmStatusAsync()
         {
-            string result = $"\n网易云API: {neteaseApi}\nUNM-API: {neteaseApiUNM}\n当前用户: ";
+            string result = $"\n网易云API: {neteaseApi}\n当前用户: ";
 
             if (string.IsNullOrEmpty(playControl.GetCookies()))
             {
