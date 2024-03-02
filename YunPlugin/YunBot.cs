@@ -317,6 +317,13 @@ namespace YunPlugin
             return null;
         }
 
+        [Command("yun reload")]
+        public Task<string> CommandYunReload()
+        {
+            loadConfig(playControl);
+            return Task.FromResult("配置已重新加载");
+        }
+
         [Command("yun login")]
         public static async Task<string> CommanloginAsync(Ts3Client ts3Client, TsFullClient tsClient)
         {
