@@ -20,12 +20,21 @@ public class PlayControl
     private MusicInfo currentPlayMusicInfo;
     private PlayListMeta playListMeta;
 
-    public PlayControl(PlayManager playManager, Ts3Client ts3Client, NLog.Logger log, string neteaseApi)
+    public PlayControl(PlayManager playManager, Ts3Client ts3Client, NLog.Logger log)
     {
         Log = log;
-        this.neteaseApi = neteaseApi;
         this.playManager = playManager;
         this.ts3Client = ts3Client;
+    }
+
+    public void SetNeteaseApi(string neteaseApi)
+    {
+        this.neteaseApi = neteaseApi;
+    }
+
+    public string GetNeteaseApi()
+    {
+        return neteaseApi;
     }
 
     public MusicInfo GetCurrentPlayMusicInfo()

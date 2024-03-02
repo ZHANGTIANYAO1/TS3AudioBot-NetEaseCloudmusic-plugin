@@ -11,8 +11,10 @@ using TS3AudioBot;
 using TS3AudioBot.Audio;
 using TS3AudioBot.CommandSystem;
 using TS3AudioBot.Plugins;
+using TSLib;
 using TSLib.Full;
 using TSLib.Full.Book;
+using TSLib.Messages;
 
 namespace YunPlugin
 {
@@ -34,6 +36,12 @@ namespace YunPlugin
         private PlayControl playControl;
         private SemaphoreSlim slimlock = new SemaphoreSlim(1, 1);
 
+        TsFullClient TS3FullClient { get; set; }
+        public Player PlayerConnection { get; set; }
+
+        private static ulong ownChannelID;
+        private static List<ulong> ownChannelClients = new List<ulong>();
+
         public YunPlgun(PlayManager playManager, Ts3Client ts3Client, Connection serverView)
         {
             Instance = this;
@@ -43,6 +51,23 @@ namespace YunPlugin
         }
 
         public void Initialize()
+        {
+            playControl = new PlayControl(playManager, ts3Client, Log);
+            loadConfig(playControl);
+
+            playManager.AfterResourceStarted += PlayManager_AfterResourceStarted;
+            playManager.PlaybackStopped += PlayManager_PlaybackStopped;
+
+            TS3FullClient.OnEachClientLeftView += OnEachClientLeftView;
+            TS3FullClient.OnEachClientEnterView += OnEachClientEnterView;
+            TS3FullClient.OnEachClientMoved += OnEachClientMoved;
+
+            _ = updateOwnChannel();
+
+            ts3Client.SendChannelMessage("网易云音乐插件加载成功！");
+        }
+
+        private void loadConfig(PlayControl playControl)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
@@ -80,19 +105,80 @@ namespace YunPlugin
 
             neteaseApi = MyIni.Read("WangYiYunAPI_Address", "https://127.0.0.1:3000");
 
+            playControl.SetMode(playMode);
+            playControl.SetCookies(cookies);
+            playControl.SetNeteaseApi(neteaseApi);
+
             Log.Info("Yun Plugin loaded");
             Log.Info($"Play mode: {playMode}");
             Log.Info($"Cookie: {cookies}");
             Log.Info($"Api address: {neteaseApi}");
+        }
 
-            playControl = new PlayControl(playManager, ts3Client, Log, neteaseApi);
-            playControl.SetMode(playMode);
-            playControl.SetCookies(cookies);
+        private async Task updateOwnChannel(ulong channelID = 0)
+        {
+            if (channelID < 1) channelID = (await TS3FullClient.WhoAmI()).Value.ChannelId.Value;
+            ownChannelID = channelID;
+            ownChannelClients.Clear();
+            R<ClientList[], CommandError> r = await TS3FullClient.ClientList(ClientListOptions.uid);
+            if (!r)
+            {
+                throw new Exception($"Clientlist failed ({r.Error.ErrorFormat()})");
+            }
+            foreach (var client in r.Value.ToList())
+            {
+                if (client.ChannelId.Value == channelID)
+                {
+                    if (client.ClientId == TS3FullClient.ClientId) continue;
+                    ownChannelClients.Add(client.ClientId.Value);
+                }
+            }
+        }
 
-            playManager.AfterResourceStarted += PlayManager_AfterResourceStarted;
-            playManager.PlaybackStopped += PlayManager_PlaybackStopped;
+        private void checkOwnChannel()
+        {
+            if (ownChannelClients.Count < 1)
+            {
+                PlayerConnection.Paused = true;
+            }
+            else
+            {
+                PlayerConnection.Paused = false;
+            }
+            Log.Info("ownChannelClients: {}", ownChannelClients.Count);
+        }
 
-            ts3Client.SendChannelMessage("网易云音乐插件加载成功！");
+        private async void OnEachClientMoved(object sender, ClientMoved e)
+        {
+            if (e.ClientId == TS3FullClient.ClientId)
+            {
+                await updateOwnChannel(e.TargetChannelId.Value);
+                return;
+            }
+            var hasClient = ownChannelClients.Contains(e.ClientId.Value);
+            if (e.TargetChannelId.Value == ownChannelID)
+            {
+                if (!hasClient) ownChannelClients.Add(e.ClientId.Value);
+                checkOwnChannel();
+            }
+            else if (hasClient)
+            {
+                ownChannelClients.Remove(e.ClientId.Value);
+                checkOwnChannel();
+            }
+        }
+
+        private void OnEachClientEnterView(object sender, ClientEnterView e)
+        {
+            if (e.ClientId == TS3FullClient.ClientId) return;
+            if (e.TargetChannelId.Value == ownChannelID) ownChannelClients.Add(e.ClientId.Value);
+            checkOwnChannel();
+        }
+        private void OnEachClientLeftView(object sender, ClientLeftView e)
+        {
+            if (e.ClientId == TS3FullClient.ClientId) return;
+            if (e.SourceChannelId.Value == ownChannelID) ownChannelClients.Remove(e.ClientId.Value);
+            checkOwnChannel();
         }
 
         private Task PlayManager_AfterResourceStarted(object sender, PlayInfoEventArgs value)
@@ -395,6 +481,9 @@ namespace YunPlugin
             playControl = null;
             playManager.AfterResourceStarted -= PlayManager_AfterResourceStarted;
             playManager.PlaybackStopped -= PlayManager_PlaybackStopped;
+            TS3FullClient.OnEachClientLeftView -= OnEachClientLeftView;
+            TS3FullClient.OnEachClientEnterView -= OnEachClientEnterView;
+            TS3FullClient.OnEachClientMoved -= OnEachClientMoved;
         }
     }
 }
