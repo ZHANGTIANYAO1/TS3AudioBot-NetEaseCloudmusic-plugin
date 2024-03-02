@@ -95,7 +95,7 @@ public class MusicInfo
         }
     }
 
-    public async Task InitMusicInfo(string api, string cookie)
+    public async Task InitMusicInfo(string api, Dictionary<string, string> header = null)
     {
         if (!string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(Image))
         {
@@ -104,7 +104,7 @@ public class MusicInfo
         try
         {
             string musicdetailurl = $"{api}/song/detail?ids={Id}&t={Utils.GetTimeStamp()}";
-            JsonSongDetail musicDetail = await Utils.HttpGetAsync<JsonSongDetail>(musicdetailurl, cookie);
+            JsonSongDetail musicDetail = await Utils.HttpGetAsync<JsonSongDetail>(musicdetailurl, header);
             Image = musicDetail.songs[0].al.picUrl;
             Name = musicDetail.songs[0].name;
             DetailUrl = $"https://music.163.com/#/song?id={Id}";
@@ -130,13 +130,13 @@ public class MusicInfo
     }
 
     // 获得歌曲URL
-    public async Task<string> getMusicUrl(string api, string cookie = "")
+    public async Task<string> getMusicUrl(string api, Dictionary<string, string> header = null)
     {
         string api_url = $"{api}/song/url?id={Id}&t={Utils.GetTimeStamp()}";
 
         try
         {
-            MusicURL musicurl = await Utils.HttpGetAsync<MusicURL>(api_url, cookie);
+            MusicURL musicurl = await Utils.HttpGetAsync<MusicURL>(api_url, header);
             return musicurl.data[0].url;
         }
         catch (Exception e)

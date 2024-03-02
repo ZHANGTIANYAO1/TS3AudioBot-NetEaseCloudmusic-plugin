@@ -7,12 +7,16 @@ using TS3AudioBot.Helper;
 public static class Utils
 {
     // Http请求
-    public static async Task<T> HttpGetAsync<T>(string url, string cookie = "")
+    public static async Task<T> HttpGetAsync<T>(string url, Dictionary<string, string> header = null)
     {
         var request = WebWrapper.Request(url);
-        if (!string.IsNullOrEmpty(cookie))
+        
+        if (header != null)
         {
-            request.WithHeader("Cookie", cookie);
+            foreach (var item in header)
+            {
+                request.WithHeader(item.Key, item.Value);
+            }
         }
 
         // YunPlugin.YunPlgun.GetLogger().Info($"HttpGetAsync: {url} header: {request.Headers}");

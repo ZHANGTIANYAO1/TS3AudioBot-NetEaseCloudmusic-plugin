@@ -16,7 +16,7 @@ public class PlayControl
     private string neteaseApi;
     private Mode mode;
     private int currentPlay = 0;
-    private string cookies = "";
+    private Dictionary<string, string> header = null;
     private MusicInfo currentPlayMusicInfo;
     private PlayListMeta playListMeta;
 
@@ -42,14 +42,14 @@ public class PlayControl
         return currentPlayMusicInfo;
     }
 
-    public string GetCookies()
+    public Dictionary<string, string> GetHeader()
     {
-        return cookies;
+        return header;
     }
 
-    public void SetCookies(string cookies)
+    public void SetHeader(Dictionary<string, string> header)
     {
-        this.cookies = cookies;
+        this.header = header;
     }
 
     public InvokerData Getinvoker()
@@ -115,8 +115,8 @@ public class PlayControl
 
             currentPlayMusicInfo = musicInfo;
 
-            await musicInfo.InitMusicInfo(neteaseApi, cookies);
-            string musicUrl = await musicInfo.getMusicUrl(neteaseApi, cookies);
+            await musicInfo.InitMusicInfo(neteaseApi, header);
+            string musicUrl = await musicInfo.getMusicUrl(neteaseApi, header);
             Log.Info($"Music name: {musicInfo.Name}, picUrl: {musicInfo.Image}, url: {musicUrl}");
 
             if (musicUrl.StartsWith("error"))
@@ -213,7 +213,7 @@ public class PlayControl
         for (var i = 0; i < musicList.Count; i++)
         {
             var music = musicList[i];
-            await music.InitMusicInfo(neteaseApi, cookies);
+            await music.InitMusicInfo(neteaseApi, header);
             descBuilder.AppendLine($"{i + 1}: {music.GetFullNameBBCode()}");
         }
 

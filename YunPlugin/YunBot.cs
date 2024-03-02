@@ -21,7 +21,7 @@ namespace YunPlugin
     public class YunPlgun : IBotPlugin /* or ICorePlugin */
     {
         private static YunPlgun Instance;
-        private static IniFile MyIni;
+        public static Config config;
         private static NLog.Logger Log = NLog.LogManager.GetLogger($"TS3AudioBot.Plugins.{typeof(YunPlgun).Namespace}");
         private static string neteaseApi;
 
@@ -83,19 +83,19 @@ namespace YunPlugin
                 }
 
                 string location = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                MyIni = new IniFile(System.IO.File.Exists(dockerEnvFilePath) ? location + "/data/plugins/YunSettings.ini" : location + "/plugins/YunSettings.ini");
+                config = Config.GetConfig(System.IO.File.Exists(dockerEnvFilePath) ? location + "/data/plugins/YunSettings.yml" : location + "/plugins/YunSettings.yml");
             }
             else
             {
-                MyIni = new IniFile("plugins/YunSettings.ini");
+                config = Config.GetConfig("plugins/YunSettings.yml");
             }
 
 
-            var cookies = MyIni.Read("cookies1");
+            var header = config.Header;
             Mode playMode;
             try
             {
-                playMode = (Mode)int.Parse(MyIni.Read("playMode", "0"));
+                playMode = (Mode)config.playMode;
             }
             catch (Exception e)
             {
@@ -103,15 +103,19 @@ namespace YunPlugin
                 playMode = Mode.SeqPlay;
             }
 
-            neteaseApi = MyIni.Read("WangYiYunAPI_Address", "https://127.0.0.1:3000");
+            neteaseApi = config.neteaseApi;
 
             playControl.SetMode(playMode);
-            playControl.SetCookies(cookies);
+            playControl.SetHeader(header);
             playControl.SetNeteaseApi(neteaseApi);
+
 
             Log.Info("Yun Plugin loaded");
             Log.Info($"Play mode: {playMode}");
-            Log.Info($"Cookie: {cookies}");
+            for (int i = 0; i < header.Count; i++)
+            {
+                Log.Info($"Header: {header.Keys.ElementAt(i)}: {header.Values.ElementAt(i)}");
+            }
             Log.Info($"Api address: {neteaseApi}");
         }
 
@@ -208,7 +212,8 @@ namespace YunPlugin
             {
                 Mode playMode = (Mode)mode;
                 playControl.SetMode(playMode);
-                MyIni.Write("playMode", mode.ToString());
+                config.playMode = playMode;
+                config.Save();
 
                 return Task.FromResult(playMode switch
                 {
@@ -242,7 +247,7 @@ namespace YunPlugin
                     listId = searchgedan.result.playlists[0].id.ToString();
                 }
 
-                var gedanDetail = await GetPlayListDetail(listId, playControl.GetCookies());
+                var gedanDetail = await GetPlayListDetail(listId, playControl.GetHeader());
                 string gedanname = gedanDetail.playlist.name;
                 string imgurl = gedanDetail.playlist.coverImgUrl;
                 await ts3Client.ChangeDescription(gedanname);
@@ -250,7 +255,7 @@ namespace YunPlugin
                 await ts3Client.SendChannelMessage("开始添加歌单");
 
                 List<MusicInfo> songList = new List<MusicInfo>();
-                await genList(listId, playControl.GetCookies(), songList, ts3Client);
+                await genList(listId, playControl.GetHeader(), songList, ts3Client);
                 await ts3Client.SendChannelMessage("歌单添加完毕：" + gedanname + " [" + songList.Count.ToString() + "]");
                 playControl.SetPlayList(new PlayListMeta(listId, gedanname, imgurl), songList);
                 await playControl.PlayNextMusic();
@@ -385,20 +390,27 @@ namespace YunPlugin
         {
             string result = $"\n网易云API: {neteaseApi}\n当前用户: ";
 
-            if (string.IsNullOrEmpty(playControl.GetCookies()))
+            try
             {
-                result += $"未登入";
-                return result;
-            }
+                if (!playControl.GetHeader().ContainsKey("Cookie"))
+                {
+                    result += $"未登入";
+                    return result;
+                }
 
-            var status = await GetLoginStatusAasync(neteaseApi, playControl.GetCookies());
-            if (status.data.code == 200 && status.data.account.status == 0)
+                var status = await GetLoginStatusAasync(neteaseApi, playControl.GetHeader());
+                if (status.data.code == 200 && status.data.account.status == 0)
+                {
+                    result += $"[URL=https://music.163.com/#/user/home?id={status.data.profile.userId}]{status.data.profile.nickname}[/URL]\n";
+                }
+                else
+                {
+                    result += $"未登入";
+                }
+            } catch (Exception e)
             {
-                result += $"[URL=https://music.163.com/#/user/home?id={status.data.profile.userId}]{status.data.profile.nickname}[/URL]\n";
-            }
-            else
-            {
-                result += $"未登入";
+                result += $"获取登录信息失败！";
+                Log.Error(e, "GetLoginStatusAasync error");
             }
 
             return result;
@@ -422,32 +434,34 @@ namespace YunPlugin
             return await Utils.HttpGetAsync<Status1>($"{neteaseApi}/login/qr/check?key={key}&timestamp={Utils.GetTimeStamp()}");
         }
 
-        public async Task<GedanDetail> GetPlayListDetail(string id, string cookie)
+        public async Task<GedanDetail> GetPlayListDetail(string id, Dictionary<string, string> header)
         {
-            return await Utils.HttpGetAsync<GedanDetail>($"{neteaseApi}/playlist/detail?id={id}&timestamp={Utils.GetTimeStamp()}", cookie);
+            return await Utils.HttpGetAsync<GedanDetail>($"{neteaseApi}/playlist/detail?id={id}&timestamp={Utils.GetTimeStamp()}", header);
         }
 
         public static void ChangeCookies(string cookies) //更改cookie
         {
-            Instance.playControl.SetCookies(cookies);
-            MyIni.Write("cookies1", cookies);
+
+            Instance.playControl.GetHeader()["Cookie"] = cookies;
+            config.Header["Cookie"] = cookies;
+            config.Save();
         }
 
-        public static async Task<RespStatus> GetLoginStatusAasync(string server, string cookie)
+        public static async Task<RespStatus> GetLoginStatusAasync(string server, Dictionary<string, string> header)
         {
-            return await Utils.HttpGetAsync<RespStatus>($"{server}/login/status?timestamp={Utils.GetTimeStamp()}", cookie);
+            return await Utils.HttpGetAsync<RespStatus>($"{server}/login/status?timestamp={Utils.GetTimeStamp()}", header);
         }
 
-        public async Task genList(string id, string cookie, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
+        public async Task genList(string id, Dictionary<string, string> header, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
         {
-            GedanDetail gedanDetail = await GetPlayListDetail(id, cookie);
+            GedanDetail gedanDetail = await GetPlayListDetail(id, header);
             int trackCount = gedanDetail.playlist.trackCount;
             if (trackCount != 0)
             {
-                await genListTrack(id, cookie, gedanDetail, SongList, ts3Client);
+                await genListTrack(id, header, gedanDetail, SongList, ts3Client);
                 return;
             }
-            GeDan Gedans = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={id}", cookie);
+            GeDan Gedans = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={id}", header);
             long numOfSongs = Gedans.songs.Count();
             if (numOfSongs > 100)
             {
@@ -463,7 +477,7 @@ namespace YunPlugin
             }
         }
 
-        public async Task genListTrack(string id, string cookie, GedanDetail gedanDetail, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
+        public async Task genListTrack(string id, Dictionary<string, string> header, GedanDetail gedanDetail, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
         {
             int trackCount = gedanDetail.playlist.trackCount;
             if (trackCount > 100)
@@ -472,7 +486,7 @@ namespace YunPlugin
             }
             for (int i = 0; i < trackCount; i += 50)
             {
-                GeDan geDan = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={id}&limit=50&offset={i}", cookie);
+                GeDan geDan = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={id}&limit=50&offset={i}", header);
 
                 for (int j = 0; j < geDan.songs.Length; j++)
                 {
@@ -484,7 +498,7 @@ namespace YunPlugin
         public void Dispose()
         {
             Instance = null;
-            MyIni = null;
+            config = null;
             playControl = null;
             playManager.AfterResourceStarted -= PlayManager_AfterResourceStarted;
             playManager.PlaybackStopped -= PlayManager_PlaybackStopped;
