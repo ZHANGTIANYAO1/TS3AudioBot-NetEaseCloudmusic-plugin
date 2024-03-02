@@ -14,6 +14,9 @@ public static class Utils
         {
             request.WithHeader("Cookie", cookie);
         }
+
+        // YunPlugin.YunPlgun.GetLogger().Info($"HttpGetAsync: {url} header: {request.Headers}");
+
         return await request.AsJson<T>();
     }
 
@@ -42,7 +45,7 @@ public static class Utils
 
     public static string ExtractIdFromAddress(string address)
     {
-        string pattern = @"\?id=(\d+)";
+        string pattern = @"id=(\d+)";
         Match match = Regex.Match(address, pattern);
         if (match.Success)
         {
@@ -52,5 +55,11 @@ public static class Utils
         {
             return address;
         }
+    }
+
+    public static bool IsNumber(string strNumber)
+    {
+        Regex regex = new Regex(@"^\d+$");
+        return regex.IsMatch(strNumber);
     }
 }
