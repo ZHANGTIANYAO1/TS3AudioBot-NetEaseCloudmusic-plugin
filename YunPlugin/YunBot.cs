@@ -392,7 +392,7 @@ namespace YunPlugin
 
             try
             {
-                if (!playControl.GetHeader().ContainsKey("Cookie"))
+                if (!playControl.GetHeader().ContainsKey("Cookie") || string.IsNullOrEmpty(playControl.GetHeader()["Cookie"]))
                 {
                     result += $"未登入";
                     return result;

@@ -57,7 +57,7 @@ namespace YunPlugin
                     Header = new Dictionary<string, string>
                     {
                         { "Cookie", "" },
-                        { "User-Agent", "NeteaseMusic 8.10.60/4390 (iPhone; iOS 14.4; zh_CN)" }
+                        { "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0" }
                     },
                     Path = path
                 };
