@@ -33,12 +33,18 @@ namespace YunPlugin
     }
     public class Config
     {
+        public int version { get; set; }
         public Mode playMode { get; set; }
         public string neteaseApi { get; set; }
+        public bool isQrlogin { get; set; }
+        public int cookieUpdateIntervalMin { get; set; }
+        public bool autoPause { get; set; }
         public Dictionary<string, string> Header { get; set; }
 
         [YamlIgnore]
         private string Path { get; set; }
+        [YamlIgnore]
+        public int CurrentVersion = 1;
 
         public static Config GetConfig(string path)
         {
@@ -46,14 +52,23 @@ namespace YunPlugin
             {
                 var config = YAMLSerialize.Deserializer<Config>(path);
                 config.Path = path;
+                if (config.version < config.CurrentVersion)
+                {
+                    config.version = config.CurrentVersion;
+                    config.Save();
+                }
                 return config;
             }
             catch (FileNotFoundException)
             {
                 var config = new Config
                 {
+                    version = 1,
                     playMode = Mode.SeqPlay,
                     neteaseApi = "http://127.0.0.1:3000",
+                    isQrlogin = false,
+                    autoPause = true,
+                    cookieUpdateIntervalMin = 30,
                     Header = new Dictionary<string, string>
                     {
                         { "Cookie", "" },

@@ -24,6 +24,7 @@ namespace YunPlugin
         public static Config config;
         private static NLog.Logger Log = NLog.LogManager.GetLogger($"TS3AudioBot.Plugins.{typeof(YunPlgun).Namespace}");
         private static string neteaseApi;
+        private static Timer timer;
 
         public static NLog.Logger GetLogger()
         {
@@ -109,6 +110,32 @@ namespace YunPlugin
             playControl.SetHeader(header);
             playControl.SetNeteaseApi(neteaseApi);
 
+            if (timer != null)
+            {
+                timer.Dispose();
+            }
+
+            if (config.cookieUpdateIntervalMin != 0)
+            {
+                timer = new Timer(async (e) =>
+                {
+                    if (!config.isQrlogin)
+                    {
+                        string url = $"{neteaseApi}/login/refresh?t={Utils.GetTimeStamp()}";
+                        Status1 status = await Utils.HttpGetAsync<Status1>(url, header);
+                        if (status.code == 200)
+                        {
+                            var newCookie = Utils.MergeCookie(header["Cookie"], status.cookie);
+                            ChangeCookies(newCookie, false);
+                            Log.Info("Cookie update success");
+                        }
+                        else
+                        {
+                            Log.Warn("Cookie update failed");
+                        }
+                    }
+                }, null, TimeSpan.Zero.Milliseconds, TimeSpan.FromMinutes(config.cookieUpdateIntervalMin).Milliseconds);
+            }
 
             Log.Info("Yun Plugin loaded");
             Log.Info($"Play mode: {playMode}");
@@ -117,6 +144,14 @@ namespace YunPlugin
                 Log.Info($"Header: {header.Keys.ElementAt(i)}: {header.Values.ElementAt(i)}");
             }
             Log.Info($"Api address: {neteaseApi}");
+            if (config.cookieUpdateIntervalMin == 0)
+            {
+                Log.Info("Cookie update disabled");
+            }
+            else
+            {
+                Log.Info($"Cookie update interval: {config.cookieUpdateIntervalMin} min");
+            }
         }
 
         private async Task updateOwnChannel(ulong channelID = 0)
@@ -124,7 +159,7 @@ namespace YunPlugin
             if (channelID < 1) channelID = (await TS3FullClient.WhoAmI()).Value.ChannelId.Value;
             ownChannelID = channelID;
             ownChannelClients.Clear();
-            R<ClientList[], CommandError> r = await TS3FullClient.ClientList(ClientListOptions.uid);
+            R<ClientList[], CommandError> r = await TS3FullClient.ClientList();
             if (!r)
             {
                 throw new Exception($"Clientlist failed ({r.Error.ErrorFormat()})");
@@ -141,6 +176,10 @@ namespace YunPlugin
 
         private void checkOwnChannel()
         {
+            if (!config.autoPause)
+            {
+                return;
+            }
             if (ownChannelClients.Count < 1)
             {
                 PlayerConnection.Paused = true;
@@ -330,7 +369,13 @@ namespace YunPlugin
         }
 
         [Command("yun login")]
-        public static async Task<string> CommanloginAsync(Ts3Client ts3Client, TsFullClient tsClient)
+        public string CommandYunLogin()
+        {
+            return "请使用yun login qr 或者 yun login sms [手机号] {验证码}";
+        }
+
+        [Command("yun login qr")]
+        public static async Task<string> CommanQrloginAsync(Ts3Client ts3Client, TsFullClient tsClient)
         {
             string key = await GetLoginKey();
             string qrimg = await GetLoginQRImage(key);
@@ -353,7 +398,7 @@ namespace YunPlugin
                 Status1 status = await CheckLoginStatus(key);
                 code = status.code;
                 cookies = status.cookie;
-                i = i + 1;
+                i++;
                 Thread.Sleep(1000);
                 if (i == 120)
                 {
@@ -369,9 +414,64 @@ namespace YunPlugin
                 }
             }
             await tsClient.DeleteAvatar();
-            ChangeCookies(cookies);
+            await ts3Client.ChangeDescription("已登陆");
+            ChangeCookies(cookies, true);
 
             return result;
+        }
+
+        [Command("yun login sms")]
+        public async Task<string> CommandSmsloginAsync(string phoneandcode)
+        {
+            var phoneAndCode = phoneandcode.Split(' ');
+            string phone = phoneAndCode[0];
+            string code;
+            if (phoneAndCode.Length == 2)
+            {
+                code = phoneAndCode[1];
+            }
+            else
+            {
+                code = "";
+            }
+
+            if (!string.IsNullOrEmpty(code) && code.Length != 4)
+            {
+                return "请输入正确的验证码";
+            }
+            string url;
+            Status1 status;
+            if (string.IsNullOrEmpty(code))
+            {
+                url = $"{neteaseApi}/captcha/sent?phone={phone}&t={Utils.GetTimeStamp()}";
+                status = await Utils.HttpGetAsync<Status1>(url);
+                if (status.code == 200)
+                {
+                    return "验证码已发送";
+                }
+                else
+                {
+                    return "发送失败";
+                }
+            }
+
+            url = $"{neteaseApi}/captcha/verify?phone={phone}&captcha={code}&t={Utils.GetTimeStamp()}";
+            status = await Utils.HttpGetAsync<Status1>(url);
+            if (status.code != 200)
+            {
+                return "验证码错误";
+            }
+            url = $"{neteaseApi}/login/cellphone?phone={phone}&captcha={code}&t={Utils.GetTimeStamp()}";
+            status = await Utils.HttpGetAsync<Status1>(url);
+            if (status.code == 200)
+            {
+                ChangeCookies(status.cookie, false);
+                return "登陆成功";
+            }
+            else
+            {
+                return "登陆失败";
+            }
         }
 
         [Command("yun list")]
@@ -386,7 +486,7 @@ namespace YunPlugin
         }
 
         [Command("yun status")]
-        public async Task<string> CommandNcmStatusAsync()
+        public async Task<string> CommandStatusAsync()
         {
             string result = $"\n网易云API: {neteaseApi}\n当前用户: ";
 
@@ -399,6 +499,12 @@ namespace YunPlugin
                 }
 
                 var status = await GetLoginStatusAasync(neteaseApi, playControl.GetHeader());
+                if (status == null || status.data == null || status.data.account == null)
+                {
+                    result += $"未登入";
+                    return result;
+                }
+
                 if (status.data.code == 200 && status.data.account.status == 0)
                 {
                     result += $"[URL=https://music.163.com/#/user/home?id={status.data.profile.userId}]{status.data.profile.nickname}[/URL]\n";
@@ -439,11 +545,12 @@ namespace YunPlugin
             return await Utils.HttpGetAsync<GedanDetail>($"{neteaseApi}/playlist/detail?id={id}&timestamp={Utils.GetTimeStamp()}", header);
         }
 
-        public static void ChangeCookies(string cookies) //更改cookie
+        public static void ChangeCookies(string cookies, bool isQrlogin) //更改cookie
         {
-
-            Instance.playControl.GetHeader()["Cookie"] = cookies;
-            config.Header["Cookie"] = cookies;
+            var cookie = Utils.ProcessCookie(cookies);
+            Instance.playControl.GetHeader()["Cookie"] = cookie;
+            config.Header["Cookie"] = cookie;
+            config.isQrlogin = isQrlogin;
             config.Save();
         }
 
@@ -500,6 +607,9 @@ namespace YunPlugin
             Instance = null;
             config = null;
             playControl = null;
+            timer.Dispose();
+            timer = null;
+
             playManager.AfterResourceStarted -= PlayManager_AfterResourceStarted;
             playManager.PlaybackStopped -= PlayManager_PlaybackStopped;
             TS3FullClient.OnEachClientLeftView -= OnEachClientLeftView;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TS3AudioBot.Helper;
@@ -65,5 +66,59 @@ public static class Utils
     {
         Regex regex = new Regex(@"^\d+$");
         return regex.IsMatch(strNumber);
+    }
+
+    static readonly string[] CookieBlackList = { "expires", "path", "domain", "max-age", "secure", "httponly", "samesite", "" };
+
+    public static Dictionary<string, string> CookieToDict(string cookie)
+    {
+        Dictionary<string, string> dict = new Dictionary<string, string>();
+        if (string.IsNullOrEmpty(cookie))
+        {
+            return dict;
+        }
+        string[] cookies = cookie.Split(';');
+        foreach (var item in cookies)
+        {
+            var items = item.Trim().Split('=');
+            var key = items[0].Trim();
+            var value = items.Length == 2 ? items[1].Trim() : "";
+            if (CookieBlackList.Contains(key.ToLower()))
+            {
+                continue;
+            }
+
+            dict[key] = value;
+        }
+        return dict;
+    }
+
+    public static string ProcessCookie(string cookie)
+    {
+        if (string.IsNullOrEmpty(cookie))
+        {
+            return "";
+        }
+        var cookies = CookieToDict(cookie);
+        return string.Join("; ", cookies.Select(x => $"{x.Key}={x.Value}"));
+    }
+
+    public static string MergeCookie(string cookie, string new_cookie)
+    {
+        if (string.IsNullOrEmpty(cookie))
+        {
+            return new_cookie;
+        }
+        if (string.IsNullOrEmpty(new_cookie))
+        {
+            return cookie;
+        }
+        Dictionary<string, string> dict = CookieToDict(cookie);
+        Dictionary<string, string> new_dict = CookieToDict(new_cookie);
+        foreach (var item in new_dict)
+        {
+            dict[item.Key] = item.Value;
+        }
+        return string.Join("; ", dict.Select(x => $"{x.Key}={x.Value}"));
     }
 }
