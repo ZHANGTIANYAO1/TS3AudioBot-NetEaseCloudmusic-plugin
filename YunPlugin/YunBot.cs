@@ -115,23 +115,29 @@ namespace YunPlugin
                 timer.Dispose();
             }
 
-            if (config.cookieUpdateIntervalMin != 0)
+            if (config.cookieUpdateIntervalMin <= 0)
             {
                 timer = new Timer(async (e) =>
                 {
-                    if (!config.isQrlogin)
+                    if (!config.isQrlogin && header.ContainsKey("Cookie") && !string.IsNullOrEmpty(header["Cookie"]))
                     {
-                        string url = $"{neteaseApi}/login/refresh?t={Utils.GetTimeStamp()}";
-                        Status1 status = await Utils.HttpGetAsync<Status1>(url, header);
-                        if (status.code == 200)
+                        try
                         {
-                            var newCookie = Utils.MergeCookie(header["Cookie"], status.cookie);
-                            ChangeCookies(newCookie, false);
-                            Log.Info("Cookie update success");
-                        }
-                        else
+                            string url = $"{neteaseApi}/login/refresh?t={Utils.GetTimeStamp()}";
+                            Status1 status = await Utils.HttpGetAsync<Status1>(url, header);
+                            if (status.code == 200)
+                            {
+                                var newCookie = Utils.MergeCookie(header["Cookie"], status.cookie);
+                                ChangeCookies(newCookie, false);
+                                Log.Info("Cookie update success");
+                            }
+                            else
+                            {
+                                Log.Warn("Cookie update failed");
+                            }
+                        } catch (Exception ex)
                         {
-                            Log.Warn("Cookie update failed");
+                            Log.Error(ex, "Cookie update error");
                         }
                     }
                 }, null, TimeSpan.Zero.Milliseconds, TimeSpan.FromMinutes(config.cookieUpdateIntervalMin).Milliseconds);
@@ -144,7 +150,7 @@ namespace YunPlugin
                 Log.Info($"Header: {header.Keys.ElementAt(i)}: {header.Values.ElementAt(i)}");
             }
             Log.Info($"Api address: {neteaseApi}");
-            if (config.cookieUpdateIntervalMin == 0)
+            if (config.cookieUpdateIntervalMin <= 0)
             {
                 Log.Info("Cookie update disabled");
             }
