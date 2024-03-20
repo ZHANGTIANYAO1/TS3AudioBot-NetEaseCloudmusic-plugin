@@ -613,7 +613,8 @@ namespace YunPlugin
             Instance = null;
             config = null;
             playControl = null;
-            timer.Dispose();
+            if (timer != null)
+                timer.Dispose();
             timer = null;
 
             playManager.AfterResourceStarted -= PlayManager_AfterResourceStarted;
