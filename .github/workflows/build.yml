@@ -30,7 +30,7 @@ jobs:
 
       - name: Build solution
         run: |
-          dotnet build "YunPlugin/YunPlugin.sln" --configuration Release --runtime win-x64
+          dotnet build "YunPlugin/YunPlugin.sln" --configuration Release
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
