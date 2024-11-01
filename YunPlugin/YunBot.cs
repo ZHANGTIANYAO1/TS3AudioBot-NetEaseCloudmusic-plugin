@@ -329,7 +329,11 @@ namespace YunPlugin
                 songid = yunSearchSong.result.songs[0].id.ToString();
             }
             var music = new MusicInfo(songid, false);
-            playControl.AddMusic(music, false);
+            if (config.playMode != Mode.SeqPlay && config.playMode != Mode.RandomPlay)
+            {
+                // 如不是顺序播放或随机播放，添加到播放列表尾
+                playControl.AddMusic(music, false);
+            }
             await playControl.PlayMusic(music);
             return null;
         }
