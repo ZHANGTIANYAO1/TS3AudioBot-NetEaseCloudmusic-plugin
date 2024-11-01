@@ -1,0 +1,40 @@
+name: Build plugin
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download TS3AudioBot DLLs
+        run: |
+          Invoke-WebRequest -Uri "https://splamy.de/api/nightly/projects/ts3ab/master/download" -OutFile "ts3ab.zip"
+
+      - name: Extract DLLs
+        run: |
+          Expand-Archive -Path "ts3ab.zip" -DestinationPath "ts3ab"
+          Copy-Item "ts3ab/TS3AudioBot.dll" -Destination "YunPlugin/lib/TS3AudioBot.dll" -Force
+          Copy-Item "ts3ab/TSLib.dll" -Destination "YunPlugin/lib/TSLib.dll" -Force
+
+      - name: Restore NuGet packages
+        run: |
+          dotnet restore "YunPlugin/YunPlugin.sln"
+
+      - name: Build solution
+        run: |
+          dotnet build "YunPlugin/YunPlugin.sln" --configuration Release
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: YunPlugin-Build
+          path: |
+            YunPlugin/bin/Release/
