@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>YunBot</AssemblyName>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
 	<ItemGroup>
