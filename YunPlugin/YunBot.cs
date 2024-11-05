@@ -537,6 +537,14 @@ namespace YunPlugin
             return result;
         }
 
+        [Command("here")]
+        public async Task<string> CommandHere(Ts3Client ts3Client, ClientCall invoker, string password = null)
+        {
+            ChannelId channel = invoker.ChannelId.Value!;
+            await ts3Client.MoveTo(channel, password);
+            return "已移动到你所在的频道";
+        }
+
         // 以下全是功能性函数
         public static async Task<string> GetLoginKey()
         {
