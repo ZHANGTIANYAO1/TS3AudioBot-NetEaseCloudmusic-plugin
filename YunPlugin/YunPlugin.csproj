@@ -15,9 +15,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="Nini">
-			<HintPath>lib\Nini.dll</HintPath>
-		</Reference>
 		<Reference Include="TS3AudioBot">
 			<HintPath>lib\TS3AudioBot.dll</HintPath>
 			<Private>false</Private>
