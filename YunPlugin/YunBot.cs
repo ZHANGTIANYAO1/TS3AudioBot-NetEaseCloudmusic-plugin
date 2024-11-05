@@ -242,6 +242,11 @@ namespace YunPlugin
             try
             {
                 Log.Debug("上一首歌结束");
+                if (playControl.GetPlayList().Count == 0)
+                {
+                    await ts3Client.ChangeDescription("当前无正在播放歌曲");
+                    return;
+                }
                 await playControl.PlayNextMusic();
             }
             finally
