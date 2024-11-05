@@ -140,7 +140,13 @@ public class PlayControl
                 desc = musicInfo.GetFullName();
             }
             await ts3Client.ChangeDescription(desc);
-            await MainCommands.CommandBotAvatarSet(ts3Client, musicInfo.Image);
+            try
+            {
+                await MainCommands.CommandBotAvatarSet(ts3Client, musicInfo.Image);
+            } catch (Exception e)
+            {
+                Log.Error(e, "Set avatar error");
+            }
         }
         catch (Exception e)
         {
