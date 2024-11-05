@@ -59,9 +59,11 @@ namespace YunPlugin
             playManager.AfterResourceStarted += PlayManager_AfterResourceStarted;
             playManager.PlaybackStopped += PlayManager_PlaybackStopped;
 
-            TS3FullClient.OnEachClientLeftView += OnEachClientLeftView;
-            TS3FullClient.OnEachClientEnterView += OnEachClientEnterView;
-            TS3FullClient.OnEachClientMoved += OnEachClientMoved;
+            if (config.autoPause) {
+                TS3FullClient.OnEachClientLeftView += OnEachClientLeftView;
+                TS3FullClient.OnEachClientEnterView += OnEachClientEnterView;
+                TS3FullClient.OnEachClientMoved += OnEachClientMoved;
+            }
 
             _ = updateOwnChannel();
 
@@ -194,7 +196,7 @@ namespace YunPlugin
             {
                 PlayerConnection.Paused = false;
             }
-            Log.Info("ownChannelClients: {}", ownChannelClients.Count);
+            Log.Debug("ownChannelClients: {}", ownChannelClients.Count);
         }
 
         private async void OnEachClientMoved(object sender, ClientMoved e)
