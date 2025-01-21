@@ -225,4 +225,9 @@ public class PlayControl
 
         return descBuilder.ToString();
     }
+
+    public void Clear()
+    {
+        songList.Clear(); ;
+    }
 }

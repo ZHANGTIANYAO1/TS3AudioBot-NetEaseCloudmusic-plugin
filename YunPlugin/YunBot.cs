@@ -547,6 +547,17 @@ namespace YunPlugin
             return "已移动到你所在的频道";
         }
 
+        [Command("yun clear")]
+        public async Task<string> CommandYunClear(PlayManager playManager)
+        {
+            playControl.Clear();
+            if (playManager.IsPlaying)
+            {
+                await playManager.Stop();
+            }
+            return "已清除歌单";
+        }
+
         // 以下全是功能性函数
         public static async Task<string> GetLoginKey()
         {
