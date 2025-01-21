@@ -283,14 +283,25 @@ namespace YunPlugin
         }
 
         [Command("yun gedan")]
-        public async Task<string> CommandGedan(string name, Ts3Client ts3Client)
+        public async Task<string> CommandGedan(string data, Ts3Client ts3Client)
         {
             try
             {
-                string listId = Utils.ExtractIdFromAddress(name);
+                string[] sp = data.Split(' ');
+                string id = sp[0];
+                string maxLenght = sp.Length > 1 ? sp[1] : "100";
+                if (maxLenght == "max")
+                {
+                    maxLenght = "-1";
+                }
+                if (!Utils.IsNumber(maxLenght))
+                {
+                    return "请输入正确的歌单长度";
+                }
+                string listId = Utils.ExtractIdFromAddress(id);
                 if (!Utils.IsNumber(listId))
                 {
-                    string urlSearch = $"{neteaseApi}/search?keywords={name}&limit=1&type=1000";
+                    string urlSearch = $"{neteaseApi}/search?keywords={id}&limit=1&type=1000";
                     SearchGedan searchgedan = await Utils.HttpGetAsync<SearchGedan>(urlSearch);
                     if (searchgedan.result.playlists.Length == 0)
                     {
@@ -307,7 +318,7 @@ namespace YunPlugin
                 await ts3Client.SendChannelMessage("开始添加歌单");
 
                 List<MusicInfo> songList = new List<MusicInfo>();
-                await genList(listId, playControl.GetHeader(), songList, ts3Client);
+                await genList(listId, int.Parse(maxLenght), playControl.GetHeader(), songList, ts3Client);
                 await ts3Client.SendChannelMessage("歌单添加完毕：" + gedanname + " [" + songList.Count.ToString() + "]");
                 playControl.SetPlayList(new PlayListMeta(listId, gedanname, imgurl), songList);
                 await playControl.PlayNextMusic();
@@ -595,7 +606,7 @@ namespace YunPlugin
             return await Utils.HttpGetAsync<RespStatus>($"{server}/login/status?timestamp={Utils.GetTimeStamp()}", header);
         }
 
-        public async Task genList(string id, Dictionary<string, string> header, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
+        public async Task genList(string id, int lenght, Dictionary<string, string> header, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
         {
             GedanDetail gedanDetail = await GetPlayListDetail(id, header);
             int trackCount = gedanDetail.playlist.trackCount;
@@ -605,7 +616,15 @@ namespace YunPlugin
                 return;
             }
             GeDan Gedans = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={id}", header);
-            long numOfSongs = Gedans.songs.Count();
+            long numOfSongs;
+            if (lenght == -1)
+            {
+                numOfSongs = Gedans.songs.Length;
+            }
+            else
+            {
+                numOfSongs = Math.Min(Gedans.songs.Length, lenght);
+            }
             if (numOfSongs > 100)
             {
                 await ts3Client.SendChannelMessage($"警告：歌单过大，可能需要一定的时间生成 [{numOfSongs}]");
