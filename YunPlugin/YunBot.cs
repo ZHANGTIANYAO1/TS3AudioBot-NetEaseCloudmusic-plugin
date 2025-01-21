@@ -288,6 +288,23 @@ namespace YunPlugin
             try
             {
                 string[] sp = data.Split(' ');
+
+                for (int i = 0; i < sp.Length; i++)
+                {
+                    if (sp[i] == "")
+                    {
+                        sp = sp.Take(i).Concat(sp.Skip(i + 1)).ToArray();
+                    }
+                }
+
+                if (sp.Length == 0)
+                {
+                    return "请输入歌单ID或者歌单名";
+                } else if (sp.Length > 2)
+                {
+                    return "参数过多";
+                }
+
                 string id = sp[0];
                 string maxLenght = sp.Length > 1 ? sp[1] : "100";
                 if (maxLenght == "max")
@@ -612,7 +629,7 @@ namespace YunPlugin
             int trackCount = gedanDetail.playlist.trackCount;
             if (trackCount != 0)
             {
-                await genListTrack(id, header, gedanDetail, SongList, ts3Client);
+                await genListTrack(id, lenght, header, gedanDetail, SongList, ts3Client);
                 return;
             }
             GeDan Gedans = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={id}", header);
@@ -639,21 +656,29 @@ namespace YunPlugin
             }
         }
 
-        public async Task genListTrack(string id, Dictionary<string, string> header, GedanDetail gedanDetail, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
+        public async Task genListTrack(string id, int lenght, Dictionary<string, string> header, GedanDetail gedanDetail, List<MusicInfo> SongList, Ts3Client ts3Client) //生成歌单
         {
             int trackCount = gedanDetail.playlist.trackCount;
+            int limit = 50;
+            if (lenght != -1)
+            {
+                trackCount = Math.Min(gedanDetail.playlist.trackCount, lenght);
+                limit = Math.Min(50, trackCount);
+            }
             if (trackCount > 100)
             {
                 await ts3Client.SendChannelMessage($"警告：歌单过大，可能需要一定的时间生成 [{trackCount}]");
             }
-            for (int i = 0; i < trackCount; i += 50)
+            for (int i = 0; i < trackCount; i += limit)
             {
-                GeDan geDan = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={id}&limit=50&offset={i}", header);
+                GeDan geDan = await Utils.HttpGetAsync<GeDan>($"{neteaseApi}/playlist/track/all?id={id}&limit={limit}&offset={i}", header);
 
                 for (int j = 0; j < geDan.songs.Length; j++)
                 {
                     SongList.Add(new MusicInfo(geDan.songs[j].id.ToString()));
                 }
+
+                await ts3Client.SendChannelMessage($"已添加歌曲 [{i + geDan.songs.Length}-{trackCount}]");
             }
         }
 
