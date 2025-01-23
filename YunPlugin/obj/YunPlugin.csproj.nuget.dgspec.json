@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Project\\TS3 Music Bot\\Bot code\\TS3AudioBot-NetEaseCloudmusic-plugin\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\YunPlugin.csproj": {}
+    "C:\\Users\\saopig\\Documents\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\YunPlugin.csproj": {}
   },
   "projects": {
-    "D:\\Project\\TS3 Music Bot\\Bot code\\TS3AudioBot-NetEaseCloudmusic-plugin\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\YunPlugin.csproj": {
+    "C:\\Users\\saopig\\Documents\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\YunPlugin.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Project\\TS3 Music Bot\\Bot code\\TS3AudioBot-NetEaseCloudmusic-plugin\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\YunPlugin.csproj",
+        "projectUniqueName": "C:\\Users\\saopig\\Documents\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\YunPlugin.csproj",
         "projectName": "YunBot",
-        "projectPath": "D:\\Project\\TS3 Music Bot\\Bot code\\TS3AudioBot-NetEaseCloudmusic-plugin\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\YunPlugin.csproj",
+        "projectPath": "C:\\Users\\saopig\\Documents\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\YunPlugin.csproj",
         "packagesPath": "C:\\Users\\saopig\\.nuget\\packages\\",
-        "outputPath": "D:\\Project\\TS3 Music Bot\\Bot code\\TS3AudioBot-NetEaseCloudmusic-plugin\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\obj\\",
+        "outputPath": "C:\\Users\\saopig\\Documents\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\saopig\\AppData\\Roaming\\NuGet\\NuGet.Config",

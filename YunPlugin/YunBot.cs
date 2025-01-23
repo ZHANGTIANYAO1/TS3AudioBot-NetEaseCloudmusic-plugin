@@ -780,6 +780,32 @@ namespace YunPlugin
                 await ts3Client.SendChannelMessage($"已添加歌曲 [{i + geDan.songs.Length}-{trackCount}]");
             }
         }
+        
+        //检查登录状态
+        public async Task<bool> IsUserLoggedIn()
+        {
+            try
+
+            {
+                if (!playControl.GetHeader().ContainsKey("Cookie") || string.IsNullOrEmpty(playControl.GetHeader()["Cookie"]))
+                {
+                    return false;
+                }
+
+                var status = await GetLoginStatusAasync(neteaseApi, playControl.GetHeader());
+                if (status == null || status.data == null || status.data.account == null)
+                {
+                    return false;
+                }
+
+                return status.data.code == 200 && status.data.account.status == 0;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "IsUserLoggedIn error");
+                return false;
+            }
+        }
 
         public void Dispose()
         {

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "wfulOBfDWTsdDM52euLa+/V/nZDoXjlBiUlCDxqpXEN4ojtU3hkEj8gieXNO6VZ6LotsdtPo5GDQTSmdWGN/FA==",
+  "dgSpecHash": "en49Vt0MK3QDYMTiJU4vJltgPOI+yPHR70mkjhsRnFEDy6cor8g1hmNtApj3FLpY3vQbmlpcAgFchy8niku6lg==",
   "success": true,
-  "projectFilePath": "D:\\Project\\TS3 Music Bot\\Bot code\\TS3AudioBot-NetEaseCloudmusic-plugin\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\YunPlugin.csproj",
+  "projectFilePath": "C:\\Users\\saopig\\Documents\\TS3AudioBot-NetEaseCloudmusic-plugin\\YunPlugin\\YunPlugin.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\saopig\\.nuget\\packages\\costura.fody\\5.7.0\\costura.fody.5.7.0.nupkg.sha512",
     "C:\\Users\\saopig\\.nuget\\packages\\fody\\6.5.5\\fody.6.5.5.nupkg.sha512",
