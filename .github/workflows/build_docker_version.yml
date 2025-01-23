@@ -1,0 +1,30 @@
+name: Build plugin docker version
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore NuGet packages
+        run: |
+          dotnet restore "YunPlugin/YunPlugin.sln"
+
+      - name: Build solution
+        run: |
+          dotnet build "YunPlugin/YunPlugin.sln" --configuration Release
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: YunPlugin-Docker-Build
+          path: |
+            YunPlugin/bin/Release/
