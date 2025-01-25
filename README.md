@@ -139,6 +139,6 @@ vip 音乐想要先登陆才能播放完整版本:
 10.关闭私人FM模式
 [COLOR=#00aa00]!yun fm close[/COLOR]
 11.播放专辑
-[COLOR=#00aa00]!yun zhuanji [歌单名称/歌单网址/歌单ID][/COLOR]
+[COLOR=#00aa00]!yun zhuanji [专辑名称/专辑网址/专辑ID][/COLOR]
 需要注意的是如果歌单歌曲过多需要时间加载(重写后应该只需要几秒), 期间[B]一定一定不要[/B]输入其他指令
 ```
