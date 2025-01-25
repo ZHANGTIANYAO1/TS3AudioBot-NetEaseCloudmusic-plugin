@@ -38,8 +38,11 @@
 - `RandomLoopPlay` 随机循环
 
 `neteaseApi` 是网易云 API 地址
+
+`isPrivateFMMode`是私人FM模式是否启用（不需要修改）
  
 `isQrlogin` 是否验证码登录, 用于判断是否需要刷新Cookie(不需要修改)
+
 `cookieUpdateIntervalMin` 刷新Cookie间隔(分钟)
 
 `autoPause` 无人时候自动暂停
