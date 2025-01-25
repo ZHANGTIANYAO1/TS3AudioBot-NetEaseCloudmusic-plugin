@@ -14,6 +14,7 @@
 
 ### 链接
 - DEV 版本 GitHub 仓库：https://github.com/ZHANGTIANYAO1/TS3AudioBot-NetEaseCloudmusic-plugin/tree/DEV
+- pre-release(测试版)下载链接：https://github.com/ZHANGTIANYAO1/TS3AudioBot-NetEaseCloudmusic-plugin/releases/tag/3.0.0
 
 ### 注意事项
 - 此版本windows系统需要使用新的机器人程序，已经打包在pre-release中
