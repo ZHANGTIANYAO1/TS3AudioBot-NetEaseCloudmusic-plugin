@@ -90,6 +90,18 @@ namespace NeteaseApiData
         public long code { get; set; }
     }
 
+    public class FM
+    {
+        public FMData[] data { get; set; }
+        public long code { get; set; }
+    }
+
+    public class FMData
+    {
+        public string name { get; set; }
+        public long id { get; set; }
+    }
+
     public class ArtistsItems
     {
         public string name { get; set; }

@@ -238,18 +238,35 @@ namespace YunPlugin
             return Task.CompletedTask;
         }
 
-        public async Task PlayManager_PlaybackStopped(object sender, EventArgs e) //当上一首音乐播放完触发
+        public async Task PlayManager_PlaybackStopped(object sender, EventArgs e)
         {
             await slimlock.WaitAsync();
             try
             {
                 Log.Debug("上一首歌结束");
-                if (playControl.GetPlayList().Count == 0)
+
+                // Check if current mode is PrivateFM
+                if (playControl.GetMode() == Mode.PrivateFM)
+                {
+                    // Clear current playlist
+                    playControl.Clear();
+
+                    // Get next FM song
+                    await AddNextFMSong();
+
+                    // Play the new song
+                    await playControl.PlayNextMusic();
+                }
+                else if (playControl.GetPlayList().Count == 0)
                 {
                     await ts3Client.ChangeDescription("当前无正在播放歌曲");
                     return;
                 }
-                await playControl.PlayNextMusic();
+                else
+                {
+                    // Existing logic for other play modes
+                    await playControl.PlayNextMusic();
+                }
             }
             finally
             {
@@ -273,6 +290,7 @@ namespace YunPlugin
                     Mode.SeqLoopPlay => "当前播放模式为顺序循环",
                     Mode.RandomPlay => "当前播放模式为随机播放",
                     Mode.RandomLoopPlay => "当前播放模式为随机循环",
+                    Mode.PrivateFM => "当前播放模式为私人FM",
                     _ => "请输入正确的播放模式",
                 });
             }
@@ -655,6 +673,29 @@ namespace YunPlugin
             return "已清除歌单";
         }
 
+        [Command("yun fm")]
+        public async Task<string> CommandYunFM()
+        {
+            if (!await IsUserLoggedIn())
+            {
+                return "私人FM需要登录网易云账号";
+            }
+
+            // Set mode to PrivateFM
+            playControl.SetMode(Mode.PrivateFM);
+            config.playMode = Mode.PrivateFM;
+            config.Save();
+
+            // Clear current playlist
+            playControl.Clear();
+
+            // Add first FM song and play
+            await AddNextFMSong();
+            await playControl.PlayNextMusic();
+
+            return "已开始私人FM模式";
+        }
+
         // 以下全是功能性函数
         public static async Task<string> GetLoginKey()
         {
@@ -677,9 +718,16 @@ namespace YunPlugin
         {
             return await Utils.HttpGetAsync<GedanDetail>($"{neteaseApi}/playlist/detail?id={id}&timestamp={Utils.GetTimeStamp()}", header);
         }
+
         public async Task<ZhuanJi> GetAlbumDetail(string id, Dictionary<string, string> header)
         {
             return await Utils.HttpGetAsync<ZhuanJi>($"{neteaseApi}/album?id={id}&timestamp={Utils.GetTimeStamp()}", header);
+        }
+
+        public async Task<FM> GetFMDetail(string mode, string submode, Dictionary<string, string> header)
+        {
+            Log.Info($"{neteaseApi}/personal/fm/mode?mode={mode}&timestamp={Utils.GetTimeStamp()}", header);
+            return await Utils.HttpGetAsync<FM>($"{neteaseApi}/personal/fm/mode?mode={mode}&timestamp={Utils.GetTimeStamp()}", header);
         }
 
         public static void ChangeCookies(string cookies, bool isQrlogin) //更改cookie
@@ -806,6 +854,42 @@ namespace YunPlugin
                 return false;
             }
         }
+
+        private async Task AddNextFMSong()
+        {
+            try
+            {
+                if (!await IsUserLoggedIn())
+                {
+                    await ts3Client.SendChannelMessage("私人FM需要登录网易云账号");
+                    return;
+                }
+
+                // Get next FM song
+                FM fmSongs = await GetFMDetail("DEFAULT", "", playControl.GetHeader());
+                Log.Info(fmSongs.data.Length.ToString());
+                FMData fmSong = fmSongs.data[0];
+                Log.Info("FM ID:" + fmSong.id.ToString());
+                Log.Info("FM Name:" + fmSong.name);
+                if (fmSong?.id > 0)
+                {
+                    var music = new MusicInfo(fmSong.id.ToString(), false);
+                    playControl.AddMusic(music);
+
+                    await ts3Client.SendChannelMessage($"已添加私人FM歌曲：{fmSong.name}");
+                }
+                else
+                {
+                    await ts3Client.SendChannelMessage("无法获取私人FM歌曲");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Error getting FM song");
+                await ts3Client.SendChannelMessage("获取私人FM歌曲失败");
+            }
+        }
+
 
         public void Dispose()
         {

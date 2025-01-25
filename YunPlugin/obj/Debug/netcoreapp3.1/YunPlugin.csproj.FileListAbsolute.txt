@@ -7,3 +7,12 @@ D:\Project\TS3 Music Bot\Bot code\TS3AudioBot-NetEaseCloudmusic-plugin\TS3AudioB
 D:\Project\TS3 Music Bot\Bot code\TS3AudioBot-NetEaseCloudmusic-plugin\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunPlugin.csproj.Fody.CopyLocal.cache
 D:\Project\TS3 Music Bot\Bot code\TS3AudioBot-NetEaseCloudmusic-plugin\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunBot.dll
 D:\Project\TS3 Music Bot\Bot code\TS3AudioBot-NetEaseCloudmusic-plugin\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunBot.pdb
+C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\bin\Debug\netcoreapp3.1\YunBot.deps.json
+C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\bin\Debug\netcoreapp3.1\YunBot.dll
+C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\bin\Debug\netcoreapp3.1\YunBot.pdb
+C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunPlugin.AssemblyInfoInputs.cache
+C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunPlugin.AssemblyInfo.cs
+C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunPlugin.csproj.CoreCompileInputs.cache
+C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunPlugin.csproj.Fody.CopyLocal.cache
+C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunBot.dll
+C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunBot.pdb
