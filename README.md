@@ -20,7 +20,7 @@
 - 此版本windows系统需要使用新的机器人程序，已经打包在pre-release中
 - 虽然添加了第三方网易云API，但是为了大家的安全考虑，强烈建议自行部署API
 - 需要使用最新版本的网易云API：https://gitlab.com/Binaryify/neteasecloudmusicapi
-- 此版本在开发中，可能会有bug，遇到bug请提交issue
+- 此版本在开发中，可能会有bug，遇到bug请提交issue，如果有想要添加的功能也可以提交issue
 - 将机器人整合包的音质默认设置为了最高bitrate
 
 ## 关于设置文件YunSettings.ini
