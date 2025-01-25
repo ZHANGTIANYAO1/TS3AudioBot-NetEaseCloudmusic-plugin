@@ -22,6 +22,7 @@
 - 需要使用最新版本的网易云API：https://gitlab.com/Binaryify/neteasecloudmusicapi
 - 此版本在开发中，可能会有bug，遇到bug请提交issue，如果有想要添加的功能也可以提交issue
 - 将机器人整合包的音质默认设置为了最高bitrate
+- 权限文件修改为所有人有全部权限
 
 ## 关于设置文件YunSettings.ini
 `playMode=`是播放模式   
