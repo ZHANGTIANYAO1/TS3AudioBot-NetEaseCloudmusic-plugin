@@ -5,8 +5,22 @@
 **2.0版本之后可以不需要本地部署网易云API了，但是强烈建议自行部署防止隐私泄露  **  
 **最好给音乐机器人超管权限保证能正常更新头像和描述**  
 
-## 关于2.0版本
-似乎在播放列表的bug应该已经修复了，如果还有问题请github创建issue。
+## 关于 DEV 版本
+此版本基于 Splamy/TS3AudioBot 项目和 NeteaseCloudMusicApi 开发。DEV 版本由 @577fkj 大佬重构和增强，感谢他的贡献！
+
+由于原开发环境的丢失，无法继续之前兼容 stable 版本的音乐机器人插件的开发。此 DEV 版本是在 @577fkj 的重构和增强版本基础上进一步开发的。
+
+此版本新增了多项功能，包括查看播放列表、验证码登录、无人自动暂停、清除歌单、获取歌单最大长度限制、让机器人前往当前频道、播放专辑功能、私人 FM 模式等。
+
+### 链接
+- DEV 版本 GitHub 仓库：https://github.com/ZHANGTIANYAO1/TS3AudioBot-NetEaseCloudmusic-plugin/tree/DEV
+
+### 注意事项
+- 此版本windows系统需要使用新的机器人程序，已经打包在pre-release中
+- 虽然添加了第三方网易云API，但是为了大家的安全考虑，强烈建议自行部署API
+- 需要使用最新版本的网易云API：https://gitlab.com/Binaryify/neteasecloudmusicapi
+- 此版本在开发中，可能会有bug，遇到bug请提交issue
+- 将机器人整合包的音质默认设置为了最高bitrate
 
 ## 关于设置文件YunSettings.ini
 `playMode=`是播放模式   
