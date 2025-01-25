@@ -19,6 +19,7 @@ public class PlayControl
     private Dictionary<string, string> header = null;
     private MusicInfo currentPlayMusicInfo;
     private PlayListMeta playListMeta;
+    private bool isPrivateFMMode;
 
     public PlayControl(PlayManager playManager, Ts3Client ts3Client, NLog.Logger log)
     {
@@ -70,6 +71,16 @@ public class PlayControl
     public void SetMode(Mode mode)
     {
         this.mode = mode;
+    }
+
+    public void SetPrivateFM(bool isPrivateFMMode)
+    {
+        this.isPrivateFMMode = isPrivateFMMode;
+    }
+
+    public bool GetPrivateFM()
+    {
+        return this.isPrivateFMMode;
     }
 
     public void SetPlayList(PlayListMeta meta, List<MusicInfo> list)

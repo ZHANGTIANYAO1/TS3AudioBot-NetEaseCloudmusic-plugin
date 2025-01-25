@@ -68,6 +68,7 @@ namespace YunPlugin
             _ = updateOwnChannel();
 
             ts3Client.SendChannelMessage("网易云音乐插件加载成功！");
+
         }
 
         private void loadConfig(PlayControl playControl)
@@ -106,11 +107,23 @@ namespace YunPlugin
                 playMode = Mode.SeqPlay;
             }
 
+            bool isPrivateFMMode;
+            try
+            {
+                isPrivateFMMode = (bool)config.isPrivateFMMode;
+            }
+            catch (Exception e)
+            {
+                Log.Warn($"Get PrivateFM mode error!{e}");
+                isPrivateFMMode = false;
+            }
+
             neteaseApi = config.neteaseApi;
 
             playControl.SetMode(playMode);
             playControl.SetHeader(header);
             playControl.SetNeteaseApi(neteaseApi);
+            playControl.SetPrivateFM(isPrivateFMMode);
 
             if (timer != null)
             {
@@ -246,7 +259,7 @@ namespace YunPlugin
                 Log.Debug("上一首歌结束");
 
                 // Check if current mode is PrivateFM
-                if (playControl.GetMode() == Mode.PrivateFM)
+                if ((playControl.GetPrivateFM()) && (playControl.GetPlayList().Count == 0))
                 {
                     // Clear current playlist
                     playControl.Clear();
@@ -290,7 +303,6 @@ namespace YunPlugin
                     Mode.SeqLoopPlay => "当前播放模式为顺序循环",
                     Mode.RandomPlay => "当前播放模式为随机播放",
                     Mode.RandomLoopPlay => "当前播放模式为随机循环",
-                    Mode.PrivateFM => "当前播放模式为私人FM",
                     _ => "请输入正确的播放模式",
                 });
             }
@@ -682,8 +694,8 @@ namespace YunPlugin
             }
 
             // Set mode to PrivateFM
-            playControl.SetMode(Mode.PrivateFM);
-            config.playMode = Mode.PrivateFM;
+            playControl.SetPrivateFM(true);
+            config.isPrivateFMMode = true;
             config.Save();
 
             // Clear current playlist
@@ -693,7 +705,21 @@ namespace YunPlugin
             await AddNextFMSong();
             await playControl.PlayNextMusic();
 
-            return "已开始私人FM模式";
+            return "已开启私人FM模式";
+        }
+
+        [Command("yun fm close")]
+        public async Task<string> CommandYunFMClose()
+        {
+            // Set mode to PrivateFM
+            playControl.SetPrivateFM(false);
+            config.isPrivateFMMode = false;
+            config.Save();
+
+            // Clear current playlist
+            playControl.Clear();
+
+            return "已关闭私人FM模式";
         }
 
         // 以下全是功能性函数
@@ -875,8 +901,6 @@ namespace YunPlugin
                 {
                     var music = new MusicInfo(fmSong.id.ToString(), false);
                     playControl.AddMusic(music);
-
-                    await ts3Client.SendChannelMessage($"已添加私人FM歌曲：{fmSong.name}");
                 }
                 else
                 {

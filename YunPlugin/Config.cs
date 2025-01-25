@@ -36,6 +36,7 @@ namespace YunPlugin
         public int version { get; set; }
         public Mode playMode { get; set; }
         public string neteaseApi { get; set; }
+        public bool isPrivateFMMode { get; set; }
         public bool isQrlogin { get; set; }
         public int cookieUpdateIntervalMin { get; set; }
         public bool autoPause { get; set; }
@@ -66,6 +67,7 @@ namespace YunPlugin
                     version = 1,
                     playMode = Mode.SeqPlay,
                     neteaseApi = "http://127.0.0.1:3000",
+                    isPrivateFMMode = false,
                     isQrlogin = false,
                     autoPause = true,
                     cookieUpdateIntervalMin = 30,

@@ -13,7 +13,6 @@ public enum Mode
     SeqLoopPlay = 1,
     RandomPlay = 2,
     RandomLoopPlay = 3,
-    PrivateFM = 4,
 }
 
 public class PlayListMeta
