@@ -68,30 +68,6 @@ namespace YunPlugin
             _ = updateOwnChannel();
 
             ts3Client.SendChannelMessage("网易云音乐插件加载成功！");
-
-            // Add the following code to automatically add FM songs if isPrivateFM is true
-            if (playControl.GetPrivateFM())
-            {
-                // Start a new task to handle asynchronous operations
-                Task.Run(async () =>
-                {
-                    // Check if user is logged in
-                    if (!await IsUserLoggedIn())
-                    {
-                        await ts3Client.SendChannelMessage("私人FM需要登录网易云账号");
-                        return;
-                    }
-
-                    // Clear current playlist
-                    playControl.Clear();
-
-                    // Add next FM song
-                    await AddNextFMSong();
-
-                    // Start playing
-                    await playControl.PlayNextMusic();
-                });
-            }
         }
 
         private void loadConfig(PlayControl playControl)
