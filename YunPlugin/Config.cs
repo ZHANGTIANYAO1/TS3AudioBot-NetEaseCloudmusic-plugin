@@ -66,7 +66,7 @@ namespace YunPlugin
                 {
                     version = 1,
                     playMode = Mode.SeqPlay,
-                    neteaseApi = "http://127.0.0.1:3000",
+                    neteaseApi = "https://163.lilac.pp.ua",
                     isPrivateFMMode = false,
                     isQrlogin = false,
                     autoPause = true,

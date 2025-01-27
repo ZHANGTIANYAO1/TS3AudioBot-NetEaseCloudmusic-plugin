@@ -16,4 +16,3 @@ C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Deb
 C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunPlugin.csproj.Fody.CopyLocal.cache
 C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunBot.dll
 C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunBot.pdb
-C:\Users\saopig\Documents\TS3AudioBot-NetEaseCloudmusic-plugin\YunPlugin\obj\Debug\netcoreapp3.1\YunPlugin.csproj.AssemblyReference.cache
