@@ -23,6 +23,8 @@
 - 此版本在开发中，可能会有bug，遇到bug请提交issue，如果有想要添加的功能也可以提交issue
 - 将机器人整合包的音质默认设置为了最高bitrate
 - 权限文件修改为所有人有全部权限
+- 使用版本过新的linux可能会有困难，比如使用Ubuntu（24，22）版本的需要自己去安装老的lib库，例子：（libicu70_70.1-2_amd64.deb libssl1.1_1.1.1f-1ubuntu2_amd64.deb）
+- 推荐使用Ubuntu20
 
 ## 关于设置文件YunSettings.ini
 `playMode=`是播放模式   
