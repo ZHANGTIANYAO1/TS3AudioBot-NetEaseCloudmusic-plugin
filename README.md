@@ -111,6 +111,20 @@ vip 音乐想要先登陆才能播放完整版本:
 
 需要注意的是如果歌单歌曲过多需要时间加载, 期间一定一定不要输入其他指令
 
+### 配置文件模板
+```
+version: 1
+playMode: SeqPlay
+neteaseApi: https://163.lilac.pp.ua
+isPrivateFMMode: false
+isQrlogin: false
+cookieUpdateIntervalMin: 30
+autoPause: true
+Header:
+  Cookie: 
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0
+```
+
 ### TS 频道描述(复制代码到频道描述)
 
 ```
