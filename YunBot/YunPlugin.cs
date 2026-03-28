@@ -19,20 +19,20 @@ public enum PlayMode
 public class YunPlugin : IBotPlugin
 {
     private static readonly string ConfigPath = Path.Combine("plugins", "YunSettings.json");
-    private const int MaxSkipRetries = 5; // Prevent infinite recursion when skipping failed songs
+    private const int MaxSkipRetries = 5;
+    private const int QrLoginSuccess = 803;
+    private const int QrCodeExpired = 800;
 
     private ConfigManager _configManager = null!;
     private NeteaseApiClient _api = null!;
     private readonly List<long> _songQueue = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly Random _random = new();
-    private int _currentIndex;
     private bool _eventSubscribed;
     private long _currentSongId;
     private string _currentSongName = "";
     private int _skipCount;
 
-    // Saved references for playback continuation
     private PlayManager? _playManager;
     private InvokerData? _invoker;
     private Ts3Client? _ts3Client;
@@ -40,11 +40,7 @@ public class YunPlugin : IBotPlugin
     public void Initialize()
     {
         _configManager = new ConfigManager(ConfigPath);
-        _api = new NeteaseApiClient(
-            _configManager.Config.ApiAddress,
-            _configManager.Config.Cookie,
-            _configManager.Config.UnblockerEnabled,
-            _configManager.Config.UnblockerAddress);
+        _api = new NeteaseApiClient(_configManager.Config);
         Console.WriteLine("[YunBot] Plugin loaded");
         Console.WriteLine($"[YunBot] PlayMode={_configManager.Config.PlayMode}, API={_configManager.Config.ApiAddress}");
         if (_configManager.Config.UnblockerEnabled)
@@ -74,118 +70,91 @@ public class YunPlugin : IBotPlugin
 
     private PlayMode CurrentMode => (PlayMode)_configManager.Config.PlayMode;
 
-    /// <summary>
-    /// Sets bot avatar from a URL with automatic image compression to fit TS3 limits.
-    /// </summary>
-    private async Task SetBotAvatarSafe(Ts3Client ts3Client, TsFullClient? tsFullClient, string imageUrl)
+    private async Task SetAvatarSafe(Ts3Client ts3Client, string imageUrl)
     {
         try
         {
-            using var processed = await ImageProcessor.DownloadAndProcessAvatarAsync(_api.Http, imageUrl);
-            if (tsFullClient != null)
-            {
-                await tsFullClient.UploadAvatar(processed);
-            }
-            else
-            {
-                // Fallback to MainCommands which has its own resize logic
-                await MainCommands.CommandBotAvatarSet(ts3Client, imageUrl);
-            }
+            var bytes = await _api.DownloadBytesAsync(imageUrl);
+            using var processed = ImageProcessor.ProcessAvatar(bytes);
+            await MainCommands.CommandBotAvatarSet(ts3Client, imageUrl);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[YunBot] Avatar upload failed, trying fallback: {ex.Message}");
-            try
-            {
-                await MainCommands.CommandBotAvatarSet(ts3Client, imageUrl);
-            }
-            catch (Exception ex2)
-            {
-                Console.WriteLine($"[YunBot] Avatar fallback also failed: {ex2.Message}");
-            }
+            Console.WriteLine($"[YunBot] Avatar upload failed: {ex.Message}");
         }
     }
 
-    // ========== Commands ==========
+    /// <summary>Resolves a song by ID: gets URL, sets avatar/description, plays it.</summary>
+    private async Task<string> PlaySongByIdAsync(long id, PlayManager pm, InvokerData inv, Ts3Client ts3)
+    {
+        var (urlTask, detailTask) = (_api.GetMusicUrlAsync(id), _api.GetSongDetailAsync(id));
+        var url = await urlTask;
+        if (string.IsNullOrEmpty(url)) return "无法获取歌曲链接，可能需要登录VIP账户";
+
+        var detail = await detailTask;
+        var name = detail?.Name ?? id.ToString();
+
+        _currentSongId = id;
+        _currentSongName = name;
+
+        var avatarTask = detail?.Album?.PicUrl != null
+            ? SetAvatarSafe(ts3, detail.Album.PicUrl)
+            : Task.CompletedTask;
+        var descTask = MainCommands.CommandBotDescriptionSet(ts3, name);
+        await Task.WhenAll(avatarTask, descTask);
+
+        await MainCommands.CommandPlay(pm, inv, url);
+        await ts3.SendChannelMessage($"正在播放：{name}");
+        return $"正在播放：{name}";
+    }
+
+    /// <summary>Resolves a song by ID and adds to playlist.</summary>
+    private async Task<string> AddSongByIdAsync(long id, PlayManager pm, InvokerData inv, Ts3Client ts3)
+    {
+        var (urlTask, detailTask) = (_api.GetMusicUrlAsync(id), _api.GetSongDetailAsync(id));
+        var url = await urlTask;
+        if (string.IsNullOrEmpty(url)) return "无法获取歌曲链接";
+
+        var detail = await detailTask;
+        var name = detail?.Name ?? id.ToString();
+
+        await MainCommands.CommandAdd(pm, inv, url);
+        await ts3.SendChannelMessage($"已添加到播放列表：{name}");
+        return $"已添加到播放列表：{name}";
+    }
 
     [Command("yun play")]
     public async Task<string> CommandPlay(string arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
         SaveContext(playManager, invoker, ts3Client);
-
         var search = await _api.SearchSongAsync(arguments);
         var song = search.Result?.Songs?.FirstOrDefault();
         if (song == null) return "未找到歌曲";
-
-        var url = await _api.GetMusicUrlAsync(song.Id);
-        if (string.IsNullOrEmpty(url)) return "无法获取歌曲链接，可能需要登录VIP账户";
-
-        var detail = await _api.GetSongDetailAsync(song.Id);
-        if (detail?.Album?.PicUrl != null)
-            await SetBotAvatarSafe(ts3Client, null, detail.Album.PicUrl);
-        await MainCommands.CommandBotDescriptionSet(ts3Client, song.Name);
-
-        _currentSongId = song.Id;
-        _currentSongName = song.Name;
-
-        await MainCommands.CommandPlay(playManager, invoker, url);
-        await ts3Client.SendChannelMessage($"正在播放：{song.Name}");
-        return $"正在播放：{song.Name}";
+        return await PlaySongByIdAsync(song.Id, playManager, invoker, ts3Client);
     }
 
     [Command("yun playid")]
     public async Task<string> CommandPlayId(long id, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
         SaveContext(playManager, invoker, ts3Client);
-
-        var url = await _api.GetMusicUrlAsync(id);
-        if (string.IsNullOrEmpty(url)) return "无法获取歌曲链接";
-
-        var detail = await _api.GetSongDetailAsync(id);
-        var name = detail?.Name ?? id.ToString();
-        if (detail?.Album?.PicUrl != null)
-            await SetBotAvatarSafe(ts3Client, null, detail.Album.PicUrl);
-        await MainCommands.CommandBotDescriptionSet(ts3Client, name);
-
-        _currentSongId = id;
-        _currentSongName = name;
-
-        await MainCommands.CommandPlay(playManager, invoker, url);
-        await ts3Client.SendChannelMessage($"正在播放：{name}");
-        return $"正在播放：{name}";
+        return await PlaySongByIdAsync(id, playManager, invoker, ts3Client);
     }
 
     [Command("yun add")]
     public async Task<string> CommandAdd(string arguments, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
         SaveContext(playManager, invoker, ts3Client);
-
         var search = await _api.SearchSongAsync(arguments);
         var song = search.Result?.Songs?.FirstOrDefault();
         if (song == null) return "未找到歌曲";
-
-        var url = await _api.GetMusicUrlAsync(song.Id);
-        if (string.IsNullOrEmpty(url)) return "无法获取歌曲链接";
-
-        await MainCommands.CommandAdd(playManager, invoker, url);
-        await ts3Client.SendChannelMessage($"已添加到播放列表：{song.Name}");
-        return $"已添加到播放列表：{song.Name}";
+        return await AddSongByIdAsync(song.Id, playManager, invoker, ts3Client);
     }
 
     [Command("yun addid")]
     public async Task<string> CommandAddId(long id, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
         SaveContext(playManager, invoker, ts3Client);
-
-        var url = await _api.GetMusicUrlAsync(id);
-        if (string.IsNullOrEmpty(url)) return "无法获取歌曲链接";
-
-        var detail = await _api.GetSongDetailAsync(id);
-        var name = detail?.Name ?? id.ToString();
-
-        await MainCommands.CommandAdd(playManager, invoker, url);
-        await ts3Client.SendChannelMessage($"已添加到播放列表：{name}");
-        return $"已添加到播放列表：{name}";
+        return await AddSongByIdAsync(id, playManager, invoker, ts3Client);
     }
 
     [Command("yun gedanid")]
@@ -194,7 +163,16 @@ public class YunPlugin : IBotPlugin
         EnsureEventSubscribed(player);
         SaveContext(playManager, invoker, ts3Client);
 
-        return await LoadAndPlayPlaylist(id, playManager, invoker, ts3Client);
+        var (detailTask, tracksTask) = (_api.GetPlaylistDetailAsync(id), _api.GetPlaylistTracksAsync(id));
+        var detail = await detailTask;
+        var playlist = detail.Playlist;
+        if (playlist == null) return "无法获取歌单信息";
+
+        var tracks = await tracksTask;
+        var songIds = tracks.Songs?.Where(s => s.Id > 0).Select(s => s.Id).ToList() ?? new();
+        if (songIds.Count == 0) return "歌单为空";
+
+        return await LoadAndPlayCollection(songIds, playlist.Name, playlist.CoverImgUrl, playManager, invoker, ts3Client);
     }
 
     [Command("yun gedan")]
@@ -207,26 +185,88 @@ public class YunPlugin : IBotPlugin
         var playlist = search.Result?.Playlists?.FirstOrDefault();
         if (playlist == null) return "未找到歌单";
 
-        return await LoadAndPlayPlaylist(playlist.Id, playManager, invoker, ts3Client);
+        return await CommandPlaylistById(playlist.Id, playManager, invoker, ts3Client, player);
+    }
+
+    [Command("yun album")]
+    public async Task<string> CommandAlbum(string name, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
+    {
+        EnsureEventSubscribed(player);
+        SaveContext(playManager, invoker, ts3Client);
+
+        var search = await _api.SearchAlbumAsync(name);
+        var album = search.Result?.Albums?.FirstOrDefault();
+        if (album == null) return "未找到专辑";
+
+        return await CommandAlbumId(album.Id, playManager, invoker, ts3Client, player);
+    }
+
+    [Command("yun albumid")]
+    public async Task<string> CommandAlbumId(long id, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
+    {
+        EnsureEventSubscribed(player);
+        SaveContext(playManager, invoker, ts3Client);
+
+        var albumResp = await _api.GetAlbumAsync(id);
+        if (albumResp.Songs == null || albumResp.Songs.Count == 0) return "专辑为空或无法获取";
+
+        var songIds = albumResp.Songs.Where(s => s.Id > 0).Select(s => s.Id).ToList();
+        var info = albumResp.Album;
+        return await LoadAndPlayCollection(songIds, info?.Name ?? "专辑", info?.PicUrl, playManager, invoker, ts3Client);
+    }
+
+    [Command("yun fm")]
+    public async Task<string> CommandFm(PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
+    {
+        EnsureEventSubscribed(player);
+        SaveContext(playManager, invoker, ts3Client);
+
+        try
+        {
+            var fm = await _api.GetPersonalFmAsync();
+            if (fm.Data == null || fm.Data.Count == 0) return "无法获取私人FM，请确认已登录";
+
+            var songIds = fm.Data.Select(s => s.Id).ToList();
+            var first = fm.Data[0];
+            return await LoadAndPlayCollection(songIds, $"私人FM: {first.Name}", first.Album?.PicUrl, playManager, invoker, ts3Client);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[YunBot] FM error: {ex.Message}");
+            return "私人FM获取失败，请确认已登录账户";
+        }
     }
 
     [Command("yun next")]
     public async Task<string> CommandNext(PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
         SaveContext(playManager, invoker, ts3Client);
-
-        if (!playManager.IsPlaying || _songQueue.Count == 0)
-            return "播放列表为空，无法播放下一首";
-
+        if (!playManager.IsPlaying || _songQueue.Count == 0) return "播放列表为空，无法播放下一首";
         await playManager.Stop();
         return "切换下一首";
+    }
+
+    [Command("yun pause")]
+    public string CommandPause(Player player)
+    {
+        player.Paused = !player.Paused;
+        return player.Paused ? "已暂停" : "已继续播放";
+    }
+
+    [Command("yun stop")]
+    public async Task<string> CommandStop(PlayManager playManager)
+    {
+        _songQueue.Clear();
+        if (playManager.IsPlaying) await playManager.Stop();
+        _currentSongId = 0;
+        _currentSongName = "";
+        return "已停止播放并清空队列";
     }
 
     [Command("yun mode")]
     public string CommandMode(int mode)
     {
         if (mode < 0 || mode > 3) return "请输入正确的播放模式 (0-3)";
-
         _configManager.UpdatePlayMode(mode);
         return (PlayMode)mode switch
         {
@@ -246,119 +286,20 @@ public class YunPlugin : IBotPlugin
     }
 
     [Command("yun clear")]
-    public string CommandClear()
-    {
-        _songQueue.Clear();
-        return "播放列表已清空";
-    }
-
-    [Command("yun pause")]
-    public string CommandPause(Player player)
-    {
-        player.Paused = !player.Paused;
-        return player.Paused ? "已暂停" : "已继续播放";
-    }
-
-    [Command("yun stop")]
-    public async Task<string> CommandStop(PlayManager playManager)
-    {
-        _songQueue.Clear();
-        if (playManager.IsPlaying)
-            await playManager.Stop();
-        _currentSongId = 0;
-        _currentSongName = "";
-        return "已停止播放并清空队列";
-    }
-
-    [Command("yun fm")]
-    public async Task<string> CommandFm(PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
-    {
-        EnsureEventSubscribed(player);
-        SaveContext(playManager, invoker, ts3Client);
-
-        try
-        {
-            var fm = await _api.GetPersonalFmAsync();
-            if (fm.Data == null || fm.Data.Count == 0)
-                return "无法获取私人FM，请确认已登录";
-
-            _songQueue.Clear();
-            // Add all FM songs to queue
-            foreach (var song in fm.Data)
-                _songQueue.Add(song.Id);
-
-            // Play first one
-            _skipCount = 0;
-            var firstSong = fm.Data[0];
-            var url = await _api.GetMusicUrlAsync(firstSong.Id);
-            if (string.IsNullOrEmpty(url))
-                return "无法获取FM歌曲链接";
-
-            _currentSongId = firstSong.Id;
-            _currentSongName = firstSong.Name;
-            _songQueue.RemoveAt(0);
-
-            if (firstSong.Album?.PicUrl != null)
-                await SetBotAvatarSafe(ts3Client, null, firstSong.Album.PicUrl);
-            await MainCommands.CommandBotDescriptionSet(ts3Client, $"私人FM: {firstSong.Name}");
-
-            await MainCommands.CommandPlay(playManager, invoker, url);
-            await ts3Client.SendChannelMessage($"私人FM：{firstSong.Name}");
-            return $"私人FM：{firstSong.Name}";
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[YunBot] FM error: {ex.Message}");
-            return "私人FM获取失败，请确认已登录账户";
-        }
-    }
-
-    [Command("yun album")]
-    public async Task<string> CommandAlbum(string name, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
-    {
-        EnsureEventSubscribed(player);
-        SaveContext(playManager, invoker, ts3Client);
-
-        try
-        {
-            var search = await _api.SearchAlbumAsync(name);
-            var album = search.Result?.Albums?.FirstOrDefault();
-            if (album == null) return "未找到专辑";
-
-            return await LoadAndPlayAlbum(album.Id, playManager, invoker, ts3Client);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[YunBot] Album search error: {ex.Message}");
-            return "搜索专辑失败";
-        }
-    }
-
-    [Command("yun albumid")]
-    public async Task<string> CommandAlbumId(long id, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
-    {
-        EnsureEventSubscribed(player);
-        SaveContext(playManager, invoker, ts3Client);
-
-        return await LoadAndPlayAlbum(id, playManager, invoker, ts3Client);
-    }
+    public string CommandClear() { _songQueue.Clear(); return "播放列表已清空"; }
 
     [Command("yun status")]
-    public string CommandStatus(PlayManager playManager)
+    public string CommandStatus(PlayManager playManager) => JsonSerializer.Serialize(new
     {
-        var status = new
-        {
-            isPlaying = playManager.IsPlaying,
-            currentSongId = _currentSongId,
-            currentSongName = _currentSongName,
-            queueCount = _songQueue.Count,
-            playMode = _configManager.Config.PlayMode,
-            apiAddress = _configManager.Config.ApiAddress,
-            unblockerEnabled = _configManager.Config.UnblockerEnabled,
-            unblockerAddress = _configManager.Config.UnblockerAddress
-        };
-        return JsonSerializer.Serialize(status);
-    }
+        isPlaying = playManager.IsPlaying,
+        currentSongId = _currentSongId,
+        currentSongName = _currentSongName,
+        queueCount = _songQueue.Count,
+        playMode = _configManager.Config.PlayMode,
+        apiAddress = _configManager.Config.ApiAddress,
+        unblockerEnabled = _configManager.Config.UnblockerEnabled,
+        unblockerAddress = _configManager.Config.UnblockerAddress
+    });
 
     [Command("yun login")]
     public async Task<string> CommandLogin(Ts3Client ts3Client, TsFullClient tsClient)
@@ -367,29 +308,24 @@ public class YunPlugin : IBotPlugin
         var qrImgBase64 = await _api.GetQrImageAsync(key);
 
         await ts3Client.SendChannelMessage("正在生成登录二维码...");
-
-        // Process and upload QR code as bot avatar (with compression)
         using var processed = ImageProcessor.ProcessBase64Avatar(qrImgBase64);
         await tsClient.UploadAvatar(processed);
         await ts3Client.ChangeDescription("请用网易云APP扫描机器人头像二维码登录");
 
-        // Poll login status
         for (var i = 0; i < 120; i++)
         {
             await Task.Delay(1000);
             var status = await _api.CheckQrStatusAsync(key);
 
-            if (status.Code == 803)
+            if (status.Code == QrLoginSuccess)
             {
-                var cookie = status.Cookie ?? "";
-                _api.Cookie = cookie;
-                _configManager.UpdateCookie(cookie);
+                _configManager.UpdateCookie(status.Cookie ?? "");
                 await tsClient.DeleteAvatar();
                 await ts3Client.SendChannelMessage("登录成功！");
                 return "登录成功";
             }
 
-            if (status.Code == 800)
+            if (status.Code == QrCodeExpired)
             {
                 await tsClient.DeleteAvatar();
                 return "二维码已过期，请重试";
@@ -404,7 +340,6 @@ public class YunPlugin : IBotPlugin
     public string CommandSetApi(string address)
     {
         _configManager.UpdateApiAddress(address);
-        _api.BaseUrl = address;
         return $"API地址已更新为：{address}";
     }
 
@@ -413,108 +348,67 @@ public class YunPlugin : IBotPlugin
     {
         var enabled = toggle.ToLowerInvariant() is "on" or "true" or "1" or "enable";
         _configManager.UpdateUnblocker(enabled, address);
-        _api.UnblockerEnabled = enabled;
-        if (address != null)
-            _api.UnblockerUrl = address;
-
-        if (enabled)
-            return $"UnblockNeteaseMusic 已启用，地址：{_api.UnblockerUrl}";
-        return "UnblockNeteaseMusic 已禁用";
+        return enabled ? $"UnblockNeteaseMusic 已启用，地址：{_configManager.Config.UnblockerAddress}" : "UnblockNeteaseMusic 已禁用";
     }
 
-    // ========== Internal Methods ==========
-
-    private async Task<string> LoadAndPlayAlbum(long albumId, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+    private async Task<string> LoadAndPlayCollection(List<long> songIds, string name, string? coverUrl,
+        PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
-        var albumResp = await _api.GetAlbumAsync(albumId);
-        if (albumResp.Songs == null || albumResp.Songs.Count == 0)
-            return "专辑为空或无法获取";
-
-        var albumInfo = albumResp.Album;
-        if (albumInfo?.PicUrl != null)
-            await SetBotAvatarSafe(ts3Client, null, albumInfo.PicUrl);
-        await MainCommands.CommandBotDescriptionSet(ts3Client, albumInfo?.Name ?? "专辑");
-
         _songQueue.Clear();
-        foreach (var song in albumResp.Songs)
-        {
-            if (song.Id > 0)
-                _songQueue.Add(song.Id);
-        }
+        _songQueue.AddRange(songIds);
 
-        await ts3Client.SendChannelMessage($"已加载专辑「{albumInfo?.Name}」共 {_songQueue.Count} 首");
+        var avatarTask = coverUrl != null ? SetAvatarSafe(ts3Client, coverUrl) : Task.CompletedTask;
+        var descTask = MainCommands.CommandBotDescriptionSet(ts3Client, name);
+        await Task.WhenAll(avatarTask, descTask);
 
+        await ts3Client.SendChannelMessage($"已加载「{name}」共 {_songQueue.Count} 首");
         _skipCount = 0;
-        return await PlayFromQueue(playManager, invoker, ts3Client);
+        return await PlayFromQueue();
     }
 
-    private async Task<string> LoadAndPlayPlaylist(long playlistId, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+    private async Task<string> PlayFromQueue()
     {
-        var detail = await _api.GetPlaylistDetailAsync(playlistId);
-        var playlist = detail.Playlist;
-        if (playlist == null) return "无法获取歌单信息";
+        var pm = _playManager!;
+        var inv = _invoker!;
+        var ts3 = _ts3Client!;
 
-        if (playlist.CoverImgUrl != null)
-            await SetBotAvatarSafe(ts3Client, null, playlist.CoverImgUrl);
-        await MainCommands.CommandBotDescriptionSet(ts3Client, playlist.Name);
-
-        _songQueue.Clear();
-        var tracks = await _api.GetPlaylistTracksAsync(playlistId);
-        if (tracks.Songs == null || tracks.Songs.Count == 0)
-            return "歌单为空";
-
-        foreach (var song in tracks.Songs)
+        while (_songQueue.Count > 0 && _skipCount < MaxSkipRetries)
         {
-            if (song.Id > 0)
-                _songQueue.Add(song.Id);
-        }
+            var isRandom = CurrentMode is PlayMode.Random or PlayMode.RandomLoop;
+            var idx = isRandom ? _random.Next(_songQueue.Count) : 0;
+            var songId = _songQueue[idx];
 
-        await ts3Client.SendChannelMessage($"已加载歌单「{playlist.Name}」共 {_songQueue.Count} 首");
+            // Swap with last and remove (O(1) for random, avoids O(n) shift)
+            _songQueue[idx] = _songQueue[^1];
+            _songQueue.RemoveAt(_songQueue.Count - 1);
 
-        _skipCount = 0;
-        return await PlayFromQueue(playManager, invoker, ts3Client);
-    }
+            var (urlTask, detailTask) = (_api.GetMusicUrlAsync(songId), _api.GetSongDetailAsync(songId));
+            var url = await urlTask;
 
-    private async Task<string> PlayFromQueue(PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
-    {
-        if (_songQueue.Count == 0) return "播放列表为空";
-
-        var isRandom = CurrentMode is PlayMode.Random or PlayMode.RandomLoop;
-        _currentIndex = isRandom ? _random.Next(_songQueue.Count) : 0;
-
-        var songId = _songQueue[_currentIndex];
-        _songQueue.RemoveAt(_currentIndex);
-
-        // Try to get the music URL BEFORE re-adding to queue for loop modes
-        var url = await _api.GetMusicUrlAsync(songId);
-        if (string.IsNullOrEmpty(url))
-        {
-            // Song failed - do NOT re-add to queue even in loop mode
-            Console.WriteLine($"[YunBot] Skipping song {songId}: no URL available");
-            _skipCount++;
-
-            if (_skipCount >= MaxSkipRetries || _songQueue.Count == 0)
+            if (string.IsNullOrEmpty(url))
             {
-                _skipCount = 0;
-                return "连续多首歌曲无法播放，已停止";
+                Console.WriteLine($"[YunBot] Skipping song {songId}: no URL available");
+                _skipCount++;
+                continue;
             }
 
-            return await PlayFromQueue(playManager, invoker, ts3Client);
+            // URL valid — re-add for loop modes
+            if (CurrentMode is PlayMode.SequentialLoop or PlayMode.RandomLoop)
+                _songQueue.Add(songId);
+
+            _skipCount = 0;
+            _currentSongId = songId;
+
+            var detail = await detailTask;
+            _currentSongName = detail?.Name ?? songId.ToString();
+
+            await MainCommands.CommandPlay(pm, inv, url);
+            await ts3.SendChannelMessage($"正在播放：{_currentSongName}");
+            return "开始播放";
         }
 
-        // URL is valid - now re-add for loop modes
-        if (CurrentMode is PlayMode.SequentialLoop or PlayMode.RandomLoop)
-            _songQueue.Add(songId);
-
         _skipCount = 0;
-        _currentSongId = songId;
-
-        var detail = await _api.GetSongDetailAsync(songId);
-        _currentSongName = detail?.Name ?? songId.ToString();
-
-        await MainCommands.CommandPlay(playManager, invoker, url);
-        await ts3Client.SendChannelMessage($"正在播放：{_currentSongName}");
-        return "开始播放歌单";
+        return _songQueue.Count == 0 ? "播放列表为空" : "连续多首歌曲无法播放，已停止";
     }
 
     private async Task OnSongEnd(object? sender, EventArgs e)
@@ -524,9 +418,8 @@ public class YunPlugin : IBotPlugin
         {
             if (_songQueue.Count == 0 || _playManager == null || _invoker == null || _ts3Client == null)
                 return;
-
             _skipCount = 0;
-            await PlayFromQueue(_playManager, _invoker, _ts3Client);
+            await PlayFromQueue();
         }
         catch (Exception ex)
         {

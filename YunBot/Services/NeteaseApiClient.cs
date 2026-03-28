@@ -5,56 +5,32 @@ namespace YunBot.Services;
 
 public class NeteaseApiClient : IDisposable
 {
+    private const int SearchTypeAlbum = 10;
+    private const int SearchTypePlaylist = 1000;
+
     private readonly HttpClient _http;
-    private string _baseUrl;
-    private string _cookie;
-    private string _unblockerUrl;
-    private bool _unblockerEnabled;
+    private readonly PluginConfig _config;
 
-    public NeteaseApiClient(string baseUrl, string cookie = "", bool unblockerEnabled = false, string unblockerUrl = "")
+    public NeteaseApiClient(PluginConfig config)
     {
-        _baseUrl = baseUrl.TrimEnd('/');
-        _cookie = cookie;
-        _unblockerEnabled = unblockerEnabled;
-        _unblockerUrl = unblockerUrl.TrimEnd('/');
+        _config = config;
         _http = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-    }
-
-    public HttpClient Http => _http;
-
-    public string BaseUrl
-    {
-        get => _baseUrl;
-        set => _baseUrl = value.TrimEnd('/');
-    }
-
-    public string Cookie
-    {
-        get => _cookie;
-        set => _cookie = value;
-    }
-
-    public bool UnblockerEnabled
-    {
-        get => _unblockerEnabled;
-        set => _unblockerEnabled = value;
-    }
-
-    public string UnblockerUrl
-    {
-        get => _unblockerUrl;
-        set => _unblockerUrl = value.TrimEnd('/');
     }
 
     private static string Timestamp => DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
 
+    private string CookieParam =>
+        !string.IsNullOrEmpty(_config.Cookie) ? $"&cookie={Uri.EscapeDataString(_config.Cookie)}" : "";
+
     private async Task<T> GetAsync<T>(string path)
     {
-        var url = $"{_baseUrl}{path}";
+        var url = $"{_config.ApiAddress.TrimEnd('/')}{path}";
         var json = await _http.GetStringAsync(url);
         return JsonSerializer.Deserialize<T>(json)
                ?? throw new InvalidOperationException($"Failed to deserialize response from {path}");
     }
+
+    public async Task<byte[]> DownloadBytesAsync(string url) => await _http.GetByteArrayAsync(url);
 
     public async Task<SearchSongResponse> SearchSongAsync(string keywords, int limit = 1)
     {
@@ -65,47 +41,36 @@ public class NeteaseApiClient : IDisposable
     public async Task<SearchPlaylistResponse> SearchPlaylistAsync(string keywords, int limit = 1)
     {
         return await GetAsync<SearchPlaylistResponse>(
-            $"/search?keywords={Uri.EscapeDataString(keywords)}&limit={limit}&type=1000");
+            $"/search?keywords={Uri.EscapeDataString(keywords)}&limit={limit}&type={SearchTypePlaylist}");
     }
 
-    /// <summary>
-    /// Gets personal FM songs (requires login).
-    /// </summary>
+    public async Task<SearchAlbumResponse> SearchAlbumAsync(string keywords, int limit = 1)
+    {
+        return await GetAsync<SearchAlbumResponse>(
+            $"/search?keywords={Uri.EscapeDataString(keywords)}&limit={limit}&type={SearchTypeAlbum}");
+    }
+
+    /// <summary>Requires login.</summary>
     public async Task<PersonalFmResponse> GetPersonalFmAsync()
     {
-        var cookiePart = !string.IsNullOrEmpty(_cookie) ? $"&cookie={Uri.EscapeDataString(_cookie)}" : "";
-        return await GetAsync<PersonalFmResponse>($"/personal_fm?timestamp={Timestamp}{cookiePart}");
+        return await GetAsync<PersonalFmResponse>($"/personal_fm?timestamp={Timestamp}{CookieParam}");
     }
 
-    /// <summary>
-    /// Gets album detail and songs.
-    /// </summary>
     public async Task<AlbumResponse> GetAlbumAsync(long albumId)
     {
         return await GetAsync<AlbumResponse>($"/album?id={albumId}");
     }
 
     /// <summary>
-    /// Searches for albums.
-    /// </summary>
-    public async Task<SearchAlbumResponse> SearchAlbumAsync(string keywords, int limit = 1)
-    {
-        return await GetAsync<SearchAlbumResponse>(
-            $"/search?keywords={Uri.EscapeDataString(keywords)}&limit={limit}&type=10");
-    }
-
-    /// <summary>
-    /// Gets the music URL. First tries the official API, then falls back to UnblockNeteaseMusic if enabled.
+    /// Gets the music URL. Tries official API first, then UnblockNeteaseMusic if enabled.
     /// </summary>
     public async Task<string?> GetMusicUrlAsync(long songId)
     {
-        // Try official API first
         var url = await GetOfficialMusicUrlAsync(songId);
         if (!string.IsNullOrEmpty(url))
             return url;
 
-        // Fallback to UnblockNeteaseMusic
-        if (_unblockerEnabled)
+        if (_config.UnblockerEnabled)
         {
             var unblockedUrl = await GetUnblockedMusicUrlAsync(songId);
             if (!string.IsNullOrEmpty(unblockedUrl))
@@ -122,11 +87,9 @@ public class NeteaseApiClient : IDisposable
     {
         try
         {
-            var cookiePart = !string.IsNullOrEmpty(_cookie) ? $"&cookie={Uri.EscapeDataString(_cookie)}" : "";
-            var resp = await GetAsync<MusicUrlResponse>($"/song/url/v1?id={songId}&level=exhigh&timestamp={Timestamp}{cookiePart}");
-            var data = resp.Data?.FirstOrDefault();
-            // code 200 means success, url being null means no permission
-            return data?.Url;
+            var resp = await GetAsync<MusicUrlResponse>(
+                $"/song/url/v1?id={songId}&level=exhigh&timestamp={Timestamp}{CookieParam}");
+            return resp.Data?.FirstOrDefault()?.Url;
         }
         catch (Exception ex)
         {
@@ -135,23 +98,17 @@ public class NeteaseApiClient : IDisposable
         }
     }
 
-    /// <summary>
-    /// Tries to resolve music URL through UnblockNeteaseMusic proxy.
-    /// UnblockNeteaseMusic typically proxies the NeteaseCloudMusicApi and provides
-    /// alternative sources for blocked/copyrighted songs.
-    /// Supports both the standard NeteaseCloudMusicApi format and the UNM server format.
-    /// </summary>
     private async Task<string?> GetUnblockedMusicUrlAsync(long songId)
     {
+        var unblockerBase = _config.UnblockerAddress.TrimEnd('/');
+
         try
         {
-            // Try standard NeteaseCloudMusicApi-compatible endpoint
-            var url = $"{_unblockerUrl}/song/url?id={songId}";
-            var json = await _http.GetStringAsync(url);
+            var json = await _http.GetStringAsync($"{unblockerBase}/song/url?id={songId}");
             var resp = JsonSerializer.Deserialize<MusicUrlResponse>(json);
-            var data = resp?.Data?.FirstOrDefault();
-            if (!string.IsNullOrEmpty(data?.Url))
-                return data.Url;
+            var url = resp?.Data?.FirstOrDefault()?.Url;
+            if (!string.IsNullOrEmpty(url))
+                return url;
         }
         catch (Exception ex)
         {
@@ -160,17 +117,12 @@ public class NeteaseApiClient : IDisposable
 
         try
         {
-            // Try UNM server /match endpoint (UnblockNeteaseMusic-Server format)
-            var url = $"{_unblockerUrl}/match?id={songId}";
-            var json = await _http.GetStringAsync(url);
+            var json = await _http.GetStringAsync($"{unblockerBase}/match?id={songId}");
             var resp = JsonSerializer.Deserialize<UnblockMatchResponse>(json);
             if (!string.IsNullOrEmpty(resp?.Url))
                 return resp.Url;
         }
-        catch
-        {
-            // Silently ignore - this format may not be supported
-        }
+        catch { }
 
         return null;
     }
@@ -184,12 +136,6 @@ public class NeteaseApiClient : IDisposable
     public async Task<PlaylistDetailResponse> GetPlaylistDetailAsync(long playlistId)
     {
         return await GetAsync<PlaylistDetailResponse>($"/playlist/detail?id={playlistId}");
-    }
-
-    public async Task<List<long>> GetPlaylistTrackIdsAsync(long playlistId)
-    {
-        var detail = await GetPlaylistDetailAsync(playlistId);
-        return detail.Playlist?.TrackIds?.Select(t => t.Id).ToList() ?? new List<long>();
     }
 
     public async Task<PlaylistTracksResponse> GetPlaylistTracksAsync(long playlistId)

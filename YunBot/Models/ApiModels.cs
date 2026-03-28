@@ -2,8 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace YunBot.Models;
 
-// ===== Search Song =====
-
 public class SearchSongResponse
 {
     [JsonPropertyName("result")]
@@ -16,7 +14,7 @@ public class SearchSongResponse
 public class SearchResult
 {
     [JsonPropertyName("songs")]
-    public List<SearchSongItem>? Songs { get; set; }
+    public List<SongItem>? Songs { get; set; }
 
     [JsonPropertyName("hasMore")]
     public bool HasMore { get; set; }
@@ -25,7 +23,7 @@ public class SearchResult
     public int SongCount { get; set; }
 }
 
-public class SearchSongItem
+public class SongItem
 {
     [JsonPropertyName("id")]
     public long Id { get; set; }
@@ -42,8 +40,6 @@ public class SearchSongItem
     [JsonPropertyName("duration")]
     public long Duration { get; set; }
 }
-
-// ===== Shared Models =====
 
 public class ArtistInfo
 {
@@ -65,8 +61,6 @@ public class AlbumInfo
     [JsonPropertyName("picUrl")]
     public string? PicUrl { get; set; }
 }
-
-// ===== Music URL =====
 
 public class MusicUrlResponse
 {
@@ -95,8 +89,6 @@ public class MusicUrlData
     public int Code { get; set; }
 }
 
-// ===== Song Detail =====
-
 public class SongDetailResponse
 {
     [JsonPropertyName("songs")]
@@ -123,8 +115,6 @@ public class SongDetailItem
     [JsonPropertyName("dt")]
     public int Duration { get; set; }
 }
-
-// ===== Playlist Search =====
 
 public class SearchPlaylistResponse
 {
@@ -165,8 +155,6 @@ public class PlaylistItem
     public long PlayCount { get; set; }
 }
 
-// ===== Playlist Detail =====
-
 public class PlaylistDetailResponse
 {
     [JsonPropertyName("code")]
@@ -200,8 +188,6 @@ public class TrackIdItem
     public long Id { get; set; }
 }
 
-// ===== Playlist Tracks =====
-
 public class PlaylistTracksResponse
 {
     [JsonPropertyName("songs")]
@@ -210,8 +196,6 @@ public class PlaylistTracksResponse
     [JsonPropertyName("code")]
     public int Code { get; set; }
 }
-
-// ===== QR Login =====
 
 public class QrKeyResponse
 {
@@ -261,36 +245,14 @@ public class QrCheckResponse
     public string? Cookie { get; set; }
 }
 
-// ===== Personal FM =====
-
 public class PersonalFmResponse
 {
     [JsonPropertyName("data")]
-    public List<FmSongItem>? Data { get; set; }
+    public List<SongItem>? Data { get; set; }
 
     [JsonPropertyName("code")]
     public int Code { get; set; }
 }
-
-public class FmSongItem
-{
-    [JsonPropertyName("id")]
-    public long Id { get; set; }
-
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = "";
-
-    [JsonPropertyName("artists")]
-    public List<ArtistInfo>? Artists { get; set; }
-
-    [JsonPropertyName("album")]
-    public AlbumInfo? Album { get; set; }
-
-    [JsonPropertyName("duration")]
-    public long Duration { get; set; }
-}
-
-// ===== Album Search =====
 
 public class SearchAlbumResponse
 {
@@ -309,8 +271,6 @@ public class AlbumSearchResult
     [JsonPropertyName("albumCount")]
     public int AlbumCount { get; set; }
 }
-
-// ===== Album =====
 
 public class AlbumResponse
 {
@@ -341,8 +301,6 @@ public class AlbumDetail
     [JsonPropertyName("size")]
     public int Size { get; set; }
 }
-
-// ===== UnblockNeteaseMusic =====
 
 public class UnblockMatchResponse
 {

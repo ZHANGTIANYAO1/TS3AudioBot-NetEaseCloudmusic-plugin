@@ -25,10 +25,7 @@ public class ConfigManager
 {
     private readonly string _configPath;
     private PluginConfig _config;
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = true
-    };
+    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
     public ConfigManager(string configPath)
     {
@@ -42,7 +39,6 @@ public class ConfigManager
     {
         if (!File.Exists(_configPath))
         {
-            // Migrate from old INI format if it exists
             var iniPath = Path.Combine(Path.GetDirectoryName(_configPath)!, "YunSettings.ini");
             if (File.Exists(iniPath))
                 return MigrateFromIni(iniPath);
@@ -90,36 +86,19 @@ public class ConfigManager
             _config = config;
 
         var dir = Path.GetDirectoryName(_configPath);
-        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-            Directory.CreateDirectory(dir);
+        if (!string.IsNullOrEmpty(dir))
+            Directory.CreateDirectory(dir); // no-op if exists
 
-        var json = JsonSerializer.Serialize(_config, JsonOptions);
-        File.WriteAllText(_configPath, json);
+        File.WriteAllText(_configPath, JsonSerializer.Serialize(_config, JsonOptions));
     }
 
-    public void UpdatePlayMode(int mode)
-    {
-        _config.PlayMode = mode;
-        Save();
-    }
-
-    public void UpdateCookie(string cookie)
-    {
-        _config.Cookie = cookie;
-        Save();
-    }
-
-    public void UpdateApiAddress(string address)
-    {
-        _config.ApiAddress = address;
-        Save();
-    }
-
+    public void UpdatePlayMode(int mode) { _config.PlayMode = mode; Save(); }
+    public void UpdateCookie(string cookie) { _config.Cookie = cookie; Save(); }
+    public void UpdateApiAddress(string address) { _config.ApiAddress = address; Save(); }
     public void UpdateUnblocker(bool enabled, string? address = null)
     {
         _config.UnblockerEnabled = enabled;
-        if (address != null)
-            _config.UnblockerAddress = address;
+        if (address != null) _config.UnblockerAddress = address;
         Save();
     }
 }
