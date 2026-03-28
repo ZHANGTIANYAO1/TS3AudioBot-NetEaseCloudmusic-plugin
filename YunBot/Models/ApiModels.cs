@@ -261,6 +261,87 @@ public class QrCheckResponse
     public string? Cookie { get; set; }
 }
 
+// ===== Personal FM =====
+
+public class PersonalFmResponse
+{
+    [JsonPropertyName("data")]
+    public List<FmSongItem>? Data { get; set; }
+
+    [JsonPropertyName("code")]
+    public int Code { get; set; }
+}
+
+public class FmSongItem
+{
+    [JsonPropertyName("id")]
+    public long Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = "";
+
+    [JsonPropertyName("artists")]
+    public List<ArtistInfo>? Artists { get; set; }
+
+    [JsonPropertyName("album")]
+    public AlbumInfo? Album { get; set; }
+
+    [JsonPropertyName("duration")]
+    public long Duration { get; set; }
+}
+
+// ===== Album Search =====
+
+public class SearchAlbumResponse
+{
+    [JsonPropertyName("result")]
+    public AlbumSearchResult? Result { get; set; }
+
+    [JsonPropertyName("code")]
+    public int Code { get; set; }
+}
+
+public class AlbumSearchResult
+{
+    [JsonPropertyName("albums")]
+    public List<AlbumDetail>? Albums { get; set; }
+
+    [JsonPropertyName("albumCount")]
+    public int AlbumCount { get; set; }
+}
+
+// ===== Album =====
+
+public class AlbumResponse
+{
+    [JsonPropertyName("songs")]
+    public List<SongDetailItem>? Songs { get; set; }
+
+    [JsonPropertyName("album")]
+    public AlbumDetail? Album { get; set; }
+
+    [JsonPropertyName("code")]
+    public int Code { get; set; }
+}
+
+public class AlbumDetail
+{
+    [JsonPropertyName("id")]
+    public long Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = "";
+
+    [JsonPropertyName("picUrl")]
+    public string? PicUrl { get; set; }
+
+    [JsonPropertyName("artist")]
+    public ArtistInfo? Artist { get; set; }
+
+    [JsonPropertyName("size")]
+    public int Size { get; set; }
+}
+
 // ===== UnblockNeteaseMusic =====
 
 public class UnblockMatchResponse

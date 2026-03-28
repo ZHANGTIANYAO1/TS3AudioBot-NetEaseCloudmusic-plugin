@@ -69,6 +69,32 @@ public class NeteaseApiClient : IDisposable
     }
 
     /// <summary>
+    /// Gets personal FM songs (requires login).
+    /// </summary>
+    public async Task<PersonalFmResponse> GetPersonalFmAsync()
+    {
+        var cookiePart = !string.IsNullOrEmpty(_cookie) ? $"&cookie={Uri.EscapeDataString(_cookie)}" : "";
+        return await GetAsync<PersonalFmResponse>($"/personal_fm?timestamp={Timestamp}{cookiePart}");
+    }
+
+    /// <summary>
+    /// Gets album detail and songs.
+    /// </summary>
+    public async Task<AlbumResponse> GetAlbumAsync(long albumId)
+    {
+        return await GetAsync<AlbumResponse>($"/album?id={albumId}");
+    }
+
+    /// <summary>
+    /// Searches for albums.
+    /// </summary>
+    public async Task<SearchAlbumResponse> SearchAlbumAsync(string keywords, int limit = 1)
+    {
+        return await GetAsync<SearchAlbumResponse>(
+            $"/search?keywords={Uri.EscapeDataString(keywords)}&limit={limit}&type=10");
+    }
+
+    /// <summary>
     /// Gets the music URL. First tries the official API, then falls back to UnblockNeteaseMusic if enabled.
     /// </summary>
     public async Task<string?> GetMusicUrlAsync(long songId)
@@ -97,7 +123,7 @@ public class NeteaseApiClient : IDisposable
         try
         {
             var cookiePart = !string.IsNullOrEmpty(_cookie) ? $"&cookie={Uri.EscapeDataString(_cookie)}" : "";
-            var resp = await GetAsync<MusicUrlResponse>($"/song/url?id={songId}{cookiePart}");
+            var resp = await GetAsync<MusicUrlResponse>($"/song/url/v1?id={songId}&level=exhigh&timestamp={Timestamp}{cookiePart}");
             var data = resp.Data?.FirstOrDefault();
             // code 200 means success, url being null means no permission
             return data?.Url;

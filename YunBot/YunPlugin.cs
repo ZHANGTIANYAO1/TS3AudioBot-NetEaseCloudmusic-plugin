@@ -252,6 +252,97 @@ public class YunPlugin : IBotPlugin
         return "播放列表已清空";
     }
 
+    [Command("yun pause")]
+    public string CommandPause(Player player)
+    {
+        player.Paused = !player.Paused;
+        return player.Paused ? "已暂停" : "已继续播放";
+    }
+
+    [Command("yun stop")]
+    public async Task<string> CommandStop(PlayManager playManager)
+    {
+        _songQueue.Clear();
+        if (playManager.IsPlaying)
+            await playManager.Stop();
+        _currentSongId = 0;
+        _currentSongName = "";
+        return "已停止播放并清空队列";
+    }
+
+    [Command("yun fm")]
+    public async Task<string> CommandFm(PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
+    {
+        EnsureEventSubscribed(player);
+        SaveContext(playManager, invoker, ts3Client);
+
+        try
+        {
+            var fm = await _api.GetPersonalFmAsync();
+            if (fm.Data == null || fm.Data.Count == 0)
+                return "无法获取私人FM，请确认已登录";
+
+            _songQueue.Clear();
+            // Add all FM songs to queue
+            foreach (var song in fm.Data)
+                _songQueue.Add(song.Id);
+
+            // Play first one
+            _skipCount = 0;
+            var firstSong = fm.Data[0];
+            var url = await _api.GetMusicUrlAsync(firstSong.Id);
+            if (string.IsNullOrEmpty(url))
+                return "无法获取FM歌曲链接";
+
+            _currentSongId = firstSong.Id;
+            _currentSongName = firstSong.Name;
+            _songQueue.RemoveAt(0);
+
+            if (firstSong.Album?.PicUrl != null)
+                await SetBotAvatarSafe(ts3Client, null, firstSong.Album.PicUrl);
+            await MainCommands.CommandBotDescriptionSet(ts3Client, $"私人FM: {firstSong.Name}");
+
+            await MainCommands.CommandPlay(playManager, invoker, url);
+            await ts3Client.SendChannelMessage($"私人FM：{firstSong.Name}");
+            return $"私人FM：{firstSong.Name}";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[YunBot] FM error: {ex.Message}");
+            return "私人FM获取失败，请确认已登录账户";
+        }
+    }
+
+    [Command("yun album")]
+    public async Task<string> CommandAlbum(string name, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
+    {
+        EnsureEventSubscribed(player);
+        SaveContext(playManager, invoker, ts3Client);
+
+        try
+        {
+            var search = await _api.SearchAlbumAsync(name);
+            var album = search.Result?.Albums?.FirstOrDefault();
+            if (album == null) return "未找到专辑";
+
+            return await LoadAndPlayAlbum(album.Id, playManager, invoker, ts3Client);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[YunBot] Album search error: {ex.Message}");
+            return "搜索专辑失败";
+        }
+    }
+
+    [Command("yun albumid")]
+    public async Task<string> CommandAlbumId(long id, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client, Player player)
+    {
+        EnsureEventSubscribed(player);
+        SaveContext(playManager, invoker, ts3Client);
+
+        return await LoadAndPlayAlbum(id, playManager, invoker, ts3Client);
+    }
+
     [Command("yun status")]
     public string CommandStatus(PlayManager playManager)
     {
@@ -332,6 +423,30 @@ public class YunPlugin : IBotPlugin
     }
 
     // ========== Internal Methods ==========
+
+    private async Task<string> LoadAndPlayAlbum(long albumId, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
+    {
+        var albumResp = await _api.GetAlbumAsync(albumId);
+        if (albumResp.Songs == null || albumResp.Songs.Count == 0)
+            return "专辑为空或无法获取";
+
+        var albumInfo = albumResp.Album;
+        if (albumInfo?.PicUrl != null)
+            await SetBotAvatarSafe(ts3Client, null, albumInfo.PicUrl);
+        await MainCommands.CommandBotDescriptionSet(ts3Client, albumInfo?.Name ?? "专辑");
+
+        _songQueue.Clear();
+        foreach (var song in albumResp.Songs)
+        {
+            if (song.Id > 0)
+                _songQueue.Add(song.Id);
+        }
+
+        await ts3Client.SendChannelMessage($"已加载专辑「{albumInfo?.Name}」共 {_songQueue.Count} 首");
+
+        _skipCount = 0;
+        return await PlayFromQueue(playManager, invoker, ts3Client);
+    }
 
     private async Task<string> LoadAndPlayPlaylist(long playlistId, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {

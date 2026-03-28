@@ -75,13 +75,18 @@ dotnet build ClassLibrary4.sln -c Release
 | `!yun add [音乐名称]` | 搜索并添加到播放列表 |
 | `!yun addid [音乐ID]` | 按 ID 添加到播放列表 |
 | `!yun next` | 播放下一首 |
+| `!yun pause` | 暂停/继续播放 |
+| `!yun stop` | 停止播放并清空队列 |
+| `!yun fm` | 播放私人FM（需登录） |
 
-### 歌单
+### 歌单/专辑
 
 | 指令 | 说明 |
 |------|------|
 | `!yun gedan [歌单名称]` | 搜索并播放歌单 |
 | `!yun gedanid [歌单ID]` | 按 ID 播放歌单 |
+| `!yun album [专辑名称]` | 搜索并播放专辑 |
+| `!yun albumid [专辑ID]` | 按 ID 播放专辑 |
 
 ### 播放列表管理
 
