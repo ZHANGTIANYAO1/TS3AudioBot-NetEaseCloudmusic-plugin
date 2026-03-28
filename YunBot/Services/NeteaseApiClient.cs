@@ -8,13 +8,19 @@ public class NeteaseApiClient : IDisposable
     private readonly HttpClient _http;
     private string _baseUrl;
     private string _cookie;
+    private string _unblockerUrl;
+    private bool _unblockerEnabled;
 
-    public NeteaseApiClient(string baseUrl, string cookie = "")
+    public NeteaseApiClient(string baseUrl, string cookie = "", bool unblockerEnabled = false, string unblockerUrl = "")
     {
         _baseUrl = baseUrl.TrimEnd('/');
         _cookie = cookie;
+        _unblockerEnabled = unblockerEnabled;
+        _unblockerUrl = unblockerUrl.TrimEnd('/');
         _http = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
     }
+
+    public HttpClient Http => _http;
 
     public string BaseUrl
     {
@@ -26,6 +32,18 @@ public class NeteaseApiClient : IDisposable
     {
         get => _cookie;
         set => _cookie = value;
+    }
+
+    public bool UnblockerEnabled
+    {
+        get => _unblockerEnabled;
+        set => _unblockerEnabled = value;
+    }
+
+    public string UnblockerUrl
+    {
+        get => _unblockerUrl;
+        set => _unblockerUrl = value.TrimEnd('/');
     }
 
     private static string Timestamp => DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
@@ -50,11 +68,85 @@ public class NeteaseApiClient : IDisposable
             $"/search?keywords={Uri.EscapeDataString(keywords)}&limit={limit}&type=1000");
     }
 
+    /// <summary>
+    /// Gets the music URL. First tries the official API, then falls back to UnblockNeteaseMusic if enabled.
+    /// </summary>
     public async Task<string?> GetMusicUrlAsync(long songId)
     {
-        var cookiePart = !string.IsNullOrEmpty(_cookie) ? $"&cookie={Uri.EscapeDataString(_cookie)}" : "";
-        var resp = await GetAsync<MusicUrlResponse>($"/song/url?id={songId}{cookiePart}");
-        return resp.Data?.FirstOrDefault()?.Url;
+        // Try official API first
+        var url = await GetOfficialMusicUrlAsync(songId);
+        if (!string.IsNullOrEmpty(url))
+            return url;
+
+        // Fallback to UnblockNeteaseMusic
+        if (_unblockerEnabled)
+        {
+            var unblockedUrl = await GetUnblockedMusicUrlAsync(songId);
+            if (!string.IsNullOrEmpty(unblockedUrl))
+            {
+                Console.WriteLine($"[YunBot] Song {songId} resolved via UnblockNeteaseMusic");
+                return unblockedUrl;
+            }
+        }
+
+        return null;
+    }
+
+    private async Task<string?> GetOfficialMusicUrlAsync(long songId)
+    {
+        try
+        {
+            var cookiePart = !string.IsNullOrEmpty(_cookie) ? $"&cookie={Uri.EscapeDataString(_cookie)}" : "";
+            var resp = await GetAsync<MusicUrlResponse>($"/song/url?id={songId}{cookiePart}");
+            var data = resp.Data?.FirstOrDefault();
+            // code 200 means success, url being null means no permission
+            return data?.Url;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[YunBot] Official API error for song {songId}: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Tries to resolve music URL through UnblockNeteaseMusic proxy.
+    /// UnblockNeteaseMusic typically proxies the NeteaseCloudMusicApi and provides
+    /// alternative sources for blocked/copyrighted songs.
+    /// Supports both the standard NeteaseCloudMusicApi format and the UNM server format.
+    /// </summary>
+    private async Task<string?> GetUnblockedMusicUrlAsync(long songId)
+    {
+        try
+        {
+            // Try standard NeteaseCloudMusicApi-compatible endpoint
+            var url = $"{_unblockerUrl}/song/url?id={songId}";
+            var json = await _http.GetStringAsync(url);
+            var resp = JsonSerializer.Deserialize<MusicUrlResponse>(json);
+            var data = resp?.Data?.FirstOrDefault();
+            if (!string.IsNullOrEmpty(data?.Url))
+                return data.Url;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[YunBot] UnblockNeteaseMusic error for song {songId}: {ex.Message}");
+        }
+
+        try
+        {
+            // Try UNM server /match endpoint (UnblockNeteaseMusic-Server format)
+            var url = $"{_unblockerUrl}/match?id={songId}";
+            var json = await _http.GetStringAsync(url);
+            var resp = JsonSerializer.Deserialize<UnblockMatchResponse>(json);
+            if (!string.IsNullOrEmpty(resp?.Url))
+                return resp.Url;
+        }
+        catch
+        {
+            // Silently ignore - this format may not be supported
+        }
+
+        return null;
     }
 
     public async Task<SongDetailItem?> GetSongDetailAsync(long songId)

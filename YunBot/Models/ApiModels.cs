@@ -260,3 +260,17 @@ public class QrCheckResponse
     [JsonPropertyName("cookie")]
     public string? Cookie { get; set; }
 }
+
+// ===== UnblockNeteaseMusic =====
+
+public class UnblockMatchResponse
+{
+    [JsonPropertyName("url")]
+    public string? Url { get; set; }
+
+    [JsonPropertyName("br")]
+    public int Br { get; set; }
+
+    [JsonPropertyName("source")]
+    public string? Source { get; set; }
+}

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TS3AudioBot;
 using TS3AudioBot.Audio;
 using TS3AudioBot.CommandSystem;
@@ -18,6 +19,7 @@ public enum PlayMode
 public class YunPlugin : IBotPlugin
 {
     private static readonly string ConfigPath = Path.Combine("plugins", "YunSettings.json");
+    private const int MaxSkipRetries = 5; // Prevent infinite recursion when skipping failed songs
 
     private ConfigManager _configManager = null!;
     private NeteaseApiClient _api = null!;
@@ -26,6 +28,9 @@ public class YunPlugin : IBotPlugin
     private readonly Random _random = new();
     private int _currentIndex;
     private bool _eventSubscribed;
+    private long _currentSongId;
+    private string _currentSongName = "";
+    private int _skipCount;
 
     // Saved references for playback continuation
     private PlayManager? _playManager;
@@ -37,9 +42,13 @@ public class YunPlugin : IBotPlugin
         _configManager = new ConfigManager(ConfigPath);
         _api = new NeteaseApiClient(
             _configManager.Config.ApiAddress,
-            _configManager.Config.Cookie);
+            _configManager.Config.Cookie,
+            _configManager.Config.UnblockerEnabled,
+            _configManager.Config.UnblockerAddress);
         Console.WriteLine("[YunBot] Plugin loaded");
         Console.WriteLine($"[YunBot] PlayMode={_configManager.Config.PlayMode}, API={_configManager.Config.ApiAddress}");
+        if (_configManager.Config.UnblockerEnabled)
+            Console.WriteLine($"[YunBot] UnblockNeteaseMusic enabled: {_configManager.Config.UnblockerAddress}");
     }
 
     public void Dispose()
@@ -65,6 +74,38 @@ public class YunPlugin : IBotPlugin
 
     private PlayMode CurrentMode => (PlayMode)_configManager.Config.PlayMode;
 
+    /// <summary>
+    /// Sets bot avatar from a URL with automatic image compression to fit TS3 limits.
+    /// </summary>
+    private async Task SetBotAvatarSafe(Ts3Client ts3Client, TsFullClient? tsFullClient, string imageUrl)
+    {
+        try
+        {
+            using var processed = await ImageProcessor.DownloadAndProcessAvatarAsync(_api.Http, imageUrl);
+            if (tsFullClient != null)
+            {
+                await tsFullClient.UploadAvatar(processed);
+            }
+            else
+            {
+                // Fallback to MainCommands which has its own resize logic
+                await MainCommands.CommandBotAvatarSet(ts3Client, imageUrl);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[YunBot] Avatar upload failed, trying fallback: {ex.Message}");
+            try
+            {
+                await MainCommands.CommandBotAvatarSet(ts3Client, imageUrl);
+            }
+            catch (Exception ex2)
+            {
+                Console.WriteLine($"[YunBot] Avatar fallback also failed: {ex2.Message}");
+            }
+        }
+    }
+
     // ========== Commands ==========
 
     [Command("yun play")]
@@ -77,12 +118,15 @@ public class YunPlugin : IBotPlugin
         if (song == null) return "未找到歌曲";
 
         var url = await _api.GetMusicUrlAsync(song.Id);
-        if (string.IsNullOrEmpty(url)) return "无法获取歌曲链接，可能需要登录VIP账户";
+        if (string.IsNullOrEmpty(url)) return "无法获取歌曲链接，可能需要登录VIP账户或启用UnblockNeteaseMusic";
 
         var detail = await _api.GetSongDetailAsync(song.Id);
         if (detail?.Album?.PicUrl != null)
-            await MainCommands.CommandBotAvatarSet(ts3Client, detail.Album.PicUrl);
+            await SetBotAvatarSafe(ts3Client, null, detail.Album.PicUrl);
         await MainCommands.CommandBotDescriptionSet(ts3Client, song.Name);
+
+        _currentSongId = song.Id;
+        _currentSongName = song.Name;
 
         await MainCommands.CommandPlay(playManager, invoker, url);
         await ts3Client.SendChannelMessage($"正在播放：{song.Name}");
@@ -100,8 +144,11 @@ public class YunPlugin : IBotPlugin
         var detail = await _api.GetSongDetailAsync(id);
         var name = detail?.Name ?? id.ToString();
         if (detail?.Album?.PicUrl != null)
-            await MainCommands.CommandBotAvatarSet(ts3Client, detail.Album.PicUrl);
+            await SetBotAvatarSafe(ts3Client, null, detail.Album.PicUrl);
         await MainCommands.CommandBotDescriptionSet(ts3Client, name);
+
+        _currentSongId = id;
+        _currentSongName = name;
 
         await MainCommands.CommandPlay(playManager, invoker, url);
         await ts3Client.SendChannelMessage($"正在播放：{name}");
@@ -205,6 +252,23 @@ public class YunPlugin : IBotPlugin
         return "播放列表已清空";
     }
 
+    [Command("yun status")]
+    public string CommandStatus(PlayManager playManager)
+    {
+        var status = new
+        {
+            isPlaying = playManager.IsPlaying,
+            currentSongId = _currentSongId,
+            currentSongName = _currentSongName,
+            queueCount = _songQueue.Count,
+            playMode = _configManager.Config.PlayMode,
+            apiAddress = _configManager.Config.ApiAddress,
+            unblockerEnabled = _configManager.Config.UnblockerEnabled,
+            unblockerAddress = _configManager.Config.UnblockerAddress
+        };
+        return JsonSerializer.Serialize(status);
+    }
+
     [Command("yun login")]
     public async Task<string> CommandLogin(Ts3Client ts3Client, TsFullClient tsClient)
     {
@@ -213,11 +277,9 @@ public class YunPlugin : IBotPlugin
 
         await ts3Client.SendChannelMessage("正在生成登录二维码...");
 
-        // Upload QR code as bot avatar
-        var parts = qrImgBase64.Split(',');
-        var imgData = Convert.FromBase64String(parts.Length > 1 ? parts[1] : parts[0]);
-        using var stream = new MemoryStream(imgData);
-        await tsClient.UploadAvatar(stream);
+        // Process and upload QR code as bot avatar (with compression)
+        using var processed = ImageProcessor.ProcessBase64Avatar(qrImgBase64);
+        await tsClient.UploadAvatar(processed);
         await ts3Client.ChangeDescription("请用网易云APP扫描机器人头像二维码登录");
 
         // Poll login status
@@ -255,20 +317,32 @@ public class YunPlugin : IBotPlugin
         return $"API地址已更新为：{address}";
     }
 
+    [Command("yun unblocker")]
+    public string CommandUnblocker(string toggle, string? address = null)
+    {
+        var enabled = toggle.ToLowerInvariant() is "on" or "true" or "1" or "enable";
+        _configManager.UpdateUnblocker(enabled, address);
+        _api.UnblockerEnabled = enabled;
+        if (address != null)
+            _api.UnblockerUrl = address;
+
+        if (enabled)
+            return $"UnblockNeteaseMusic 已启用，地址：{_api.UnblockerUrl}";
+        return "UnblockNeteaseMusic 已禁用";
+    }
+
     // ========== Internal Methods ==========
 
     private async Task<string> LoadAndPlayPlaylist(long playlistId, PlayManager playManager, InvokerData invoker, Ts3Client ts3Client)
     {
-        // Get playlist detail (name, cover)
         var detail = await _api.GetPlaylistDetailAsync(playlistId);
         var playlist = detail.Playlist;
         if (playlist == null) return "无法获取歌单信息";
 
         if (playlist.CoverImgUrl != null)
-            await MainCommands.CommandBotAvatarSet(ts3Client, playlist.CoverImgUrl);
+            await SetBotAvatarSafe(ts3Client, null, playlist.CoverImgUrl);
         await MainCommands.CommandBotDescriptionSet(ts3Client, playlist.Name);
 
-        // Load all track IDs
         _songQueue.Clear();
         var tracks = await _api.GetPlaylistTracksAsync(playlistId);
         if (tracks.Songs == null || tracks.Songs.Count == 0)
@@ -282,7 +356,7 @@ public class YunPlugin : IBotPlugin
 
         await ts3Client.SendChannelMessage($"已加载歌单「{playlist.Name}」共 {_songQueue.Count} 首");
 
-        // Play first song
+        _skipCount = 0;
         return await PlayFromQueue(playManager, invoker, ts3Client);
     }
 
@@ -296,24 +370,35 @@ public class YunPlugin : IBotPlugin
         var songId = _songQueue[_currentIndex];
         _songQueue.RemoveAt(_currentIndex);
 
-        // For loop modes, re-add to end
-        if (CurrentMode is PlayMode.SequentialLoop or PlayMode.RandomLoop)
-            _songQueue.Add(songId);
-
+        // Try to get the music URL BEFORE re-adding to queue for loop modes
         var url = await _api.GetMusicUrlAsync(songId);
         if (string.IsNullOrEmpty(url))
         {
-            // Skip unplayable songs
-            if (_songQueue.Count > 0)
-                return await PlayFromQueue(playManager, invoker, ts3Client);
-            return "无法获取歌曲链接";
+            // Song failed - do NOT re-add to queue even in loop mode
+            Console.WriteLine($"[YunBot] Skipping song {songId}: no URL available");
+            _skipCount++;
+
+            if (_skipCount >= MaxSkipRetries || _songQueue.Count == 0)
+            {
+                _skipCount = 0;
+                return "连续多首歌曲无法播放，已停止";
+            }
+
+            return await PlayFromQueue(playManager, invoker, ts3Client);
         }
 
+        // URL is valid - now re-add for loop modes
+        if (CurrentMode is PlayMode.SequentialLoop or PlayMode.RandomLoop)
+            _songQueue.Add(songId);
+
+        _skipCount = 0;
+        _currentSongId = songId;
+
         var detail = await _api.GetSongDetailAsync(songId);
-        var name = detail?.Name ?? songId.ToString();
+        _currentSongName = detail?.Name ?? songId.ToString();
 
         await MainCommands.CommandPlay(playManager, invoker, url);
-        await ts3Client.SendChannelMessage($"正在播放：{name}");
+        await ts3Client.SendChannelMessage($"正在播放：{_currentSongName}");
         return "开始播放歌单";
     }
 
@@ -325,6 +410,7 @@ public class YunPlugin : IBotPlugin
             if (_songQueue.Count == 0 || _playManager == null || _invoker == null || _ts3Client == null)
                 return;
 
+            _skipCount = 0;
             await PlayFromQueue(_playManager, _invoker, _ts3Client);
         }
         catch (Exception ex)

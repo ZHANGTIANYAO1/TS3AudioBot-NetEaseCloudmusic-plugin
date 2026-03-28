@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YunBot - NetEase Cloud Music</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; }
+  .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+  h1 { text-align: center; margin: 20px 0; color: #e94560; font-size: 1.8em; }
+  .card { background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+  .card h2 { color: #e94560; margin-bottom: 12px; font-size: 1.1em; }
+  .now-playing { display: flex; align-items: center; gap: 16px; }
+  .now-playing img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #0f3460; }
+  .now-playing .info { flex: 1; }
+  .now-playing .title { font-size: 1.2em; font-weight: bold; }
+  .now-playing .artist { color: #aaa; margin-top: 4px; }
+  .controls { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+  .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+  .btn-primary { background: #e94560; color: white; }
+  .btn-primary:hover { background: #c73e54; }
+  .btn-secondary { background: #0f3460; color: #eee; }
+  .btn-secondary:hover { background: #1a4a8a; }
+  .btn-small { padding: 6px 14px; font-size: 12px; }
+  .search-box { display: flex; gap: 8px; margin-bottom: 12px; }
+  .search-box input { flex: 1; padding: 10px 14px; border: 1px solid #0f3460; border-radius: 8px; background: #0a0a1a; color: #eee; font-size: 14px; outline: none; }
+  .search-box input:focus { border-color: #e94560; }
+  .queue-list { max-height: 300px; overflow-y: auto; }
+  .queue-item { display: flex; align-items: center; padding: 8px 12px; border-radius: 6px; margin-bottom: 4px; background: #0f3460; cursor: pointer; }
+  .queue-item:hover { background: #1a4a8a; }
+  .queue-item .num { color: #666; width: 30px; font-size: 12px; }
+  .queue-item .name { flex: 1; font-size: 14px; }
+  .status { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+  .status-playing { background: #27ae60; color: white; }
+  .status-stopped { background: #666; color: white; }
+  .mode-selector { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mode-btn { padding: 6px 12px; border: 1px solid #0f3460; background: transparent; color: #aaa; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .mode-btn.active { border-color: #e94560; color: #e94560; background: rgba(233,69,96,0.1); }
+  .config-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .config-row label { min-width: 100px; font-size: 13px; color: #aaa; }
+  .config-row input[type="text"] { flex: 1; padding: 6px 10px; border: 1px solid #0f3460; border-radius: 6px; background: #0a0a1a; color: #eee; font-size: 13px; }
+  .config-row input[type="checkbox"] { accent-color: #e94560; }
+  .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; font-size: 14px; z-index: 999; transition: opacity 0.3s; }
+  .toast-success { background: #27ae60; }
+  .toast-error { background: #e74c3c; }
+  .hidden { display: none; }
+  #msg { margin-top: 8px; padding: 8px; border-radius: 6px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>YunBot NetEase Cloud Music</h1>
+
+  <div class="card">
+    <h2>Search & Play</h2>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search songs or enter song ID..." onkeydown="if(event.key==='Enter')doSearch()">
+      <button class="btn btn-primary" onclick="doSearch()">Play</button>
+      <button class="btn btn-secondary" onclick="doAdd()">Add</button>
+    </div>
+    <div class="search-box">
+      <input type="text" id="playlistInput" placeholder="Search playlists or enter playlist ID..." onkeydown="if(event.key==='Enter')doPlaylist()">
+      <button class="btn btn-primary" onclick="doPlaylist()">Play Playlist</button>
+    </div>
+    <div id="msg" class="hidden"></div>
+  </div>
+
+  <div class="card">
+    <h2>Status</h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span id="statusBadge" class="status status-stopped">Stopped</span>
+      <span id="queueCount" style="color:#aaa;font-size:13px;">Queue: 0</span>
+    </div>
+    <div class="controls">
+      <button class="btn btn-primary" onclick="doNext()">Next</button>
+      <button class="btn btn-secondary" onclick="doClear()">Clear Queue</button>
+      <button class="btn btn-secondary" onclick="doLogin()">QR Login</button>
+      <button class="btn btn-secondary" onclick="refreshStatus()">Refresh</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Play Mode</h2>
+    <div class="mode-selector">
+      <button class="mode-btn" data-mode="0" onclick="setMode(0)">Sequential</button>
+      <button class="mode-btn" data-mode="1" onclick="setMode(1)">Loop</button>
+      <button class="mode-btn" data-mode="2" onclick="setMode(2)">Random</button>
+      <button class="mode-btn" data-mode="3" onclick="setMode(3)">Random Loop</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Settings</h2>
+    <div class="config-row">
+      <label>API Address:</label>
+      <input type="text" id="apiAddr" placeholder="https://127.0.0.1:3000">
+      <button class="btn btn-small btn-secondary" onclick="setApi()">Save</button>
+    </div>
+    <div class="config-row">
+      <label>Unblocker:</label>
+      <input type="checkbox" id="unblockerEnabled" onchange="setUnblocker()">
+      <input type="text" id="unblockerAddr" placeholder="http://127.0.0.1:8080" style="flex:1;">
+      <button class="btn btn-small btn-secondary" onclick="setUnblocker()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+const API_BASE = window.location.origin + '/api';
+// For TS3AudioBot web API, commands are at: /api/bot/use/{botId}/{command}
+// We'll use bot 0 by default. User can modify.
+let botId = 0;
+
+function apiUrl(cmd) {
+  return `${API_BASE}/bot/use/${botId}/${cmd}`;
+}
+
+async function sendCmd(cmd) {
+  try {
+    const resp = await fetch(apiUrl(cmd));
+    const text = await resp.text();
+    try { return JSON.parse(text); } catch { return text; }
+  } catch (e) {
+    showToast('Connection error: ' + e.message, 'error');
+    return null;
+  }
+}
+
+function showMsg(text, ok) {
+  const el = document.getElementById('msg');
+  el.textContent = text;
+  el.style.background = ok ? 'rgba(39,174,96,0.2)' : 'rgba(231,76,60,0.2)';
+  el.classList.remove('hidden');
+  setTimeout(() => el.classList.add('hidden'), 5000);
+}
+
+function showToast(text, type) {
+  const el = document.getElementById('toast');
+  el.textContent = text;
+  el.className = `toast toast-${type || 'success'}`;
+  setTimeout(() => el.classList.add('hidden'), 3000);
+}
+
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const isId = /^\d+$/.test(q);
+  const cmd = isId ? `yun/playid/${q}` : `yun/play/${encodeURIComponent(q)}`;
+  const r = await sendCmd(cmd);
+  showMsg(typeof r === 'string' ? r : JSON.stringify(r), true);
+  refreshStatus();
+}
+
+async function doAdd() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const isId = /^\d+$/.test(q);
+  const cmd = isId ? `yun/addid/${q}` : `yun/add/${encodeURIComponent(q)}`;
+  const r = await sendCmd(cmd);
+  showMsg(typeof r === 'string' ? r : JSON.stringify(r), true);
+  refreshStatus();
+}
+
+async function doPlaylist() {
+  const q = document.getElementById('playlistInput').value.trim();
+  if (!q) return;
+  const isId = /^\d+$/.test(q);
+  const cmd = isId ? `yun/gedanid/${q}` : `yun/gedan/${encodeURIComponent(q)}`;
+  const r = await sendCmd(cmd);
+  showMsg(typeof r === 'string' ? r : JSON.stringify(r), true);
+  refreshStatus();
+}
+
+async function doNext() {
+  const r = await sendCmd('yun/next');
+  showMsg(typeof r === 'string' ? r : JSON.stringify(r), true);
+  refreshStatus();
+}
+
+async function doClear() {
+  const r = await sendCmd('yun/clear');
+  showMsg(typeof r === 'string' ? r : JSON.stringify(r), true);
+  refreshStatus();
+}
+
+async function doLogin() {
+  showMsg('Login QR code is being generated on the bot avatar...', true);
+  const r = await sendCmd('yun/login');
+  showMsg(typeof r === 'string' ? r : JSON.stringify(r), true);
+}
+
+async function setMode(m) {
+  await sendCmd(`yun/mode/${m}`);
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.mode) === m));
+  showToast('Play mode updated', 'success');
+}
+
+async function setApi() {
+  const addr = document.getElementById('apiAddr').value.trim();
+  if (!addr) return;
+  await sendCmd(`yun/api/${encodeURIComponent(addr)}`);
+  showToast('API address updated', 'success');
+}
+
+async function setUnblocker() {
+  const enabled = document.getElementById('unblockerEnabled').checked;
+  const addr = document.getElementById('unblockerAddr').value.trim();
+  const cmd = addr ? `yun/unblocker/${enabled ? 'on' : 'off'}/${encodeURIComponent(addr)}` : `yun/unblocker/${enabled ? 'on' : 'off'}`;
+  await sendCmd(cmd);
+  showToast('Unblocker settings updated', 'success');
+}
+
+async function refreshStatus() {
+  const r = await sendCmd('yun/status');
+  if (r && typeof r === 'object') {
+    document.getElementById('statusBadge').textContent = r.isPlaying ? 'Playing' : 'Stopped';
+    document.getElementById('statusBadge').className = `status ${r.isPlaying ? 'status-playing' : 'status-stopped'}`;
+    document.getElementById('queueCount').textContent = `Queue: ${r.queueCount || 0} | Mode: ${['Sequential','Loop','Random','Random Loop'][r.playMode] || '?'}`;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.mode) === r.playMode));
+    if (r.apiAddress) document.getElementById('apiAddr').value = r.apiAddress;
+    if (r.unblockerAddress) document.getElementById('unblockerAddr').value = r.unblockerAddress;
+    document.getElementById('unblockerEnabled').checked = r.unblockerEnabled || false;
+  }
+}
+
+refreshStatus();
+setInterval(refreshStatus, 10000);
+</script>
+</body>
+</html>

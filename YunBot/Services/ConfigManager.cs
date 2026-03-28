@@ -13,6 +13,12 @@ public class PluginConfig
 
     [JsonPropertyName("cookie")]
     public string Cookie { get; set; } = "";
+
+    [JsonPropertyName("unblockerEnabled")]
+    public bool UnblockerEnabled { get; set; }
+
+    [JsonPropertyName("unblockerAddress")]
+    public string UnblockerAddress { get; set; } = "http://127.0.0.1:8080";
 }
 
 public class ConfigManager
@@ -106,6 +112,14 @@ public class ConfigManager
     public void UpdateApiAddress(string address)
     {
         _config.ApiAddress = address;
+        Save();
+    }
+
+    public void UpdateUnblocker(bool enabled, string? address = null)
+    {
+        _config.UnblockerEnabled = enabled;
+        if (address != null)
+            _config.UnblockerAddress = address;
         Save();
     }
 }

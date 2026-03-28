@@ -10,8 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TS3AudioBot\TS3AudioBot.csproj" />
     <ProjectReference Include="..\TSLib\TSLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Web\index.html" />
   </ItemGroup>
 
 </Project>
