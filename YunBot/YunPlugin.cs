@@ -118,7 +118,7 @@ public class YunPlugin : IBotPlugin
         if (song == null) return "未找到歌曲";
 
         var url = await _api.GetMusicUrlAsync(song.Id);
-        if (string.IsNullOrEmpty(url)) return "无法获取歌曲链接，可能需要登录VIP账户或启用UnblockNeteaseMusic";
+        if (string.IsNullOrEmpty(url)) return "无法获取歌曲链接，可能需要登录VIP账户";
 
         var detail = await _api.GetSongDetailAsync(song.Id);
         if (detail?.Album?.PicUrl != null)

@@ -10,7 +10,7 @@
 - 播放歌单（按名称或ID）
 - 多种播放模式：顺序播放、顺序循环、随机播放、随机循环
 - 二维码登录网易云账户（支持 VIP 音乐播放）
-- **UnblockNeteaseMusic** 支持，解锁无版权音乐
+- **UnblockNeteaseMusic** 支持（可选），解锁无版权音乐
 - **Web 控制界面**，通过浏览器远程控制播放
 - **智能图片压缩**，防止头像上传失败
 - 自动跳过无法播放的歌曲
@@ -112,16 +112,17 @@ TS3AudioBot 自带 Web 服务器，本插件的所有指令均可通过 Web API 
 
 Web 页面通过 TS3AudioBot 的 API 接口（默认 `/api/bot/use/{botId}/yun/...`）与机器人交互。
 
-## UnblockNeteaseMusic
+## UnblockNeteaseMusic（可选）
 
-本插件集成了 [UnblockNeteaseMusic](https://github.com/UnblockNeteaseMusic/server) 支持，可以解锁无版权音乐。
+本插件可选集成 [UnblockNeteaseMusic](https://github.com/UnblockNeteaseMusic/server)，用于解锁因版权限制无法播放的歌曲。**此功能默认关闭**，不部署 UnblockNeteaseMusic 不影响插件正常使用。
 
 ### 使用方法
 
-1. 部署 UnblockNeteaseMusic 服务
+1. 自行部署 UnblockNeteaseMusic 服务（参考其项目文档）
 2. 通过指令启用：`!yun unblocker on http://127.0.0.1:8080`
+3. 关闭：`!yun unblocker off`
 
-当官方 API 无法获取歌曲链接时，插件会自动通过 UnblockNeteaseMusic 获取替代音源。
+启用后，当官方 API 无法获取歌曲链接时，插件会自动尝试通过 UnblockNeteaseMusic 获取替代音源。如果 UnblockNeteaseMusic 服务不可用，插件会正常跳过该歌曲继续播放。
 
 ## 自动构建
 
