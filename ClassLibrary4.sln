@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.33927.289
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary4", "ClassLibrary4.csproj", "{D3D9037A-AD7B-4C9E-9FC0-CA330D8776BD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLib", "G:\TS3DEV\TS3AudioBot-master\TSLib\TSLib.csproj", "{66AF7F2B-43B7-41E0-982A-FCD7DA062BAA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TSLib", "TSLib\TSLib.csproj", "{66AF7F2B-43B7-41E0-982A-FCD7DA062BAA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TS3AudioBot", "G:\TS3DEV\TS3AudioBot-master\TS3AudioBot\TS3AudioBot.csproj", "{FFC15959-0725-4B2B-BF06-BFE8403C60A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TS3AudioBot", "TS3AudioBot\TS3AudioBot.csproj", "{FFC15959-0725-4B2B-BF06-BFE8403C60A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
