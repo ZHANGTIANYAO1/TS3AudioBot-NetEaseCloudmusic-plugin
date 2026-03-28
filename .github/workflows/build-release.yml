@@ -1,0 +1,103 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [DEV, main, master]
+    tags: ['v*']
+  pull_request:
+    branches: [DEV, main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runtime: [win-x64, linux-x64, linux-arm64, osx-x64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ClassLibrary4.sln
+
+      - name: Build
+        run: dotnet build ClassLibrary4.sln -c Release --no-restore
+
+      - name: Publish YunBot plugin
+        run: |
+          dotnet publish YunBot/YunBot.csproj -c Release -r ${{ matrix.runtime }} --self-contained false -o publish/${{ matrix.runtime }}
+
+      - name: Package artifacts
+        run: |
+          cd publish/${{ matrix.runtime }}
+          zip -r ../../YunBot-${{ matrix.runtime }}.zip .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: YunBot-${{ matrix.runtime }}
+          path: YunBot-${{ matrix.runtime }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'rc') || contains(github.ref, 'alpha') }}
+          generate_release_notes: true
+          files: artifacts/**/*.zip
+
+  beta-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/DEV' && github.event_name == 'push'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Delete existing beta release
+        uses: cb80/delrel@latest
+        with:
+          tag: beta
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Create/Update beta release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: beta
+          name: "Beta Build (latest DEV)"
+          draft: false
+          prerelease: true
+          generate_release_notes: false
+          body: |
+            Automated beta build from the DEV branch.
+
+            **Commit:** ${{ github.sha }}
+            **Date:** ${{ github.event.head_commit.timestamp }}
+
+            > This is an automatically generated pre-release. Use at your own risk.
+          files: artifacts/**/*.zip

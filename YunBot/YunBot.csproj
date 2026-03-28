@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>YunBot</AssemblyName>
+    <RootNamespace>YunBot</RootNamespace>
+    <LangVersion>12</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TS3AudioBot\TS3AudioBot.csproj" />
+    <ProjectReference Include="..\TSLib\TSLib.csproj" />
+  </ItemGroup>
+
+</Project>

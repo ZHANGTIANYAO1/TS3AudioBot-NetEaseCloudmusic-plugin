@@ -1,13 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <RootNamespace>TS3AudioBot</RootNamespace>
     <AssemblyName>TS3AudioBot</AssemblyName>
     <OutputType>Exe</OutputType>
-    <LangVersion>8.0</LangVersion>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-    <RollForward>Major</RollForward>
+    <LangVersion>12</LangVersion>
+    <TargetFramework>net8.0</TargetFramework>
 
     <Nullable>enable</Nullable>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -40,9 +38,7 @@
     <PackageReference Include="NLog" Version="4.7.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="LiteDB" Version="4.1.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <!-- ASP.NET Core packages are included in the net8.0 web SDK -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0">
       <ExcludeAssets>analyzers</ExcludeAssets>
     </PackageReference>
