@@ -1,3 +1,11 @@
+# ⚠️ 本项目已停止更新和维护
+
+**请使用最新的项目：[teamspeak-music-bot](https://github.com/ZHANGTIANYAO1/teamspeak-music-bot)**
+
+本仓库将不再进行任何更新或维护，建议所有用户迁移到新项目。
+
+---
+
 # TS3AudioBot-NetEaseCloudmusic-plugin-DEV
 
 > 此插件基于 Splamy/TS3AudioBot 项目 https://github.com/Splamy/TS3AudioBot  
